@@ -339,6 +339,7 @@
     @section('scripts')
     @parent
 
+    
     <script>
     let offset = 0;
     const limit = 1;
