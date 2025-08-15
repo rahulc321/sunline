@@ -1,0 +1,26 @@
+<?php
+
+return [
+    'emails' => 'Emails',
+    'texts' => 'Texts',
+    'print_to_pdf' => 'Print to PDF',
+    'compose_email' => 'Compose Email',
+    'copy_auto_import_text' => 'Copy the Code to Auto-Import 3rd Party Emails (For this Client Only)',
+    'date' => 'Date',
+    'from' => 'From',
+    'to' => 'To',
+    'cc' => 'CC',
+    'subject' => 'Subject',
+    'status' => 'Status',
+    'campaign_type' => 'Campaign/Type',
+    'filters' => 'Filters',
+    'direct_messages' => 'Direct Messages',
+    'unread_messages_only' => 'Unread Messages Only',
+    'automated_messages' => 'Automated Messages',
+    'read_messages_only' => 'Read Messages Only',
+    'client' => 'Client',
+    'print_list_of_emails_to_pdf' => 'Print List of Emails to PDF',
+    'cancel_printing' => 'Cancel Printing',
+    'print_every_emails' => 'Print Every Emails',
+    'print_every_email_confirm_text' => 'Are you sure that you want to print every email and not print a particular one?',
+];

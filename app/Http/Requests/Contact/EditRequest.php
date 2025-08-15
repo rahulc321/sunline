@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Http\Requests\Contact;
+
+use Gate;
+use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use App\Models\Contact;
+use Illuminate\Support\Facades\Lang;
+
+class EditRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+		$access_name = 'contact_edit';
+        abort_if(Gate::denies($access_name), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        return true;
+    }
+
+
+    public function rules()
+    {
+        return [
+		];
+    }
+}
