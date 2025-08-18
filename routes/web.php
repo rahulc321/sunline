@@ -27,10 +27,14 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 	Route::get('lead-inbox', [App\Http\Controllers\Admin\LeadInboxController::class, 'index'])->name('lead-inbox.index');
 	Route::get('lead-inbox/data', [App\Http\Controllers\Admin\LeadInboxController::class, 'getLeadInboxList'])->name('lead-inbox.getLeadInboxList');	
 	Route::any('leadStore', [App\Http\Controllers\Admin\LeadInboxController::class, 'leadStore'])->name('leadStore');
-	Route::any('listLeads', [App\Http\Controllers\Admin\LeadInboxController::class, 'listLeads'])->name('listLeads');		
+	Route::any('listLeads', [App\Http\Controllers\Admin\LeadInboxController::class, 'listLeads'])->name('listLeads');	
+    Route::any('leadFollowUps', [App\Http\Controllers\Admin\LeadInboxController::class, 'leadFollowUps'])->name('leadFollowUps');	
 	
 	# lead source
 	Route::resource('leadSource', App\Http\Controllers\Admin\LeadSourceController::class);
+    Route::resource('fri', App\Http\Controllers\Admin\FriController::class);
+    Route::any('listFri', [App\Http\Controllers\Admin\FriController::class, 'listFri'])->name('listFri');
+    Route::any('viewFri/{id}', [App\Http\Controllers\Admin\FriController::class, 'viewFri'])->name('viewFri');
 
 
 	

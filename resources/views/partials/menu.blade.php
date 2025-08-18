@@ -236,8 +236,8 @@ div#jsGrid1_filter {
 
 
             <li class="nav-item">
-                <a href="#"
-                    class="nav-link {{ request()->is('admin/advanced-search') ? 'active' : '' }}">
+                <a href="{{route('admin.fri.index')}}"
+                    class="nav-link {{ request()->is('admin/fri') ? 'active' : '' }}">
                     <i class="fa fa-search ph-magnifying-glass"></i><span>FRI</span>
                 </a>
             </li>

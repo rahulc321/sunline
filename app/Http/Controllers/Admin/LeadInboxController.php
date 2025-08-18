@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\DataTables;
 use App\Models\LeadStatus;
 use App\Models\CaseType;
+use App\Models\LeadFollowUp;
 use App\User;
 use App\Models\LeadSource;
 use Carbon\Carbon;
@@ -30,6 +31,13 @@ class LeadInboxController extends Controller
 
 		//dd($this->data['users']);
 
+		$followups = LeadFollowUp::with('lead')
+        ->orderBy('date', 'desc')
+        ->get();
+
+		$this->data['upcoming'] = $followups->where('date', '>=', now());
+		$this->data['past'] = $followups->where('date', '<', now());
+
 		$this->data['leadSource'] = LeadSource::where('status',1)->get();
 		
 		return view('admin.leads.index',$this->data);
@@ -41,8 +49,9 @@ class LeadInboxController extends Controller
 		$offset = $request->offset ?? 0;
 
 		# fetch current batch
-		$leads = Lead::orderBy('id', 'desc')
-			->skip($offset)
+		$leads = Lead::with('getAssignUserName','leadSource','leadFollowUp')->orderBy('id', 'desc')
+		->withCount('leadFollowUp')	
+		->skip($offset)
 			->take($limit)
 			->get();
 
@@ -50,9 +59,12 @@ class LeadInboxController extends Controller
 		$totalRecords = Lead::count();
 		$hasMore = ($offset + $limit) < $totalRecords;
 
+		$totalFollowups = \DB::table('lead_follow_ups')->count();
+
 		return response()->json([
 			'data' => $leads,
-			'hasMore' => $hasMore
+			'hasMore' => $hasMore,
+			'followupCount' => $totalFollowups
 		]);
 	}
 
@@ -77,6 +89,30 @@ class LeadInboxController extends Controller
 
 			return redirect()->back()->with('success', 'Lead created successfully!');
 	}
+
+
+	public function leadFollowUps(Request $request)
+	{
+		$request->validate([
+			'type' => 'required|string',
+			'date' => 'required|date',
+			'time' => 'required',
+			'notes' => 'nullable|string',
+		]);
+
+		# merge date + time into one datetime string
+		$dateTime = $request->date . ' ' . $request->time;
+		 
+		LeadFollowUp::create([
+			'lead_id' => $request->lead_id,
+			'type' => $request->type,
+			'date' => $dateTime,   // store in one column
+			'notes' => $request->notes,
+		]);
+
+		return redirect()->back()->with('success', 'Follow-up saved successfully!');
+	}
+
 	
 
 
