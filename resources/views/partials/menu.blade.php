@@ -245,8 +245,8 @@ div#jsGrid1_filter {
 
 
             <li class="nav-item">
-                <a href="#"
-                    class="nav-link {{ request()->is('admin/email-marketing') ? 'active' : '' }}">
+                <a href="{{route('admin.emailTemplate.index')}}"
+                    class="nav-link {{ request()->is('admin/emailTemplate') ? 'active' : '' }}">
                     <i class="fa fa-search ph-magnifying-glass"></i><span>Automation</span>
                 </a>
             </li>

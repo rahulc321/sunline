@@ -8,6 +8,7 @@ use App\Models\Fri;
 use DB;
 use App\User;
 use App\Models\Lead;
+use Auth;
 
 class FriController extends Controller
 {
@@ -66,6 +67,7 @@ class FriController extends Controller
         $fri->assigned_to = $validated['assigned_to'];
         $fri->subject     = $validated['subject'];
         $fri->status     = $request->status;
+        $fri->created_by = Auth::Id();
         $fri->description = $validated['description'];
         $fri->save();
 
@@ -99,7 +101,7 @@ class FriController extends Controller
 		$offset = $request->offset ?? 0;
 
 		# fetch current batch
-		$leads = Fri::orderBy('id', 'desc')
+		$leads = Fri::with('createdByName')->orderBy('id', 'desc')
 		->skip($offset)
 			->take($limit)
 			->get();
@@ -148,4 +150,81 @@ class FriController extends Controller
     {
         //
     }
+
+    public function updateFriStaus(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer|exists:fris,id',
+            'status' => 'required|string|max:50',
+        ]);
+
+        $fri = Fri::find($request->id);
+        $fri->status = $request->status;
+        $fri->save();
+
+        session()->flash('success', 'You have successfully update status!');
+        return response()->json([
+            'data'=>$fri,
+            'success' => true,
+            'message' => 'RFI status updated successfully.',
+            'status' => $fri->status,
+        ]);
+    }
+
+    # update fri
+    public function friUpdate(Request $request)
+    {
+        # validate inputs
+        $validated = $request->validate([
+            'project'      => 'required|string|max:255',
+            'client'       => 'required|string|max:255',
+            'category'     => 'required|string|max:255',
+            'priority'     => 'required|string|max:255',
+            'due_date'     => 'required|date',
+            'assigned_to'  => 'required|integer|exists:users,id',
+            'subject'      => 'required|string|max:255',
+            'description'  => 'required|string',
+            'attachments.*'=> 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,xlsx|max:5120'
+        ]);
+
+        # create Fri record
+        $fri = Fri::find($request->id);
+        $fri->project     = $validated['project'];
+        $fri->client      = $validated['client'];
+        $fri->category    = $validated['category'];
+        $fri->priority    = $validated['priority'];
+        $fri->due_date    = $validated['due_date'];
+        $fri->assigned_to = $validated['assigned_to'];
+        $fri->subject     = $validated['subject'];
+        $fri->status     = $request->status;
+        $fri->created_by = Auth::Id();
+        $fri->description = $validated['description'];
+        $fri->save();
+
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                # make sure folder exists
+                $destinationPath = public_path('uploads/fri');
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0777, true);
+                }
+        
+                # generate unique name
+                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        
+                # move file to public/uploads/fri
+                $file->move($destinationPath, $filename);
+        
+                # save relative path in DB
+                $fri->images()->create([
+                    'image_path' => 'uploads/fri/' . $filename
+                ]);
+            }
+        }
+        
+        return redirect()->back()->with('success', 'RFI updated successfully.');
+    }
+
+   
+
 }

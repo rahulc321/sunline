@@ -266,6 +266,7 @@ strong {
     'upcoming' => $upcoming,
     'past' => $past
     ])
+    @include('admin.leads._email_modal',['emailTemplates'=>$emailTemplates])
 
     <!-- Follow-up Modal -->
     <!-- Follow-up Modal -->
@@ -301,6 +302,7 @@ strong {
             }
 
             // Fill modal fields with fallbacks
+            $('.lead_id').val(lead?.id ?? '');
             $('.follow_up').attr('data-id', lead?.id ?? '');
             $('.follow_up').attr('data-name', [lead.first_name, lead.last_name].filter(Boolean).join(" ") ||
                 'N/A');
@@ -310,6 +312,7 @@ strong {
             $('.lead_email').text(lead.email ?? 'N/A');
             $('.lead_phone').text(lead.phone ?? 'N/A');
             $('.lead_address').text(lead.address ?? 'N/A');
+            $('.lead_status').val(lead.status ?? 'N/A');
 
             // Handle nested objects safely
             $('.lead_source').text(lead.lead_source?.source ?? 'N/A');
@@ -334,6 +337,20 @@ strong {
     let hasMore = true;
 
     function leadCard(lead) {
+        const statusColors = {
+            "New": "primary",
+            "Send Intro Email": "info",
+            "1st Attempt": "warning",
+            "2nd Attempt": "warning",
+            "3rd Attempt": "warning",
+            "Under Construction": "secondary",
+            "Qualified": "success",
+            "Lost": "danger"
+        };
+
+        let color = statusColors[lead.status] || "secondary"; // fallback
+
+
         return `
     <div class="card shadow-sm rounded-3 p-4 mb-3 form_1" id="lead-${lead.id}">
         <div class="d-flex justify-content-between align-items-start">
@@ -356,14 +373,16 @@ strong {
             </div>
             <div class="d-flex flex-column align-items-end">
                 <div class="d-flex align-items-center mb-2">
-                    <span class="badge bg-primary rounded-pill px-3 py-1 me-2">New</span>
+                    <span class="badge text-${color} border border-${color} rounded-pill px-1 py-1 me-2">
+                        ${lead.status ?? ''}
+                    </span>
                     <div class="text-end">
                         <small class="text-muted">Assigned to:</small><br>
                         <strong class="text-dark">${lead.get_assign_user_name.name ?? ''}</strong>
                     </div>
                 </div>
                 <div>
-                    <button class="btn btn-sm btn-warning me-1 custom-btn">
+                    <button class="btn btn-sm btn-warning me-1 custom-btn send_email" data-lead='${JSON.stringify(lead)}' data-bs-toggle="modal" data-bs-target="#emailModel">
                         <i class="ph-envelope-simple"></i>&nbsp; Email
                     </button>
                     <button class="btn btn-sm btn-primary bg_s px-4 py-2 view-lead" data-lead='${JSON.stringify(lead)}' data-bs-toggle="modal" data-bs-target="#leadDetailsModal">View</button>
@@ -429,6 +448,16 @@ strong {
     $(function() {
         $('#load-more').on('click', loadLeads);
         loadLeads();
+    });
+
+    $(document).on('click', '.send_email', function() {
+        // get lead data from button
+        let lead = $(this).data('lead');
+
+        // put data inside modal fields
+        $('.lead_id').val(lead.id); // lead id input
+        $('.lead_name').text(lead.first_name+' '+lead.last_name); // lead name span
+        $('.lead_email').val(lead.email); // lead email input
     });
     </script>
 

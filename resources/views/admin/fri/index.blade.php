@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', "Leads")
+@section('title', "FRI")
 
 @section('content')
 <style>
@@ -124,40 +124,123 @@ strong {
 
     <!-- Modals -->
     @include('admin.fri._add_modal', ['users' => $users, 'status' => $status, 'categories' => $categories])
-    @include('admin.fri._view_lead_modal')
-    @include('admin.fri._followup_lead_modal')
+    @include('admin.fri._edit_modal', ['users' => $users, 'status' => $status, 'categories' => $categories])
+    @include('admin.fri._view_modal',['status' => $status])
+
     @endsection
 
     @section('scripts')
     @parent
     <script>
-    $(document).on('click', '.follow_up', function() {
-        let leadId = $(this).data('id');
-        let leadName = $(this).data('name');
-        $('.lead_id').val(leadId);
-        $('.leadName').text(leadName);
-    });
+    const statusColors = {
+        "Open": "bg-info",
+        "In Progress": "bg-warning text-dark",
+        "Under Review": "bg-info text-dark",
+        "Closed": "bg-success",
+        "Cancelled": "bg-danger"
+    };
 
-    $(document).on('click', '.view-lead', function() {
-        try {
-            let lead = $(this).data('lead');
-            if (!lead) return;
+    const priorityColors = {
+        "Low": "bg-secondary",
+        "Medium": "bg-primary",
+        "High": "bg-danger",
+        "Critical": "bg-dark"
+    };
 
-            $('.follow_up').attr('data-id', lead?.id ?? '');
-            $('.follow_up').attr('data-name', [lead.first_name, lead.last_name].filter(Boolean).join(" ") ||
-                'N/A');
-            $('.name').text([lead.first_name, lead.last_name].filter(Boolean).join(" ") || 'N/A');
-            $('.lead_email').text(lead.email ?? 'N/A');
-            $('.lead_phone').text(lead.phone ?? 'N/A');
-            $('.lead_address').text(lead.address ?? 'N/A');
-            $('.lead_source').text(lead.lead_source?.source ?? 'N/A');
-            $('.lead_roof_type').text(lead.roof_type ?? 'N/A');
-            $('.lead_rebate').text(lead.elogible_for_rebate ?? 'N/A');
-            $('.lead_assign_rep').text(lead.get_assign_user_name?.name ?? 'Unassigned');
-        } catch (error) {
-            console.error("Error filling modal data:", error);
-            alert("Something went wrong while loading lead details.");
+    function viewFri(fri) {
+        if (typeof fri === "string") fri = JSON.parse(fri);
+
+        // main fields
+        $(".fri_id").text(fri.id.toString().padStart(4, '0'));
+        $('.fri_id1').val(fri.id);
+        $("#fri_code").text(fri.code || '');
+        $("#fri_title").text(fri.title || '');
+        $("#project").text(fri.project || '');
+        $("#client").text(fri.client || '');
+        $(".created_by").text(fri.created_by_name.name || '');
+        $(".due_date").text(fri.due_date || '');
+        $(".description").text(fri.description || '');
+        $('.fri_status').val(fri.status);
+        $('.fri_status').attr('data-id', fri.id);
+
+        $('.fri_data').val(JSON.stringify(fri));
+
+
+        // badges
+        $("#fri_badges").html(generateFriBadges(fri));
+
+        // attachments
+        let attachHtml = '';
+        if (fri.attachments && fri.attachments.length) {
+            fri.attachments.forEach(file => {
+                attachHtml += `<li><a href="${file.url}" target="_blank">${file.name}</a></li>`;
+            });
         }
+        $("#fri_attachments").html(attachHtml);
+
+        // responses
+        let responseHtml = '';
+        if (fri.responses && fri.responses.length) {
+            fri.responses.forEach(r => {
+                responseHtml += `
+            <div class="border rounded p-2 mb-2">
+                <p class="mb-1"><strong>${r.author}</strong> <small class="text-muted">${r.date}</small></p>
+                <p class="text-muted small mb-1">${r.message}</p>
+                ${r.file ? `<a href="${r.file.url}" target="_blank">${r.file.name}</a>` : ''}
+            </div>`;
+            });
+        }
+        $("#fri_responses").html(responseHtml);
+    }
+
+    function generateFriBadges(fri) {
+        const statusColors = {
+            "Open": "bg-info",
+            "In Progress": "bg-warning text-dark",
+            "Under Review": "bg-info text-dark",
+            "Closed": "bg-success",
+            "Cancelled": "bg-danger"
+        };
+
+        const priorityColors = {
+            "Low": "bg-secondary",
+            "Medium": "bg-primary",
+            "High": "bg-danger",
+            "Critical": "bg-dark"
+        };
+
+        let badgesHtml = '';
+
+        if (fri.status) {
+            const statusClass = statusColors[fri.status] || "bg-secondary";
+            badgesHtml += `<span class="badge ${statusClass}">${fri.status}</span>`;
+        }
+
+        if (fri.priority) {
+            const priorityClass = priorityColors[fri.priority] || "bg-secondary";
+            badgesHtml += `<span class="badge ${priorityClass}">${fri.priority}</span>`;
+        }
+
+        if (fri.category) {
+            badgesHtml += `<span class="badge bg-secondary">${fri.category}</span>`;
+        }
+
+        const today = new Date();
+        const dueDate = fri.due_date ? new Date(fri.due_date) : null;
+        if (dueDate && dueDate < today) {
+            badgesHtml += `<span class="badge bg-danger">
+                           <i class="bi bi-exclamation-circle me-1"></i> Overdue
+                       </span>`;
+        }
+
+        return badgesHtml;
+    }
+
+
+
+    $(document).on("click", ".view-fri", function() {
+        let fri = $(this).data("fri");
+        viewFri(fri); // call your function
     });
 
     let offset = 0;
@@ -219,9 +302,9 @@ strong {
                 </div>
 
                 <!-- View Button -->
-                <a href="{{url('admin/viewFri')}}/${fri.id}" class="btn btn-outline-primary btn-sm view-fri"
+                <a href="javascript:;" class="btn btn-outline-primary btn-sm view-fri"
                     data-fri='${JSON.stringify(fri)}'
-                    >
+                    data-bs-toggle="modal" data-bs-target="#rfiDetails">
                     View Details
                 </a>
             </div>
@@ -295,6 +378,80 @@ strong {
     $(function() {
         $('#load-more').on('click', loadFri);
         loadFri();
+    });
+
+
+    $(document).on("change", ".fri_status", function() {
+        const newStatus = $(this).val();
+        const friId = $(this).attr('data-id'); // get RFI id
+
+        if (confirm("Are you sure you want to change the status?")) {
+            // update badge dynamically
+            let fri = $(".modal-content").data('fri');
+            if (fri && fri.id.toString() === friId.toString()) {
+                fri.status = newStatus;
+                $("#fri_badges").html(generateFriBadges(fri));
+            }
+
+            // optional: send AJAX to update status in backend
+            $.ajax({
+                url: "{{route('admin.updateFriStaus')}}", // your backend endpoint
+                method: "POST",
+                data: {
+                    id: friId,
+                    status: newStatus
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(res) {
+
+
+                    location.reload();
+                },
+                error: function(err) {
+                    console.error("Failed to update status");
+                }
+            });
+        } else {
+            // reset select to previous status if cancelled
+            let fri = $(".modal-content").data('fri');
+            if (fri && fri.id.toString() === friId.toString()) {
+                $(this).val(fri.status);
+            }
+        }
+    });
+
+
+    // when clicking Edit Fri
+    $(document).on('click', '.editFri', function() {
+        let fri = $('.fri_data').val();
+
+        if (typeof fri === 'string') {
+            fri = JSON.parse(fri); // if stored as JSON string
+        }
+
+        let modal = $('#editFriDetails');
+
+        // reset form every time
+        modal.find('form')[0].reset();
+        modal.find('select').val('').trigger('change');
+
+        // fill values
+        modal.find('input[name="id"]').val(fri.id);
+        modal.find('input[name="subject"]').val(fri.subject);
+        modal.find('textarea[name="description"]').val(fri.description);
+        modal.find('select[name="project"]').val(fri.project).trigger('change');
+        modal.find('select[name="client"]').val(fri.client).trigger('change');
+        modal.find('select[name="status"]').val(fri.status).trigger('change');
+        modal.find('select[name="priority"]').val(fri.priority).trigger('change');
+        modal.find('select[name="category"]').val(fri.category).trigger('change');
+        modal.find('select[name="assigned_to"]').val(fri.assigned_to).trigger('change');
+
+        modal.find('input[name="due_date"]').val(fri.due_date);
+
+        // finally show modal
+        modal.modal('show');
     });
     </script>
 
