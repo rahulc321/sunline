@@ -68,7 +68,7 @@ class EmailTemplateController extends Controller
         $leadData = Lead::find($request->lead_id);
        // dd($request->all());
         sendGlobalEmail(
-            'rahul@yopmail.com',
+            $request->email,
             $request->subject,
             $request->body,
             $request->template_id,            # template_id

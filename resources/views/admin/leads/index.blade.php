@@ -318,6 +318,7 @@ strong {
             $('.lead_source').text(lead.lead_source?.source ?? 'N/A');
             $('.lead_roof_type').text(lead.roof_type ?? 'N/A');
             $('.lead_rebate').text(lead.elogible_for_rebate ?? 'N/A');
+            $('.send_email_view').val(JSON.stringify(lead));
 
             // Assign user name safely
             $('.lead_assign_rep').text(lead.get_assign_user_name?.name ?? 'Unassigned');
@@ -451,14 +452,25 @@ strong {
     });
 
     $(document).on('click', '.send_email', function() {
-        // get lead data from button
+        // parse string value into object
         let lead = $(this).data('lead');
 
-        // put data inside modal fields
-        $('.lead_id').val(lead.id); // lead id input
-        $('.lead_name').text(lead.first_name+' '+lead.last_name); // lead name span
-        $('.lead_email').val(lead.email); // lead email input
+        $('.lead_id').val(lead.id);
+        $('.lead_name').text(lead.first_name + ' ' + lead.last_name);
+        $('.lead_email').val(lead.email);
     });
+
+
+    $(document).on('click', '.send_email_inner', function() {
+        // parse string value into object
+        let lead = JSON.parse($('.send_email_view').val());
+
+        $('.lead_id').val(lead.id);
+        $('.lead_name').text(lead.first_name + ' ' + lead.last_name);
+        $('.lead_email').val(lead.email);
+    });
+
+    
     </script>
 
     <script src="{{asset('js/lead/edit-lead.js')}}"></script>

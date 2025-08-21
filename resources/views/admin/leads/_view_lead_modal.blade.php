@@ -8,6 +8,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <input type="hidden" name="lead_id" class="lead_id">
+            <input type="hidden" name="send_email_view" class="send_email_view">
             <!-- Body -->
             <div class="modal-body">
                 <!-- Contact Info -->
@@ -175,7 +176,7 @@
 
             <!-- Footer -->
             <div class="modal-footer">
-                <button class="btn btn-outline-primary"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                <button class="btn btn-outline-primary send_email_inner" data-bs-toggle="modal" data-bs-target="#emailModel"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" class="lucide lucide-mail h-4 w-4 mr-2"
                         data-lov-id="src/components/leads/LeadDetailModal.tsx:226:14" data-lov-name="Mail"
