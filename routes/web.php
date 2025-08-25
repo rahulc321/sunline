@@ -42,7 +42,13 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
     # email templete
 	Route::resource('emailTemplate', App\Http\Controllers\Admin\EmailTemplateController::class);
-
     Route::any('emailTemplateUpdate', [App\Http\Controllers\Admin\EmailTemplateController::class, 'emailTemplateUpdate'])->name('emailTemplateUpdate');
     Route::any('sendEmail', [App\Http\Controllers\Admin\EmailTemplateController::class, 'sendEmail'])->name('sendEmail');
+
+    # for task related routes
+    Route::any('taskList', [App\Http\Controllers\Admin\TasksController::class, 'taskList'])->name('taskList');
+    Route::any('getTask', [App\Http\Controllers\Admin\TasksController::class, 'getTask'])->name('getTask');
+
+
+
 });

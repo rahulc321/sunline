@@ -211,7 +211,7 @@ div#jsGrid1_filter {
             <li class="nav-item">
                 <a href="{{ route('admin.lead-inbox.index') }}"
                     class="nav-link {{ (request()->is('admin/lead-inbox') && request()->query('mode') =='') || request()->is('admin/lead-inbox/*') ? 'active' : '' }}">
-                    <i class="ph-archive"></i><span>Leads</span>
+                    <i class="ph-users"></i><span>Leads</span>
                 </a>
             </li>
 			@endcan
@@ -220,7 +220,7 @@ div#jsGrid1_filter {
             <li class="nav-item">
                 <a href="{{ route('admin.lead-inbox.index') }}?mode=agenda"
                     class="nav-link {{ request()->is('admin/lead-inbox') && request()->query('mode') == 'agenda' ? 'active' : '' }}">
-                    <i class="ph-archive"></i><span>Contacts</span>
+                    <i class="ph-user"></i><span>Contacts</span>
                 </a>
             </li>
 
@@ -229,7 +229,7 @@ div#jsGrid1_filter {
             <li class="nav-item">
                 <a href="#"
                     class="nav-link {{ request()->is('admin/intakes/create') ? 'active' : '' }}">
-                    <i class="ph-identification-card "></i><span>Sales</span>
+                    <i class="ph-currency-dollar"></i><span>Sales</span>
                 </a>
             </li>
 
@@ -238,7 +238,7 @@ div#jsGrid1_filter {
             <li class="nav-item">
                 <a href="{{route('admin.fri.index')}}"
                     class="nav-link {{ request()->is('admin/fri') ? 'active' : '' }}">
-                    <i class="fa fa-search ph-magnifying-glass"></i><span>FRI</span>
+                    <i class="ph-file-text"></i><span>FRI</span>
                 </a>
             </li>
 
@@ -247,29 +247,29 @@ div#jsGrid1_filter {
             <li class="nav-item">
                 <a href="{{route('admin.emailTemplate.index')}}"
                     class="nav-link {{ request()->is('admin/emailTemplate') ? 'active' : '' }}">
-                    <i class="fa fa-search ph-magnifying-glass"></i><span>Automation</span>
+                    <i class="ph-lightning"></i><span>Automation</span>
                 </a>
             </li>
 
 
             <li class="nav-item">
-                <a href="#"
-                    class="nav-link {{ request()->is('admin/lead-inbox') && request()->query('mode') == 'new-inquiries' ? 'active' : '' }}">
-                    <i class="ph-archive"></i><span>Tasks</span>
+                <a href="{{route('admin.taskList')}}"
+                    class="nav-link {{ request()->is('admin/taskList') && request()->query('mode') == 'new-inquiries' ? 'active' : '' }}">
+                    <i class="ph-list-checks"></i><span>Tasks</span>
                 </a>
             </li>
 
             <li class="nav-item">
                 <a href="#"
                     class="nav-link {{ request()->is('admin/text-messages') || request()->is('admin/text-messages/*') ? 'active' : '' }}">
-                    <i class="fa fa-comment ph-chats"></i><span>Tickets</span>
+                    <i class="ph-ticket"></i><span>Tickets</span>
                 </a>
             </li>
 			@can('leadSource_access')
 			<li class="nav-item">
                 <a href="{{route('admin.leadSource.index')}}"
                     class="nav-link {{ request()->is('admin/leadSource') || request()->is('admin/leadSource/*') ? 'active' : '' }}">
-                    <i class="ph-archive"></i><span>Lead Source</span>
+                    <i class="ph-globe"></i><span>Lead Source</span>
                 </a>
             </li>
 			@endif

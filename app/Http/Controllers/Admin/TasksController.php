@@ -10,11 +10,17 @@ use App\Models\LeadTasks;
 use App\Models\TaskType;
 use App\Models\TasksCategory;
 use App\Models\Activity;
+use App\Models\Task;
 use Yajra\DataTables\DataTables;
 use Carbon\Carbon;
 use Auth;
 use Gate;
 use DB;
+use App\User;
+use App\Models\LeadFollowUp;
+use App\Models\LeadSource;
+use App\Models\EmailTemplate;
+use App\Models\Lead;
 
 class TasksController extends Controller
 {		
@@ -23,100 +29,49 @@ class TasksController extends Controller
 	* Display a Tasks etc.
 	*
 	*/	 
-	public function index(Request $request)
+	public function taskList(Request $request)
     {	
-		abort_if(Gate::denies('intake_tasks_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-		
-		// Other dropdown lists
-		$staticDropdowns = [
-			'tasks_type_list'           => TaskType::pluck('title', 'id'),
-			'tasks_category_list'       => TasksCategory::pluck('title', 'id'),
-			'created_by_list' => [
-									auth()->user()->id =>auth()->user()->name
-								 ],
-		];
+		$this->data['users'] = User::whereHas('roles', function ($query) {
+			$query->where('title', 'User');
+		})->get();
 
-		$exportDataRoute = route('admin.task.exportIntakes');
 		
-		return view('admin.task.index', array_merge(
-			[
-				'exportDataRoute' => $exportDataRoute ?? '',
-			],
-			$staticDropdowns
-		));
+
+		$followups = LeadFollowUp::with('lead')
+        ->orderBy('date', 'desc')
+        ->get();
+
+		$this->data['upcoming'] = $followups->where('is_completed', 0);
+		$this->data['past'] = $followups->where('is_completed', 1);
+
+		$this->data['leadSource'] = LeadSource::where('status',1)->get();
+		$this->data['emailTemplates'] = EmailTemplate::get();
+		$this->data['leads'] = Lead::get();
+
+		 
+		return view('admin.tasks.index',$this->data); 
     }
-	
-	/*
-	*
-	* Function to export All Intake table records according to date range.
-	*
-	*/
-	public function exportIntakes(Request $request)
-    {
-		abort_if(Gate::denies('intake_tasks_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-		
-		$from = $request->from_date;
-		$to = $request->to_date;
-		
-		$request->validate([
-			'from_date' => 'required|date',
-			'to_date' => 'required|date|after_or_equal:from_date',
+
+
+	public function getTask(Request $request)
+	{
+		$limit = $request->limit ?? 1; // limit per request
+		$offset = $request->offset ?? 0;
+
+		# fetch current batch
+		$leads = Task::orderBy('id', 'desc')
+			->take($limit)
+			->get();
+
+		# check if more data exists for next load
+		$totalRecords = Task::count();
+		$hasMore = ($offset + $limit) < $totalRecords;
+
+		return response()->json([
+			'data' => $leads,
+			'hasMore' => $hasMore
 		]);
-		
-		$model = new LeadTasks;
-		$columns = Schema::getColumnListing($model->getTable());
-		
-		$extra_fields = ['id','deleted_at','created_at','updated_at'];
-		if(isset($extra_fields) && !empty($extra_fields))
-		{
-			foreach($extra_fields as $field)
-			{
-				$index = array_search($field,$columns);
-				if($index !==false)
-				{
-					/* find the index value and remove from the array */
-					unset($columns[$index]);
-					$columns = array_values($columns); //Re-index the array
-				}
-			}
-		}
-		
-		$from = (new \DateTime($from))->format("Y-m-d");
-		$to = (new \DateTime($to))->format("Y-m-d");
-		
-		$selected_array = $columns;
-		$selected_array = array_merge($selected_array, ['created_at','updated_at']);
-		$additional_key=array();
-		
-		$finalcsvcolumn=array_merge($selected_array,$additional_key);
-		
-		$finalCsvDataArray=[];
-		
-		$query = LeadTasks::select($columns)->whereBetween(DB::raw('DATE(created_at)'), [$from, $to])->get()->map(function ($record) {
-			$record->formated_created_at = Carbon::parse($record->created_at)->format('Y-m-d H:i:s');
-			$record->formated_updated_at = Carbon::parse($record->updated_at)->format('Y-m-d H:i:s');
-			return $record;
-		});
-		
-		if($query)
-		{
-			$finalCsvDataArray=$query->toArray();
-		}
-		
-		$Filename ='tasks_list_'.date('Y-m-d').'_'.rand(10,100).'.csv';
-		header('Content-Type: text/csv; charset=utf-8');
-		Header('Content-Type: application/force-download');
-		header('Content-Disposition: attachment; filename='.$Filename.'');
-		// create a file pointer connected to the output stream
-		$output = fopen('php://output', 'w');
-		fputcsv($output, $finalcsvcolumn);
-		if(isset($finalCsvDataArray) && !empty($finalCsvDataArray))
-		{
-			foreach ($finalCsvDataArray as $row){
-				fputcsv($output, $row);
-			}
-		}
-		fclose($output);
-		exit();
-    }
+	}
+	
+	 
 }

@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Gate;
 use App\Models\Lead;
 use App\Models\EmailTemplate;
+use DB;
 
 class LeadInboxController extends Controller
 {
@@ -41,6 +42,7 @@ class LeadInboxController extends Controller
 
 		$this->data['leadSource'] = LeadSource::where('status',1)->get();
 		$this->data['emailTemplates'] = EmailTemplate::get();
+		$this->data['leads'] = Lead::get();
 
 		 
 		return view('admin.leads.index',$this->data);

@@ -33,6 +33,17 @@ if (! function_exists('sendGlobalEmail')) {
                         ->subject($subject);
             });
 
+			 # save to db
+			 Email::create([
+                'template_id'     => $templateId,
+                'category'        => $category,
+                'subject'         => $subject,
+                'body'            => $body,
+				'type'            => $type,
+                'recipient_email' => $to,
+                'lead_id'         => $leadId,
+            ]);
+
             return true;
         // } catch (\Exception $e) {
         //     \Log::error('Email send failed: '.$e->getMessage());
