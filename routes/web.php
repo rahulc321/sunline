@@ -48,6 +48,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     # for task related routes
     Route::any('taskList', [App\Http\Controllers\Admin\TasksController::class, 'taskList'])->name('taskList');
     Route::any('getTask', [App\Http\Controllers\Admin\TasksController::class, 'getTask'])->name('getTask');
+    Route::any('taskStore', [App\Http\Controllers\Admin\TasksController::class, 'taskStore'])->name('taskStore');
+    Route::any('taskUpdate', [App\Http\Controllers\Admin\TasksController::class, 'taskUpdate'])->name('taskUpdate');
 
 
 

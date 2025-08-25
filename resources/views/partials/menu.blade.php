@@ -254,7 +254,7 @@ div#jsGrid1_filter {
 
             <li class="nav-item">
                 <a href="{{route('admin.taskList')}}"
-                    class="nav-link {{ request()->is('admin/taskList') && request()->query('mode') == 'new-inquiries' ? 'active' : '' }}">
+                    class="nav-link {{ request()->is('admin/taskList') ? 'active' : '' }}">
                     <i class="ph-list-checks"></i><span>Tasks</span>
                 </a>
             </li>

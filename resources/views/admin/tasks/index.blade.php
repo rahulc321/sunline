@@ -44,9 +44,9 @@ strong {
             </div>
 
             <div class="col-md-3 ms-auto">
-                <a class="btn btn-primary bg_s mt-5" data-bs-toggle="modal" data-bs-target="#addLeadModal"
+                <a class="btn btn-primary bg_s mt-5" data-bs-toggle="modal" data-bs-target="#addTaskModal"
                     style="float:right">
-                    <i class="ph-plus"></i>&nbsp;&nbsp;Add Lead
+                    <i class="ph-plus"></i>&nbsp;&nbsp;Add Task
                 </a>
             </div>
         </div>
@@ -54,138 +54,85 @@ strong {
 
     <!-- Main content -->
     <section class="content">
-        <div class="card p-2 form_1">
-            <form class="d-flex align-items-center justify-content-between flex-wrap">
+        <div class="card2">
+            <div class="row text-center">
 
-                <!-- Left stats -->
-                <div class="d-flex gap-4 flex-wrap">
-
-                    <!-- New Leads -->
-                    <div class="d-flex align-items-center">
-                        <div class="rounded p-2 d-flex align-items-center justify-content-center"
-                            style="background-color: #eef4ff; width: 40px; height: 40px;">
-                            <!-- icon -->
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="lucide lucide-users h-5 w-5 text-primary">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                        </div>
-                        <div class="ms-2">
-                            <small class="text-muted">New Leads</small>
-                            <div class="fw-bold fwb">{{$leads->where('status', 'New')->count()}}</div>
-                        </div>
-                    </div>
-
-                    <!-- In Progress -->
-                    <div class="d-flex align-items-center">
-                        <div class="rounded p-2 d-flex align-items-center justify-content-center"
-                            style="background-color: #e9f9ee; width: 40px; height: 40px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="lucide lucide-clock h-5 w-5 text-secondary">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg>
-                        </div>
-                        <div class="ms-2">
-                            <small class="text-muted">Under Construction</small>
-                            <div class="fw-bold fwb">{{$leads->where('status', 'Under Construction')->count()}}</div>
-                        </div>
-                    </div>
-
-                    <!-- Follow-ups Due -->
-                    <div class="d-flex align-items-center">
-                        <div class="rounded p-2 d-flex align-items-center justify-content-center"
-                            style="background-color: #fdecec; width: 40px; height: 40px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="lucide lucide-circle-alert h-5 w-5 text-destructive">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" x2="12" y1="8" y2="12"></line>
-                                <line x1="12" x2="12.01" y1="16" y2="16"></line>
-                            </svg>
-                        </div>
-                        <div class="ms-2">
-                            <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#followUpModal"><small
-                                    class="text-muted">Follow-ups Due</small></a>
-                            <div class="fw-bold fwb totalFollowups">7</div>
-                        </div>
+                <!-- Due Today -->
+                <div class="col-md-3 col-6 mb-2">
+                    <div class="border rounded p-3">
+                        <div class="fw-bold text-primary fs-5">{{$today}}</div>
+                        <small class="text-muted">Due Today</small>
                     </div>
                 </div>
 
-                <!-- Right button -->
-                <div>
-                    <a href="#" class="btn btn-outline-danger d-flex align-items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-circle-alert h-4 w-4 mr-2"
-                            data-lov-id="src/components/leads/LeadsSummaryBar.tsx:62:12" data-lov-name="AlertCircle"
-                            data-component-path="src/components/leads/LeadsSummaryBar.tsx" data-component-line="62"
-                            data-component-file="LeadsSummaryBar.tsx" data-component-name="AlertCircle"
-                            data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" x2="12" y1="8" y2="12"></line>
-                            <line x1="12" x2="12.01" y1="16" y2="16"></line>
-                        </svg>
-                        View Follow-ups Due
-                    </a>
+                <!-- Overdue -->
+                <div class="col-md-3 col-6 mb-2">
+                    <div class="border rounded p-3">
+                        <div class="fw-bold text-danger fs-5">{{$overdue}}</div>
+                        <small class="text-muted">Overdue</small>
+                    </div>
                 </div>
 
-            </form>
+                <!-- Completed -->
+                <div class="col-md-3 col-6 mb-2">
+                    <div class="border rounded p-3">
+                        <div class="fw-bold text-success fs-5">{{$completed}}</div>
+                        <small class="text-muted">Completed</small>
+                    </div>
+                </div>
+
+                <!-- Pending -->
+                <div class="col-md-3 col-6 mb-2">
+                    <div class="border rounded p-3">
+                        <div class="fw-bold text-warning fs-5">{{$pending}}</div>
+                        <small class="text-muted">Pending</small>
+                    </div>
+                </div>
+
+            </div>
         </div>
+
 
         <div class="card p-3 form_1">
             <form class="row align-items-end">
 
                 <!-- Title -->
-                <div class="col-12">
-                    <h6 class="mb-3">
-                        <i class="bi bi-funnel"></i><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-filter h-5 w-5 text-primary"
-                            data-lov-id="src/components/dashboard/DashboardFilters.tsx:67:8" data-lov-name="Filter"
-                            data-component-path="src/components/dashboard/DashboardFilters.tsx" data-component-line="67"
-                            data-component-file="DashboardFilters.tsx" data-component-name="Filter"
-                            data-component-content="%7B%22className%22%3A%22h-5%20w-5%20text-primary%22%7D">
-                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                        </svg> Dashboard Filters
-                    </h6>
-                </div>
+
 
                 <!-- From Date -->
                 <div class="col-md-2">
-                    <label>From Date</label>
-                    <input type="date" class="form-control">
+
+                    <select class="form-select form-select-sm filter-select">
+                        <option>All Tasks</option>
+                        <option>Task 1</option>
+                        <option>Task 2</option>
+                    </select>
                 </div>
 
                 <!-- To Date -->
                 <div class="col-md-2">
-                    <label>To Date</label>
-                    <input type="date" class="form-control">
-                </div>
-
-                <!-- Sales Rep -->
-                <div class="col-md-3">
-                    <label>Sales Rep</label>
-                    <select class="form-select">
-                        <option>All Sales Reps</option>
+                    <select class="form-select form-select-sm filter-select">
+                        <option>All Reps</option>
                         <option>Rep 1</option>
                         <option>Rep 2</option>
                     </select>
                 </div>
 
+                <!-- Sales Rep -->
+                <div class="col-md-3">
+                    <select class="form-select form-select-sm filter-select">
+                        <option>All Priorities</option>
+                        <option>High</option>
+                        <option>Low</option>
+                    </select>
+                </div>
+
                 <!-- Lead Source -->
                 <div class="col-md-3">
-                    <label>Lead Source</label>
-                    <select class="form-select">
-                        <option>All Sources</option>
-                        <option>Source 1</option>
-                        <option>Source 2</option>
+                    <select class="form-select form-select-sm filter-select active-filter">
+                        <option>Task Type</option>
+                        <option>Call</option>
+                        <option>Meeting</option>
                     </select>
                 </div>
 
@@ -254,25 +201,10 @@ strong {
 
     </section>
 
-
-
-
     <!--Models -->
     <!-- Add Lead Modal -->
-    @include('admin.tasks._add_modal')
-    @include('admin.tasks._view_modal')
-
-
-    @include('admin.leads._email_modal',['emailTemplates'=>$emailTemplates])
-
-    <!-- Follow-up Modal -->
-    <!-- Follow-up Modal -->
-
-
-
-
-
-
+    @include('admin.tasks._add_modal',['leads'=>$leads])
+    @include('admin.tasks._edit_modal',['leads'=>$leads])
 
 
     @endsection
@@ -287,7 +219,7 @@ strong {
     let isLoading = false;
     let hasMore = true;
 
-    function leadCard(lead) {
+    function leadCard(task) {
         const statusColors = {
             "pending": "warning",
             "overdue": "danger",
@@ -295,46 +227,68 @@ strong {
             "completed": "success"
         };
 
-        let status = lead.status?.toLowerCase() ?? 'pending';
-        let color = statusColors[status] || "secondary";
+        const priorityColors = {
+            "high": "danger",
+            "medium": "warning",
+            "low": "success"
+        };
+
+        // default values
+        let status = task.status?.toLowerCase() ?? 'pending';
+        let priority = task.priority?.toLowerCase() ?? 'medium';
+
+        // check due date against today
+        if (task.due_date_only) {
+            let dueDate = new Date(task.due_date_only);
+            let today = new Date();
+
+            // normalize to compare only dates (ignore time)
+            dueDate.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+
+            if (dueDate < today) {
+                status = "overdue";
+            } else if (dueDate > today) {
+                status = "upcoming";
+            }
+            // if equal → keep original (pending/completed)
+        }
+
+        let statusColor = statusColors[status] || "secondary";
+        let priorityColor = priorityColors[priority] || "secondary";
 
         return `
-    <div class="card shadow-sm rounded-3 mb-3 border-start border-4 border-${color}" id="lead-${lead.id}">
-        <div class="d-flex justify-content-between align-items-start p-3">
-            
-            <!-- Left content -->
-            <div>
-                <h6 class="fw-bold mb-1">Rahul Chauhan</h6>
-                <p class="text-muted mb-2">${lead.notes ?? 'Follow up on quote sent last week'}</p>
-                <div class="text-muted small mb-1">
-                    <i class="ph-user me-1"></i> ${lead.get_assign_user_name?.name ?? 'Unassigned'}
-                </div>
-                <div class="text-muted small">
-                    <i class="ph-calendar me-1"></i> 08/02/2024 &nbsp;
-                    <i class="ph-clock me-1"></i> 10:00 AM &nbsp;
-                    <i class="ph-chat-circle-text me-1"></i> follow-up
-                </div>
+<div class="card rounded-3 mb-2 shadow-sm border-0 border-start border-2 border-${statusColor}" id="lead-${task.id}">
+    <div class="d-flex justify-content-between align-items-center p-2">
+        
+        <!-- Left content -->
+        <div>
+            <h6 class="fw-bold mb-1">${task.lead_name?.first_name ?? 'Sunline'} ${task.lead_name?.last_name ?? 'Sunline'}</h6>
+            <p class="text-muted mb-1 small">${task.description ?? 'Follow up on quote sent last week'}</p>
+            <div class="text-muted small">
+                <i class="ph-user me-1"></i> ${task.get_assign_user_name?.name ?? 'Unassigned'} &nbsp;
+                <i class="ph-calendar me-1"></i> ${task.due_date_only ?? ''} &nbsp;
+                <i class="ph-clock me-1"></i> ${task.due_time_only ?? ''} &nbsp;
+                <i class="ph-chat-circle-text me-1"></i> ${task.task_type ?? ''}
             </div>
-
-            <!-- Right content -->
-            <div class="text-end">
-                <div class="mb-2">
-                    <span class="badge bg-light text-${color} border border-${color} rounded-pill px-2 py-1 me-1">
-                        ${status}
-                    </span>
-                    <span class="badge bg-light text-danger border border-danger rounded-pill px-2 py-1">
-                        high
-                    </span>
-                </div>
-                <div class="d-flex justify-content-end">
-                    <button class="btn btn-sm btn-outline-secondary me-2">Edit</button>
-                    <button class="btn btn-sm btn-success">Complete</button>
-                </div>
-            </div>
-
         </div>
-    </div>`;
+
+        <!-- Right content -->
+        <div class="text-end">
+            <span class="badge bg-light text-${statusColor} border border-${statusColor} rounded-pill px-2 py-1 me-1">
+                ${status}
+            </span>
+            <span class="badge bg-light text-${priorityColor} border border-${priorityColor} rounded-pill px-2 py-1 me-2">
+                ${priority}
+            </span>
+            <button class="btn btn-sm btn-outline-secondary me-1 edit_task" data-rel='${JSON.stringify(task)}' data-bs-toggle="modal" data-bs-target="#editTaskModal">Edit</button>
+            <button class="btn btn-sm btn-outline-success d-none">Complete</button>
+        </div>
+    </div>
+</div>`;
     }
+
+
 
 
 
@@ -394,6 +348,32 @@ strong {
     $(function() {
         $('#load-more').on('click', loadLeads);
         loadLeads();
+    });
+
+
+
+    // on edit button click
+    $(document).on("click", ".edit_task", function() {
+        let task = $(this).data("rel");
+        console.log(task.lead);
+        //Fill values in modal fields by name
+        $("#editTaskModal [name='id']").val(task.id);
+        $("#editTaskModal [name='lead']").val(task.lead);
+        $("#editTaskModal [name='assigned_to']").val(task.assigned_to);
+        $("#editTaskModal [name='description']").val(task.description);
+
+        // split date & time
+        if (task.due_date) {
+            let date = task.due_date_only ?? task.due_date.split(" ")[0];
+            let time = task.due_time_only1;
+
+            $("#editTaskModal [name='due_date']").val(date);
+            $("#editTaskModal [name='due_time']").val(time);
+        }
+
+        $("#editTaskModal [name='priority']").val(task.priority);
+        $("#editTaskModal [name='task_type']").val(task.task_type);
+        $("#editTaskModal [name='status']").val(task.status);
     });
     </script>
 

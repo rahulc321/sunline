@@ -1,19 +1,20 @@
-<div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+<div class="modal fade" id="editTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
 
             <!-- Header -->
             <div class="modal-header py-2">
-                <h5 class="modal-title fw-bold" id="addTaskModalLabel">Create New Task</h5>
+                <h5 class="modal-title fw-bold" id="addTaskModalLabel">Edit Task</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <!-- Form -->
-            <form action="{{ route('admin.taskStore') }}" method="POST">
+            <form action="{{ route('admin.taskUpdate') }}" method="POST">
                 @csrf
                 <div class="modal-body py-3">
                     <div class="row g-2">
                         <!-- g-2 gives tighter gap -->
+                        <input type="hidden"  name="id" >
 
                         <!-- Lead/Contact Name -->
                         <div class="col-12">
@@ -77,13 +78,25 @@
                             </select>
                         </div>
 
+
+                        <div class="col-sm-6">
+                            <label for="status" class="form-label1 mb-1">Status</label>
+                            <select id="status" name="status" class="form-select form-select-sm" required>
+                                <option value="">Status</option>
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                                
+                            </select>
+                        </div>
+
                     </div>
                 </div>
 
                 <!-- Footer -->
                 <div class="modal-footer py-2">
                     <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary btn-sm bg_s">Create Task</button>
+                    <button type="submit" class="btn btn-primary btn-sm bg_s">Update Task</button>
                 </div>
             </form>
         </div>
