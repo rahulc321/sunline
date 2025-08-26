@@ -3,6 +3,36 @@
 @section('title', "Leads")
 
 @section('content')
+<style>
+.d-flex.justify-content-between {
+    color: color: hsl(215, 16%, 47%);
+    color: hsl(215, 16%, 47%);
+    font-size: 16px;
+
+}
+
+.epf {
+    font-weight: 500;
+    padding: 2px;
+}
+
+b,
+strong {
+    font-weight: 500;
+}
+
+.d-flex.justify-content-between.epf {
+    border-bottom: 1px solid #f3f3f3;
+}
+
+.log-item {
+    background: #e8edf9;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+</style>
 <!-- Page header -->
 <div class="page-header">
     <div class="page-header-content d-lg-flex">
@@ -46,7 +76,7 @@
                         </div>
                         <div class="ms-2">
                             <small class="text-muted">New Leads</small>
-                            <div class="fw-bold fwb">23</div>
+                            <div class="fw-bold fwb">{{$leads->where('status', 'New')->count()}}</div>
                         </div>
                     </div>
 
@@ -62,8 +92,8 @@
                             </svg>
                         </div>
                         <div class="ms-2">
-                            <small class="text-muted">In Progress</small>
-                            <div class="fw-bold fwb">18</div>
+                            <small class="text-muted">Under Construction</small>
+                            <div class="fw-bold fwb">{{$leads->where('status', 'Under Construction')->count()}}</div>
                         </div>
                     </div>
 
@@ -80,8 +110,9 @@
                             </svg>
                         </div>
                         <div class="ms-2">
-                            <small class="text-muted">Follow-ups Due</small>
-                            <div class="fw-bold fwb">7</div>
+                            <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#followUpModal"><small
+                                    class="text-muted">Follow-ups Due</small></a>
+                            <div class="fw-bold fwb totalFollowups">7</div>
                         </div>
                     </div>
                 </div>
@@ -228,110 +259,23 @@
 
     <!--Models -->
     <!-- Add Lead Modal -->
-    <div class="modal fade" id="addLeadModal" tabindex="-1" aria-labelledby="addLeadModal" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+    @include('admin.leads._add_lead_modal')
+    @include('admin.leads._view_lead_modal')
+    @include('admin.leads._followup_lead_modal')
+    @include('admin.leads._listfollowup_modal', [
+    'upcoming' => $upcoming,
+    'past' => $past
+    ])
+    @include('admin.leads._email_modal',['emailTemplates'=>$emailTemplates])
 
-                <div class="modal-header">
-                    <h5 class="modal-title" id="popupFormLabel">Add Lead</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <!-- Start form -->
-                <form action="{{route('admin.leadStore')}}" method="post">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row">
-                            <!-- Left Column -->
-                            <div class="col-sm-6 mb-3">
-                                <label for="firstName">First Name</label>
-                                <input type="text" id="firstName" name="first_name" class="form-control"
-                                    placeholder="Enter first name" required>
-                            </div>
-
-                            <!-- Right Column -->
-                            <div class="col-sm-6 mb-3">
-                                <label for="lastName">Last Name</label>
-                                <input type="text" id="lastName" name="last_name" class="form-control"
-                                    placeholder="Enter last name" required>
-                            </div>
-
-                            <!-- Email -->
-                            <div class="col-sm-6 mb-3">
-                                <label for="email">Email</label>
-                                <input type="email" id="email" name="email" class="form-control"
-                                    placeholder="Enter email" required>
-                            </div>
-
-                            <!-- Phone -->
-                            <div class="col-sm-6 mb-3">
-                                <label for="phone">Phone</label>
-                                <input type="text" id="phone" name="phone" class="form-control"
-                                    placeholder="Enter phone" required>
-                            </div>
-
-                            <div class="col-sm-6 mb-3">
-                                <label for="phone">Address</label>
-                                <input type="text" name="address" class="form-control" placeholder="Enter Address">
-                            </div>
-
-                            <div class="col-sm-6 mb-3">
-                                <label for="phone">Assigned Rep</label>
-
-                                <select name="assign_rep" class="form-control">
-                                <option value="">Select</option>
-                                    @foreach($users as $data)
-                                    <option value="{{@$data->id}}">{{@$data['name']}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-sm-6 mb-3">
-                                <label for="phone">Lead Source</label>
-                                <select name="lead_source" class="form-control">
-                                    <option value="">Select</option>
-                                    @foreach($leadSource as $data)
-                                    <option value="{{@$data->id}}">{{@$data['source']}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-sm-3 mb-3">
-                                @php
-                                $roofTypes = ['Flat', 'Pitched', 'Hipped', 'Gabled', 'Mansard', 'Shed'];
-                                @endphp
-
-                                <label for="roof_type">Roof Type</label>
-                                <select id="roof_type" name="roof_type" class="form-control">
-                                    <option value="">-- Select Roof Type --</option>
-                                    @foreach($roofTypes as $type)
-                                    <option value="{{ strtolower($type) }}">{{ $type }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-sm-3 mb-3">
-                                <label for="phone">Eligible for Rebate</label>
-                                <select name="elogible_for_rebate" class="form-control">
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
-
-                                </select>
-                            </div>
+    <!-- Follow-up Modal -->
+    <!-- Follow-up Modal -->
 
 
-                        </div>
-                    </div>
 
-                    <!-- Footer inside the form -->
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+
+
+
 
 
     @endsection
@@ -339,14 +283,75 @@
     @section('scripts')
     @parent
 
-    
+
     <script>
+    $(document).on('click', '.follow_up', function() {
+        let leadId = $(this).data('id'); // get lead id from button
+        let leadName = $(this).data('name');
+        $('.lead_id').val(leadId); // put it in hidden input of form
+        $('.leadName').text(leadName);
+    });
+
+    $(document).on('click', '.view-lead', function() {
+        try {
+            let lead = $(this).data('lead'); // get JSON data safely
+
+            if (!lead) {
+                console.error("No lead data found on clicked element.");
+                return;
+            }
+
+            // Fill modal fields with fallbacks
+            $('.lead_id').val(lead?.id ?? '');
+            $('.follow_up').attr('data-id', lead?.id ?? '');
+            $('.follow_up').attr('data-name', [lead.first_name, lead.last_name].filter(Boolean).join(" ") ||
+                'N/A');
+            $('.name').text(
+                [lead.first_name, lead.last_name].filter(Boolean).join(" ") || 'N/A'
+            );
+            $('.lead_email').text(lead.email ?? 'N/A');
+            $('.lead_phone').text(lead.phone ?? 'N/A');
+            $('.lead_address').text(lead.address ?? 'N/A');
+            $('.lead_status').val(lead.status ?? 'N/A');
+
+            // Handle nested objects safely
+            $('.lead_source').text(lead.lead_source?.source ?? 'N/A');
+            $('.lead_roof_type').text(lead.roof_type ?? 'N/A');
+            $('.lead_rebate').text(lead.elogible_for_rebate ?? 'N/A');
+            $('.send_email_view').val(JSON.stringify(lead));
+
+            // Assign user name safely
+            $('.lead_assign_rep').text(lead.get_assign_user_name?.name ?? 'Unassigned');
+
+        } catch (error) {
+            console.error("Error filling modal data:", error);
+            alert("Something went wrong while loading lead details.");
+        }
+    });
+
+
+
+
     let offset = 0;
-    const limit = 1;
+    const limit = 25;
     let isLoading = false;
     let hasMore = true;
 
     function leadCard(lead) {
+        const statusColors = {
+            "New": "primary",
+            "Send Intro Email": "info",
+            "1st Attempt": "warning",
+            "2nd Attempt": "warning",
+            "3rd Attempt": "warning",
+            "Under Construction": "secondary",
+            "Qualified": "success",
+            "Lost": "danger"
+        };
+
+        let color = statusColors[lead.status] || "secondary"; // fallback
+
+
         return `
     <div class="card shadow-sm rounded-3 p-4 mb-3 form_1" id="lead-${lead.id}">
         <div class="d-flex justify-content-between align-items-start">
@@ -360,8 +365,8 @@
                     <i class="ph-map-pin me-1"></i> ${lead.address ?? ''}
                 </div>
                 <div class="text-muted">
-                    Source: <strong class="text-dark">${lead.lead_source ?? ''}</strong> &nbsp;|&nbsp;
-                    Follow-ups: <strong class="text-dark">0</strong> &nbsp;|&nbsp;
+                    Source: <strong class="text-dark">${lead.lead_source.source ?? ''}</strong> &nbsp;|&nbsp;
+                    Follow-ups: <strong class="text-dark">${lead.lead_follow_up_count ?? 0}</strong> &nbsp;|&nbsp;
                     Storeys: <strong class="text-dark">${lead.storeys ?? ''}</strong> &nbsp;|&nbsp;
                     Roof: <strong class="text-dark">${lead.roof_type ?? ''}</strong> &nbsp;|&nbsp;
                     Rebate: <strong class="text-dark">${lead.elogible_for_rebate ?? ''}</strong>
@@ -369,22 +374,25 @@
             </div>
             <div class="d-flex flex-column align-items-end">
                 <div class="d-flex align-items-center mb-2">
-                    <span class="badge bg-primary rounded-pill px-3 py-1 me-2">New</span>
+                    <span class="badge text-${color} border border-${color} rounded-pill px-1 py-1 me-2">
+                        ${lead.status ?? ''}
+                    </span>
                     <div class="text-end">
                         <small class="text-muted">Assigned to:</small><br>
-                        <strong class="text-dark">${lead.assign_rep ?? ''}</strong>
+                        <strong class="text-dark">${lead.get_assign_user_name.name ?? ''}</strong>
                     </div>
                 </div>
                 <div>
-                    <button class="btn btn-sm btn-warning me-1 custom-btn">
+                    <button class="btn btn-sm btn-warning me-1 custom-btn send_email" data-lead='${JSON.stringify(lead)}' data-bs-toggle="modal" data-bs-target="#emailModel">
                         <i class="ph-envelope-simple"></i>&nbsp; Email
                     </button>
-                    <button class="btn btn-sm btn-primary bg_s px-4 py-2">View</button>
+                    <button class="btn btn-sm btn-primary bg_s px-4 py-2 view-lead" data-lead='${JSON.stringify(lead)}' data-bs-toggle="modal" data-bs-target="#leadDetailsModal">View</button>
                 </div>
             </div>
         </div>
     </div>`;
     }
+
 
     function loadLeads() {
         if (isLoading || !hasMore) return;
@@ -425,6 +433,11 @@
                     hasMore = false;
                     $('#load-more').hide();
                 }
+
+
+                $('.totalFollowups').text(res.followupCount);
+
+
             })
             .always(function() {
                 isLoading = false;
@@ -437,6 +450,27 @@
         $('#load-more').on('click', loadLeads);
         loadLeads();
     });
+
+    $(document).on('click', '.send_email', function() {
+        // parse string value into object
+        let lead = $(this).data('lead');
+
+        $('.lead_id').val(lead.id);
+        $('.lead_name').text(lead.first_name + ' ' + lead.last_name);
+        $('.lead_email').val(lead.email);
+    });
+
+
+    $(document).on('click', '.send_email_inner', function() {
+        // parse string value into object
+        let lead = JSON.parse($('.send_email_view').val());
+
+        $('.lead_id').val(lead.id);
+        $('.lead_name').text(lead.first_name + ' ' + lead.last_name);
+        $('.lead_email').val(lead.email);
+    });
+
+    
     </script>
 
     <script src="{{asset('js/lead/edit-lead.js')}}"></script>

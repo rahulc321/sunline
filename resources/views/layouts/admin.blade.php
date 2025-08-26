@@ -11,9 +11,13 @@
     <link href="{{ asset('vendor/fonts/inter/inter.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('vendor/icons/phosphor/styles.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('assets/css/ltr/all.min.css') }}" id="stylesheet" rel="stylesheet" type="text/css">
+
+    <link href="{{ asset('assets/css/cs_new.css') }}" id="stylesheet" rel="stylesheet" type="text/css">
+    <script src="{{ asset('assets/js/custom.js') }}"></script>
     <!-- /global stylesheets -->
 
     <!-- Core JS files -->
+      <script src="{{ asset('vendor/demo/demo_configurator.js') }}"></script>
     <script src="{{ asset('vendor/demo/demo_configurator.js') }}"></script>
     <script src="{{ asset('vendor/js/bootstrap/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('vendor/js/jquery/jquery.min.js') }}"></script>

@@ -10,11 +10,18 @@ use App\Models\LeadTasks;
 use App\Models\TaskType;
 use App\Models\TasksCategory;
 use App\Models\Activity;
+use App\Models\Task;
 use Yajra\DataTables\DataTables;
 use Carbon\Carbon;
 use Auth;
 use Gate;
 use DB;
+use App\User;
+use App\Models\LeadFollowUp;
+use App\Models\LeadSource;
+use App\Models\EmailTemplate;
+use App\Models\Lead;
+
 
 class TasksController extends Controller
 {		
@@ -23,100 +30,110 @@ class TasksController extends Controller
 	* Display a Tasks etc.
 	*
 	*/	 
-	public function index(Request $request)
+	public function taskList(Request $request)
     {	
-		abort_if(Gate::denies('intake_tasks_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-		
-		// Other dropdown lists
-		$staticDropdowns = [
-			'tasks_type_list'           => TaskType::pluck('title', 'id'),
-			'tasks_category_list'       => TasksCategory::pluck('title', 'id'),
-			'created_by_list' => [
-									auth()->user()->id =>auth()->user()->name
-								 ],
-		];
+		$this->data['users'] = User::whereHas('roles', function ($query) {
+			$query->where('title', 'User');
+		})->get();
 
-		$exportDataRoute = route('admin.task.exportIntakes');
-		
-		return view('admin.task.index', array_merge(
-			[
-				'exportDataRoute' => $exportDataRoute ?? '',
-			],
-			$staticDropdowns
-		));
-    }
 	
-	/*
-	*
-	* Function to export All Intake table records according to date range.
-	*
-	*/
-	public function exportIntakes(Request $request)
-    {
-		abort_if(Gate::denies('intake_tasks_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-		
-		$from = $request->from_date;
-		$to = $request->to_date;
-		
-		$request->validate([
-			'from_date' => 'required|date',
-			'to_date' => 'required|date|after_or_equal:from_date',
-		]);
-		
-		$model = new LeadTasks;
-		$columns = Schema::getColumnListing($model->getTable());
-		
-		$extra_fields = ['id','deleted_at','created_at','updated_at'];
-		if(isset($extra_fields) && !empty($extra_fields))
-		{
-			foreach($extra_fields as $field)
-			{
-				$index = array_search($field,$columns);
-				if($index !==false)
-				{
-					/* find the index value and remove from the array */
-					unset($columns[$index]);
-					$columns = array_values($columns); //Re-index the array
-				}
-			}
-		}
-		
-		$from = (new \DateTime($from))->format("Y-m-d");
-		$to = (new \DateTime($to))->format("Y-m-d");
-		
-		$selected_array = $columns;
-		$selected_array = array_merge($selected_array, ['created_at','updated_at']);
-		$additional_key=array();
-		
-		$finalcsvcolumn=array_merge($selected_array,$additional_key);
-		
-		$finalCsvDataArray=[];
-		
-		$query = LeadTasks::select($columns)->whereBetween(DB::raw('DATE(created_at)'), [$from, $to])->get()->map(function ($record) {
-			$record->formated_created_at = Carbon::parse($record->created_at)->format('Y-m-d H:i:s');
-			$record->formated_updated_at = Carbon::parse($record->updated_at)->format('Y-m-d H:i:s');
-			return $record;
-		});
-		
-		if($query)
-		{
-			$finalCsvDataArray=$query->toArray();
-		}
-		
-		$Filename ='tasks_list_'.date('Y-m-d').'_'.rand(10,100).'.csv';
-		header('Content-Type: text/csv; charset=utf-8');
-		Header('Content-Type: application/force-download');
-		header('Content-Disposition: attachment; filename='.$Filename.'');
-		// create a file pointer connected to the output stream
-		$output = fopen('php://output', 'w');
-		fputcsv($output, $finalcsvcolumn);
-		if(isset($finalCsvDataArray) && !empty($finalCsvDataArray))
-		{
-			foreach ($finalCsvDataArray as $row){
-				fputcsv($output, $row);
-			}
-		}
-		fclose($output);
-		exit();
+		$task = Task::get();
+
+		// pending tasks
+		$this->data['pending'] = Task::where('status', 'Pending')->count();
+
+		// completed tasks
+		$this->data['completed'] = Task::where('status', 'Completed')->count();
+
+		// overdue tasks (not completed & due before today)
+		$this->data['overdue'] = Task::where('status', '!=', 'Completed')
+			->whereDate('due_date', '<', Carbon::today())
+			->count();
+
+		// today tasks (any status but due today)
+		$this->data['today'] = Task::where('status', '!=', 'Completed')->whereDate('due_date', Carbon::today())->count();
+
+		// upcoming tasks (not completed & due after today)
+		$this->data['upcoming'] = Task::where('status', '!=', 'Completed')
+			->whereDate('due_date', '>', Carbon::today())
+			->count();
+
+		//dd($this->data);
+		 
+		$this->data['leads'] = Lead::get();
+
+		 
+		return view('admin.tasks.index',$this->data); 
     }
+
+
+	public function getTask(Request $request)
+	{
+		$limit = $request->limit ?? 1; // limit per request
+		$offset = $request->offset ?? 0;
+
+		# fetch current batch
+		$tasks = Task::with('getAssignUserName','leadName')->orderBy('id', 'desc')
+        ->skip($offset)
+        ->take($limit)
+        ->get()
+        ->map(function ($task) {
+            # split due_date into date and time
+            if (!empty($task->due_date)) {
+                $task->due_date_only = \Carbon\Carbon::parse($task->due_date)->format('Y-m-d');
+                $task->due_time_only = \Carbon\Carbon::parse($task->due_date)->format('h:i A');
+				$task->due_time_only1 = \Carbon\Carbon::parse($task->due_date)->format('H:i A');
+            } else {
+                $task->due_date_only = null;
+                $task->due_time_only = null;
+            }
+            return $task;
+        });
+
+		# check if more data exists for next load
+		$totalRecords = Task::count();
+		$hasMore = ($offset + $limit) < $totalRecords;
+
+		return response()->json([
+			'data' => $tasks,
+			'hasMore' => $hasMore
+		]);
+	}
+
+	# store task
+	public function taskStore(Request $request){
+
+			$data = $request->all();
+			$data['due_date'] = $request->due_date.' '.$request->due_time;
+			unset($data['due_time']);
+			Task::create($data);
+			return redirect()->back()->with('success', 'You have successfully added!');
+	}
+
+	# update task
+	public function taskUpdate(Request $request)
+	{
+		$validated = $request->validate([
+			'lead' => 'required|string|max:255',
+			'description' => 'required|string',
+			'assigned_to' => 'nullable|exists:users,id',
+			'due_date' => 'required|date',
+			'due_time' => 'required|date_format:H:i',
+			'priority' => 'required|string',
+			'task_type' => 'required|string',
+			'status' => 'required|string',
+		]);
+
+		# merge date & time into single due_date field
+		$validated['due_date'] = $validated['due_date'] . ' ' . $validated['due_time'];
+		unset($validated['due_time']);
+		//dd($validated);
+		$task = Task::find($request->id);
+		$task->update($validated);
+
+		return back()->with('success', 'Task updated successfully!');
+	}
+
+	
+	 
 }
