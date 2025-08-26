@@ -32,6 +32,27 @@ strong {
     border-radius: 10px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
+
+i.ph-user{
+    /* background: #0c83ff; */
+    color: #6889f3;
+} 
+
+
+.ph-calendar:before {
+    content: "\f301";
+    color: green;
+}
+
+.ph-clock:before {
+    content: "\f351";
+    color: red;
+}
+
+.ph-chat-circle-text:before {
+    content: "\f335";
+    color: #0f33ff;
+}
 </style>
 <!-- Page header -->
 <div class="page-header">
@@ -219,7 +240,7 @@ strong {
     let isLoading = false;
     let hasMore = true;
 
-    function leadCard(task) {
+    function taskCard(task) {
         const statusColors = {
             "pending": "warning",
             "overdue": "danger",
@@ -242,29 +263,37 @@ strong {
             let dueDate = new Date(task.due_date_only);
             let today = new Date();
 
-            // normalize to compare only dates (ignore time)
             dueDate.setHours(0, 0, 0, 0);
             today.setHours(0, 0, 0, 0);
 
-            if (dueDate < today) {
-                status = "overdue";
-            } else if (dueDate > today) {
-                status = "upcoming";
+            if (status !== "completed") {
+                if (dueDate < today) {
+                    status = "overdue";
+                } else if (dueDate > today) {
+                    status = "upcoming";
+                }
             }
-            // if equal → keep original (pending/completed)
         }
 
         let statusColor = statusColors[status] || "secondary";
         let priorityColor = priorityColors[priority] || "secondary";
 
+        // Add strike-through only if completed
+        let descriptionClass = status === "completed" ? "text-decoration-line-through text-muted" : "text-muted";
+        let leadClass = status === "completed" ? "fw-bold text-decoration-line-through" : "fw-bold";
+
         return `
 <div class="card rounded-3 mb-2 shadow-sm border-0 border-start border-2 border-${statusColor}" id="lead-${task.id}">
-    <div class="d-flex justify-content-between align-items-center p-2">
+    <div class="d-flex justify-content-between p-2">
         
         <!-- Left content -->
-        <div>
-            <h6 class="fw-bold mb-1">${task.lead_name?.first_name ?? 'Sunline'} ${task.lead_name?.last_name ?? 'Sunline'}</h6>
-            <p class="text-muted mb-1 small">${task.description ?? 'Follow up on quote sent last week'}</p>
+        <div class="flex-grow-1 pe-3">
+            <h6 class="${leadClass} mb-1">#${task.id} 
+                ${task.lead_name?.first_name ?? 'Sunline'} ${task.lead_name?.last_name ?? 'Sunline'}
+            </h6>
+            <p class="${descriptionClass} mb-1 small">
+                ${task.description ?? 'Follow up on quote sent last week'}
+            </p>
             <div class="text-muted small">
                 <i class="ph-user me-1"></i> ${task.get_assign_user_name?.name ?? 'Unassigned'} &nbsp;
                 <i class="ph-calendar me-1"></i> ${task.due_date_only ?? ''} &nbsp;
@@ -274,19 +303,24 @@ strong {
         </div>
 
         <!-- Right content -->
-        <div class="text-end">
+        <div class="text-end" style="white-space:nowrap;">
             <span class="badge bg-light text-${statusColor} border border-${statusColor} rounded-pill px-2 py-1 me-1">
                 ${status}
             </span>
             <span class="badge bg-light text-${priorityColor} border border-${priorityColor} rounded-pill px-2 py-1 me-2">
                 ${priority}
             </span>
-            <button class="btn btn-sm btn-outline-secondary me-1 edit_task" data-rel='${JSON.stringify(task)}' data-bs-toggle="modal" data-bs-target="#editTaskModal">Edit</button>
+            <button class="btn btn-sm btn-outline-secondary me-1 edit_task" 
+                data-rel='${JSON.stringify(task)}' 
+                data-bs-toggle="modal" 
+                data-bs-target="#editTaskModal">Edit</button>
             <button class="btn btn-sm btn-outline-success d-none">Complete</button>
         </div>
     </div>
 </div>`;
+
     }
+
 
 
 
@@ -319,7 +353,7 @@ strong {
                 let appended = 0;
                 leads.forEach(lead => {
                     if (!document.getElementById(`lead-${lead.id}`)) {
-                        $('#leads-container').append(leadCard(lead));
+                        $('#leads-container').append(taskCard(lead));
                         appended++;
                     }
                 });

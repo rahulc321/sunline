@@ -22,6 +22,7 @@ use App\Models\LeadSource;
 use App\Models\EmailTemplate;
 use App\Models\Lead;
 
+
 class TasksController extends Controller
 {		
 	/*
@@ -38,10 +39,24 @@ class TasksController extends Controller
 	
 		$task = Task::get();
 
-		$this->data['pending'] = $task->where('status', 'Pending')->count();
-		$this->data['completed'] = $task->where('status', 'Completed')->count();
-		$this->data['overdue'] = Task::whereDate('due_date', '<', now())->count();
-		$this->data['today'] = Task::whereDate('due_date',  now())->count();
+		// pending tasks
+		$this->data['pending'] = Task::where('status', 'Pending')->count();
+
+		// completed tasks
+		$this->data['completed'] = Task::where('status', 'Completed')->count();
+
+		// overdue tasks (not completed & due before today)
+		$this->data['overdue'] = Task::where('status', '!=', 'Completed')
+			->whereDate('due_date', '<', Carbon::today())
+			->count();
+
+		// today tasks (any status but due today)
+		$this->data['today'] = Task::where('status', '!=', 'Completed')->whereDate('due_date', Carbon::today())->count();
+
+		// upcoming tasks (not completed & due after today)
+		$this->data['upcoming'] = Task::where('status', '!=', 'Completed')
+			->whereDate('due_date', '>', Carbon::today())
+			->count();
 
 		//dd($this->data);
 		 
