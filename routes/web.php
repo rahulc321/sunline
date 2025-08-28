@@ -51,6 +51,20 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('taskStore', [App\Http\Controllers\Admin\TasksController::class, 'taskStore'])->name('taskStore');
     Route::any('taskUpdate', [App\Http\Controllers\Admin\TasksController::class, 'taskUpdate'])->name('taskUpdate');
 
+    # for ticket routes
+    Route::resource('ticket', App\Http\Controllers\Admin\TicketController::class);
+    Route::any('getTicket', [App\Http\Controllers\Admin\TicketController::class, 'getTicket'])->name('getTicket');
+    Route::any('closeTicket/{id}', [App\Http\Controllers\Admin\TicketController::class, 'closeTicket'])
+     ->name('admin.closeTicket');
+    Route::any('ticketsRepliesList/{id}', [App\Http\Controllers\Admin\TicketController::class, 'ticketsRepliesList'])
+     ->name('admin.ticketsRepliesList');
+
+    Route::any('ticketsReplies/{id}', [App\Http\Controllers\Admin\TicketController::class, 'ticketsReplies'])
+     ->name('admin.ticketsReplies');
+    Route::any('ticketUpdate/{id}', [App\Http\Controllers\Admin\TicketController::class, 'ticketUpdate'])
+     ->name('admin.ticketUpdate');
+    
+
 
 
 });

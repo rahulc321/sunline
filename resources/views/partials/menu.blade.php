@@ -260,8 +260,8 @@ div#jsGrid1_filter {
             </li>
 
             <li class="nav-item">
-                <a href="#"
-                    class="nav-link {{ request()->is('admin/text-messages') || request()->is('admin/text-messages/*') ? 'active' : '' }}">
+                <a href="{{route('admin.ticket.index')}}"
+                    class="nav-link {{ request()->is('admin/ticket') || request()->is('admin/ticket/*') ? 'active' : '' }}">
                     <i class="ph-ticket"></i><span>Tickets</span>
                 </a>
             </li>
