@@ -21,4 +21,9 @@ class Fri extends Model
     {
         return $this->hasOne(User::class,'id','created_by');
     }
+
+    public function leadName()
+    {
+        return $this->hasOne(Lead::class,'id','lead_id');
+    }
 }

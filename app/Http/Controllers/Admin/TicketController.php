@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Ticket;
 use App\User;
-use App\Models\Task;
+use App\Models\{Task, Fri};
 use Auth;
 use App\Models\TicketReply;
 
@@ -21,6 +21,9 @@ class TicketController extends Controller
         $this->data['users'] = User::whereHas('roles', function ($query) {
 			$query->where('title', 'User');
 		})->get();
+
+
+        $this->data['ticket'] = Ticket::get();
 
 	 
 		return view('admin.ticket.index',$this->data); 
@@ -100,19 +103,25 @@ class TicketController extends Controller
     }
 
     # get ticket Replies
-    public function ticketsRepliesList($ticketId)
+    public function ticketsRepliesList(Request $request, $ticketId)
     {
-        $replies = TicketReply::with('user:id,name')
-            ->where('ticket_id', $ticketId)
-             
-            ->get()
-            ->map(function($reply) {
+        $query = TicketReply::with('user:id,name')
+            ->where('ticket_id', $ticketId);
+
+        # if type is passed in request, apply filter
+        if ($request->has('type')) {
+            $query->where('type', $request->type);
+        }
+
+        $replies = $query->get()
+            ->map(function ($reply) {
                 $reply->created_at_formatted = $reply->created_at->format('Y-m-d g:i A');
                 return $reply;
             });
 
         return response()->json($replies);
     }
+
 
     # save ticket reply
     public function ticketsReplies(Request $request, $ticketId)
@@ -124,13 +133,22 @@ class TicketController extends Controller
         ]);
 
         // find the ticket
-        $ticket = Ticket::findOrFail($ticketId);
+
+        if($request->type == 'rfi'){
+            $ticket = Fri::findOrFail($ticketId);
+        }else{
+            $ticket = Ticket::findOrFail($ticketId);
+        }
+        
 
         // create new reply
         $reply = new TicketReply();
         $reply->ticket_id = $ticket->id;
         $reply->user_id   = Auth::id(); // current logged-in user
         $reply->reply     = $request->message;
+        if($request->type){
+        $reply->type     = @$request->type;
+        }
 
         // handle image upload
         if ($request->hasFile('attachment')) {

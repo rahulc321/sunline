@@ -81,7 +81,7 @@ i.ph-user {
                 <!-- Due Today -->
                 <div class="col-md-3 col-6 mb-2">
                     <div class="border rounded p-3">
-                        <div class="fw-bold text-primary fs-5">{{$today ?? 0}}</div>
+                        <div class="fw-bold text-primary fs-5">{{$ticket->where('status','open')->count()}}</div>
                         <small class="text-muted">Open Tickets</small>
                     </div>
                 </div>
@@ -89,7 +89,7 @@ i.ph-user {
                 <!-- Overdue -->
                 <div class="col-md-3 col-6 mb-2">
                     <div class="border rounded p-3">
-                        <div class="fw-bold text-danger fs-5">{{$overdue ?? 0}}</div>
+                        <div class="fw-bold text-danger fs-5">{{$ticket->where('status','responded')->count()}}</div>
                         <small class="text-muted">Responded</small>
                     </div>
                 </div>
@@ -97,7 +97,7 @@ i.ph-user {
                 <!-- Completed -->
                 <div class="col-md-3 col-6 mb-2">
                     <div class="border rounded p-3">
-                        <div class="fw-bold text-success fs-5">{{$completed ?? 0}}</div>
+                        <div class="fw-bold text-success fs-5">{{$ticket->where('status','closed')->count()}}</div>
                         <small class="text-muted">Closed</small>
                     </div>
                 </div>
@@ -105,7 +105,7 @@ i.ph-user {
                 <!-- Pending -->
                 <div class="col-md-3 col-6 mb-2">
                     <div class="border rounded p-3">
-                        <div class="fw-bold text-warning fs-5">{{$pending ?? 0}}</div>
+                        <div class="fw-bold text-warning fs-5">{{$ticket->count()}}</div>
                         <small class="text-muted">Total Tickets</small>
                     </div>
                 </div>
@@ -227,6 +227,7 @@ i.ph-user {
     @include('admin.ticket._add_modal',['leads'=>$leads])
     @include('admin.ticket._reply_modal')
     @include('admin.ticket._edit_modal',['leads'=>$leads])
+    @include('admin.ticket._view_modal')
 
 
     @endsection
@@ -347,7 +348,7 @@ i.ph-user {
             onclick="return confirm('Are you sure you want to close this ticket?')">
             <i class="ph-x-circle me-1"></i> Close
             </a>
-            <button class="btn btn-sm btn-primary bg_s">
+            <button class="btn btn-sm btn-primary bg_s view_ticket" data-ticket='${JSON.stringify(ticket)}' data-bs-toggle="modal" data-bs-target="#viewModel">
                 <i class="ph-ticket me-1"></i> View Details
             </button>
         </div>
@@ -423,6 +424,7 @@ i.ph-user {
         $.ajax({
             url: '/admin/ticketsRepliesList/' + ticketId,
             method: 'GET',
+            data:{'type':'ticket'},
             success: function(res) {
                 let repliesHtml = '';
 
@@ -543,11 +545,25 @@ i.ph-user {
         $('#editModel [name="urgency_label"]').val(ticket.urgency_label);
         $('#editModel [name="assign_to"]').val(ticket.assign_to);
         $('#editModel [name="description"]').val(ticket.description);
+        $('#editModel [name="status"]').val(ticket.status);
 
         // optional: change modal title or submit button text
         $('#editModel .modal-title').text('Edit Ticket');
         // optional: set form action dynamically
         $('#editModel form').attr('action', '/admin/ticketUpdate/' + ticket.id);
+    });
+
+    $(document).on("click", ".view_ticket", function() {
+        let ticket = $(this).data("ticket");
+        console.log(ticket.get_assign_user_name.name);
+        $("#ticket_subject").text(ticket.subject);
+        $("#ticket_status").text(ticket.status);
+        $("#ticket_user").text(ticket.submited?.name ?? "N/A");
+
+        $("#assign_to1").text(ticket.get_assign_user_name.name ?? "N/A");
+        
+        $("#categoryv").text(ticket.category);
+        $("#ticket_description").text(ticket.description);
     });
     </script>
 

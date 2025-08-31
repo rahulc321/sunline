@@ -238,7 +238,7 @@ div#jsGrid1_filter {
             <li class="nav-item">
                 <a href="{{route('admin.fri.index')}}"
                     class="nav-link {{ request()->is('admin/fri') ? 'active' : '' }}">
-                    <i class="ph-file-text"></i><span>FRI</span>
+                    <i class="ph-file-text"></i><span>RFI</span>
                 </a>
             </li>
 

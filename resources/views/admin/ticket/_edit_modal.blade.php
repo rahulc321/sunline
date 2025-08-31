@@ -58,6 +58,17 @@
                             </select>
                         </div>
 
+                        <div class="col-12">
+                            <label for="status" class="form-label1 mb-1">Status</label>
+                            <select id="status" name="status" class="form-select form-select-sm" required>
+                                 
+                                <option value="open">Open</option>
+                                <option value="closed">Closed</option>
+                                <option value="responded">Responded</option>
+                                 
+                            </select>
+                        </div>
+
 
                         <div class="col-12">
                             <label for="description" class="form-label1 mb-1">Detailed Description</label>

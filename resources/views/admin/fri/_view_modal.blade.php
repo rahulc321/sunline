@@ -22,13 +22,12 @@
                         <div class="row g-2">
                             <div class="col-md-6 d-flex align-items-center">
                                 <i class="bi bi-diagram-3 me-2"></i>
-                                <span><strong>Project:</strong> <span id="project">Henderson Residential
-                                        Solar</span></span>
+                                <span><strong>Lead:</strong> <span id="lead_id"> </span></span>
                             </div>
-                            <div class="col-md-6 d-flex align-items-center">
+                            <!-- <div class="col-md-6 d-flex align-items-center">
                                 <i class="bi bi-person me-2"></i>
                                 <span><strong>Client:</strong> <span id="client">Sarah Henderson</span></span>
-                            </div>
+                            </div> -->
                             <div class="col-md-6 d-flex align-items-center">
                                 <i class="bi bi-person-badge me-2"></i>
                                 <span><strong>Created By:</strong> <span class="created_by"></span></span>
@@ -67,7 +66,7 @@
                 <div class="row">
 
                     <!-- LEFT PANEL -->
-                    <div class="col-md-6">
+                    <div class="col-md-12">
 
                         <!-- Description -->
                         <div class="border rounded p-3 mb-3">
@@ -92,7 +91,7 @@
                     </div>
 
                     <!-- RIGHT PANEL -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 d-none">
                         <div class="border rounded p-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <strong>Responses (2)</strong>
