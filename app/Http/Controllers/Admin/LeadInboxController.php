@@ -10,7 +10,7 @@ use App\Models\LeadStatus;
 use App\Models\CaseType;
 use App\Models\LeadFollowUp;
 use App\User;
-use App\Models\LeadSource;
+use App\Models\{LeadSource, LeadContact};
 use Carbon\Carbon;
 use Gate;
 use App\Models\Lead;
@@ -138,6 +138,16 @@ class LeadInboxController extends Controller
 		$lead->status = $request->status;
 		$lead->save();
 
+		if ($request->status == 'Qualified') {
+			$exists = LeadContact::where('lead_id', $lead->id)->exists();
+		
+			if (! $exists) {
+				LeadContact::create([
+					'lead_id' => $lead->id,
+				]);
+			}
+		}
+
 		session()->flash('success', 'You have successfully update lead status!');
 		return response()->json(['success' => true]);
 	}
@@ -158,5 +168,67 @@ class LeadInboxController extends Controller
         return response()->json(['success' => true]);
 
     }
+
+
+	///////////////////////////////////////////////////// Contacts ///////////////////////////////////////////
+	public function contacts(){
+		$this->data['users'] = User::whereHas('roles', function ($query) {
+			$query->where('title', 'User');
+		})->get();
+
+		
+
+		$followups = LeadFollowUp::with('lead')
+        ->orderBy('date', 'desc')
+        ->get();
+
+		$this->data['upcoming'] = $followups->where('is_completed', 0);
+		$this->data['past'] = $followups->where('is_completed', 1);
+
+		$this->data['leadSource'] = LeadSource::where('status',1)->get();
+		$this->data['emailTemplates'] = EmailTemplate::get();
+		$this->data['leads'] = Lead::get();
+		return view('admin.contact.index',$this->data);
+	}
+
+
+	public function listContact(Request $request)
+	{
+		$limit = $request->limit ?? 10; 
+		$offset = $request->offset ?? 0;
+
+		# fetch contacts with their leads
+		$contacts = LeadContact::with([
+				'lead.getAssignUserName',
+				'lead.leadSource',
+				'lead.leadFollowUp'
+			])
+			->orderBy('id', 'desc')
+			->skip($offset)
+			->take($limit)
+			->get();
+
+		# check if more data exists for next load
+		$totalRecords = LeadContact::count();
+		$hasMore = ($offset + $limit) < $totalRecords;
+
+		$totalFollowups = \DB::table('lead_follow_ups')->count();
+
+		return response()->json([
+			'data' => $contacts,
+			'hasMore' => $hasMore,
+			'followupCount' => $totalFollowups
+		]);
+	}
+
+	# for updateContact
+	public function updateContact(Request $request)
+	{
+		$contact = LeadContact::find($request->id);
+		$contact->update($request->all());
+		return redirect()->back()->with('success', 'Contact updated successfully!');
+	}
+
+
 }
 

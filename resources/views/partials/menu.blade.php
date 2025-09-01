@@ -218,8 +218,8 @@ div#jsGrid1_filter {
 
 
             <li class="nav-item">
-                <a href="{{ route('admin.lead-inbox.index') }}?mode=agenda"
-                    class="nav-link {{ request()->is('admin/lead-inbox') && request()->query('mode') == 'agenda' ? 'active' : '' }}">
+                <a href="{{ route('admin.contacts') }}"
+                    class="nav-link {{ request()->is('admin/contacts') ? 'active' : '' }}">
                     <i class="ph-user"></i><span>Contacts</span>
                 </a>
             </li>

@@ -8,4 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class LeadContact extends Model
 {
     use HasFactory;
+
+    protected $guarded = [];
+
+
+    public function lead()
+    {
+        return $this->belongsTo(Lead::class, 'lead_id');
+    }
 }
