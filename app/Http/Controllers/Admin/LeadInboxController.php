@@ -16,6 +16,7 @@ use Gate;
 use App\Models\Lead;
 use App\Models\EmailTemplate;
 use DB;
+use Auth;
 
 class LeadInboxController extends Controller
 {
@@ -26,6 +27,8 @@ class LeadInboxController extends Controller
 	*/	
     public function index(Request $request)
 	{	
+		//Auth::logout();
+ 
 		// $this->data['body'] = "
 		// 	<p>Hello <strong>User</strong>,</p>
 		// 	<p>We’re excited to share the latest updates with you.</p>
