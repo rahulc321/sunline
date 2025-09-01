@@ -175,10 +175,7 @@ strong {
     @include('admin.contact._edit_modal')
     @include('admin.contact._view_lead_modal')
     @include('admin.contact._followup_lead_modal')
-    @include('admin.contact._listfollowup_modal', [
-    'upcoming' => $upcoming,
-    'past' => $past
-    ])
+     
     @include('admin.contact._email_modal',['emailTemplates'=>$emailTemplates])
 
     <!-- Follow-up Modal -->
@@ -193,9 +190,11 @@ strong {
     <script>
     $(document).on('click', '.follow_up', function() {
         let leadId = $(this).data('id'); // get lead id from button
-        let leadName = $(this).data('name');
-        $('.lead_id').val(leadId); // put it in hidden input of form
-        $('.leadName').text(leadName);
+        let leadName = $(this).data('lead');
+        let cont = $(this).data('contract');
+
+        $('.lead_id').val(cont.id); // put it in hidden input of form
+        $('.leadName').text(leadName.first_name+' '+leadName.last_name);
     });
 
     $(document).on('click', '.view-lead', function() {
@@ -263,7 +262,7 @@ strong {
     <div class="d-flex justify-content-between align-items-start">
         <div class="flex-grow-1">
             <h5 class="fw-bold mb-1 lead">
-                #${lead.id ?? ''} - ${lead.first_name ?? ''} ${lead.last_name ?? ''}
+                #${contract.id ?? ''} - ${lead.first_name ?? ''} ${lead.last_name ?? ''}
             </h5>
             <div class="text-muted mb-1">
                 <i class="ph-phone me-1"></i> ${lead.phone ?? ''} &nbsp;
@@ -325,7 +324,7 @@ strong {
 
     <div class="text-muted mt-2">
         Source: <strong class="text-dark">${lead.lead_source.source ?? ''}</strong> &nbsp;|&nbsp;
-        Follow-ups: <strong class="text-dark">${lead.lead_follow_up_count ?? 0}</strong> &nbsp;|&nbsp;
+        Follow-ups: <strong class="text-dark">${contract.follow_up_count ?? 0}</strong> &nbsp;|&nbsp;
         Storeys: <strong class="text-dark">${lead.storeys ?? ''}</strong> &nbsp;|&nbsp;
         Roof: <strong class="text-dark">${lead.roof_type ?? ''}</strong> &nbsp;|&nbsp;
         Rebate: <strong class="text-dark">${lead.elogible_for_rebate ?? ''}</strong>
@@ -340,7 +339,7 @@ strong {
             data-bs-toggle="modal" data-bs-target="#emailModel">
             <i class="ph-envelope-simple me-1"></i> Send Email
         </button>
-        <button class="btn btn-info btn-sm me-2 follow_up" data-lead='${JSON.stringify(lead)}'>
+        <button class="btn btn-info btn-sm me-2 follow_up" data-contract='${JSON.stringify(contract)}' data-lead='${JSON.stringify(lead)}' data-bs-toggle="modal" data-bs-target="#fUP">
             <i class="ph-repeat me-1"></i> Follow-up
         </button>
         <button class="btn btn-primary btn-sm view-lead" data-lead='${JSON.stringify(lead)}'

@@ -16,4 +16,10 @@ class LeadContact extends Model
     {
         return $this->belongsTo(Lead::class, 'lead_id');
     }
+
+    public function followUp(){
+        return $this->hasMany(ContactFollowUp::class,'lead_id','id');
+    }
+
+    
 }

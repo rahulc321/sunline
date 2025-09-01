@@ -1,4 +1,4 @@
-<div class="modal fade" id="createFollowUpModal" tabindex="-1" aria-labelledby="createFollowUpModal"
+<div class="modal fade" id="fUP" tabindex="-1" aria-labelledby="createFollowUpModal"
         aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -17,6 +17,7 @@
                     <div class="modal-body">
                         <h6 class="fw-bold mb-3">Follow-up Management</h6>
                         <input type="hidden" name="lead_id" class="lead_id">
+                        <input type="hidden" name="ftype" value="contact">
 
                         <!-- New Follow-up -->
                         <div class="card shadow-sm rounded-3">
@@ -63,7 +64,52 @@
                         <button type="button" class="btn btn-secondary bg_s" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </form>
-
+                <hr>
+                <div id="followUpResult"></div>
             </div>
+            
         </div>
     </div>
+    <script>
+    $(document).on('click', '.follow_up', function() {
+        let cont = $(this).data('contract'); // get lead id from button
+        $.ajax({
+            url: "/admin/contactFollowUp/" + cont.id,
+            type: "GET",
+            success: function (res) {
+                 
+                $("#followUpResult").html(res.html);
+            }
+        });
+    });
+
+    $(document).on('click', '.mark_complete', function() {
+    let followUpId = $(this).data('id');
+
+    if (!confirm("Are you sure you want to mark this follow-up as complete?")) {
+        return;
+    }
+
+    $.ajax({
+            url: "{{ route('admin.followupComplete') }}", // create this route
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                id: followUpId,
+                c_type:"fup",
+            },
+            success: function(res) {
+                if (res.success) {
+                    // update UI (for example change button to Completed)
+                    $(`button.mark_complete[data-id="${followUpId}"]`)
+                        .replaceWith('<span class="badge bg-success">Completed</span>');
+                } else {
+                    alert("Something went wrong.");
+                }
+            },
+            error: function() {
+                alert("Server error, please try again.");
+            }
+        });
+    });
+    </script>
