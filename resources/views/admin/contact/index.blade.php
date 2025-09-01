@@ -287,7 +287,7 @@ strong {
                 <button class="btn btn-sm btn-warning me-1 custom-btn send_email1 d-none"
                     data-lead='${JSON.stringify(lead)}'
                     data-bs-toggle="modal" data-bs-target="#emailModel">
-                    <i class="ph-envelope-simple"></i>&nbsp; Email
+                    <i class="ph-envelope-simple"></i> Email
                 </button>
 
                 
@@ -347,7 +347,7 @@ strong {
             data-bs-toggle="modal" data-bs-target="#leadDetailsModal">
             <i class="ph-list me-1"></i> Details
         </button>
-
+        &nbsp;&nbsp;
         <button class="btn btn-sm btn-outline-secondary me-2 edit_contract" data-contract='${JSON.stringify(contract)}' data-bs-toggle="modal" data-bs-target="#editModel">
                     <i class="ph-pencil-line me-1"></i> Edit
                 </button>
