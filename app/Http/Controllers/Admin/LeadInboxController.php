@@ -10,7 +10,7 @@ use App\Models\LeadStatus;
 use App\Models\CaseType;
 use App\Models\LeadFollowUp;
 use App\User;
-use App\Models\LeadSource;
+use App\Models\{LeadSource, LeadContact, ContactFollowUp};
 use Carbon\Carbon;
 use Gate;
 use App\Models\Lead;
@@ -25,7 +25,17 @@ class LeadInboxController extends Controller
 	*
 	*/	
     public function index(Request $request)
-	{
+	{	
+		// $this->data['body'] = "
+		// 	<p>Hello <strong>User</strong>,</p>
+		// 	<p>We’re excited to share the latest updates with you.</p>
+		// 	<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+		// 	Donec vel sapien vel nunc viverra sollicitudin.</p>
+		// 	<p style='margin-top:20px;'>Best regards,<br><strong>Your Company Team</strong></p>
+		// ";
+
+		// return view('admin.emails.custom-email', $this->data);
+
 		abort_if(Gate::denies('lead_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 		$this->data['users'] = User::whereHas('roles', function ($query) {
 			$query->where('title', 'User');
@@ -107,13 +117,22 @@ class LeadInboxController extends Controller
 
 		# merge date + time into one datetime string
 		$dateTime = $request->date . ' ' . $request->time;
-		 
-		LeadFollowUp::create([
-			'lead_id' => $request->lead_id,
-			'type' => $request->type,
-			'date' => $dateTime,   // store in one column
-			'notes' => $request->notes,
-		]);
+		 if(@$request->ftype == 'contact'){
+			ContactFollowUp::create([
+				'lead_id' => $request->lead_id,
+				'type' => $request->type,
+				'date' => $dateTime,   // store in one column
+				'notes' => $request->notes,
+			]);
+		 }else{
+			LeadFollowUp::create([
+				'lead_id' => $request->lead_id,
+				'type' => $request->type,
+				'date' => $dateTime,   // store in one column
+				'notes' => $request->notes,
+			]);
+		}
+		
 
 		return redirect()->back()->with('success', 'Follow-up saved successfully!');
 	}
@@ -138,6 +157,16 @@ class LeadInboxController extends Controller
 		$lead->status = $request->status;
 		$lead->save();
 
+		if ($request->status == 'Qualified') {
+			$exists = LeadContact::where('lead_id', $lead->id)->exists();
+		
+			if (! $exists) {
+				LeadContact::create([
+					'lead_id' => $lead->id,
+				]);
+			}
+		}
+
 		session()->flash('success', 'You have successfully update lead status!');
 		return response()->json(['success' => true]);
 	}
@@ -146,7 +175,13 @@ class LeadInboxController extends Controller
 
         $id = $request->id;
 
-        $followUp = LeadFollowUp::find($id);
+
+		if(@$request->c_type == 'fup'){
+			$followUp = ContactFollowUp::find($id);
+		}else{
+			$followUp = LeadFollowUp::find($id);
+		}
+        
         if (!$followUp) {
             return response()->json(['success' => false, 'message' => 'Follow-up not found.']);
         }
@@ -158,5 +193,83 @@ class LeadInboxController extends Controller
         return response()->json(['success' => true]);
 
     }
-}
 
+
+	///////////////////////////////////////////////////// Contacts ///////////////////////////////////////////
+	public function contacts(){
+		$this->data['users'] = User::whereHas('roles', function ($query) {
+			$query->where('title', 'User');
+		})->get();
+
+		
+
+		$followups = LeadFollowUp::with('lead')
+        ->orderBy('date', 'desc')
+        ->get();
+
+		$this->data['upcoming'] = $followups->where('is_completed', 0);
+		$this->data['past'] = $followups->where('is_completed', 1);
+
+		$this->data['leadSource'] = LeadSource::where('status',1)->get();
+		$this->data['emailTemplates'] = EmailTemplate::get();
+		$this->data['leads'] = Lead::get();
+		return view('admin.contact.index',$this->data);
+	}
+
+
+	public function listContact(Request $request)
+	{
+		$limit = $request->limit ?? 10; 
+		$offset = $request->offset ?? 0;
+
+		# fetch contacts with their leads
+		$contacts = LeadContact::with([
+				'lead.getAssignUserName',
+				'lead.leadSource',
+				//'lead.leadFollowUp'
+			])
+			->withCount('followUp')	
+			->orderBy('id', 'desc')
+			->skip($offset)
+			->take($limit)
+			->get();
+
+		# check if more data exists for next load
+		$totalRecords = LeadContact::count();
+		$hasMore = ($offset + $limit) < $totalRecords;
+
+		$totalFollowups = \DB::table('lead_follow_ups')->count();
+
+		return response()->json([
+			'data' => $contacts,
+			'hasMore' => $hasMore,
+			'followupCount' => $totalFollowups
+		]);
+	}
+
+	# for updateContact
+	public function updateContact(Request $request)
+	{
+		$contact = LeadContact::find($request->id);
+		$contact->update($request->all());
+		return redirect()->back()->with('success', 'Contact updated successfully!');
+	}
+
+	public function contactFollowUp($leadId)
+	{
+		$followups = ContactFollowUp::with('lead')
+		->where('lead_id',$leadId)
+        ->orderBy('date', 'desc')
+        ->get();
+
+		$this->data['upcoming'] = $followups->where('is_completed', 0);
+		$this->data['past'] = $followups->where('is_completed', 1);
+		
+		$html = view('admin.contact._listfollowup_modal',$this->data)->render();
+
+    	return response()->json(['html' => $html]);
+
+	}
+
+
+}

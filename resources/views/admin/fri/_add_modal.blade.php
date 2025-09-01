@@ -29,23 +29,17 @@
                         <div class="row">
                             <!-- Project -->
                             <div class="col-sm-6 mb-3">
-                                <label>Project</label>
-                                <select name="project" class="form-control" required>
+                                <label>Leads</label>
+                                <select name="lead_id" class="form-select" required>
                                     <option value="">Select</option>
-                                    <option value="Project 1">Project 1</option>
-                                    <option value="Project 2">Project 2</option>
+                                    @foreach($leads as $lead)
+                                    <option value="{{ $lead->id }}">{{ @$lead->first_name }} {{ @$lead->last_name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
 
                             <!-- Client -->
-                            <div class="col-sm-6 mb-3">
-                                <label>Client</label>
-                                <select name="client" class="form-control" required>
-                                    <option value="">Select</option>
-                                    <option value="Client 1">Client 1</option>
-                                    <option value="Client 2">Client 2</option>
-                                </select>
-                            </div>
+                           
 
                             <div class="col-sm-6 mb-3">
                                 <label>Status</label>

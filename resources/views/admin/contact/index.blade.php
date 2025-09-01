@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', "Leads")
+@section('title', "Contacts")
 
 @section('content')
 <style>
@@ -39,11 +39,11 @@ strong {
         <div class="d-flex w-100">
             <!-- Title + subtitle stacked -->
             <div class="d-flex flex-column">
-                <h4 class="page-title mb-0 crm_c" style="font-size: 1.875rem">Lead Management</h4>
-                <p class="mb-0 txt_1">Assign and track incoming leads</p>
+                <h4 class="page-title mb-0 crm_c" style="font-size: 1.875rem">Qualified Contacts</h4>
+                <p class="mb-0 txt_1">Manage qualified leads and track proposal engagement</p>
             </div>
 
-            <div class="col-md-3 ms-auto">
+            <div class="col-md-3 ms-auto d-none">
                 <a class="btn btn-primary bg_s mt-5" data-bs-toggle="modal" data-bs-target="#addLeadModal"
                     style="float:right">
                     <i class="ph-plus"></i>&nbsp;&nbsp;Add Lead
@@ -54,89 +54,7 @@ strong {
 
     <!-- Main content -->
     <section class="content">
-        <div class="card p-2 form_1">
-            <form class="d-flex align-items-center justify-content-between flex-wrap">
-
-                <!-- Left stats -->
-                <div class="d-flex gap-4 flex-wrap">
-
-                    <!-- New Leads -->
-                    <div class="d-flex align-items-center">
-                        <div class="rounded p-2 d-flex align-items-center justify-content-center"
-                            style="background-color: #eef4ff; width: 40px; height: 40px;">
-                            <!-- icon -->
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="lucide lucide-users h-5 w-5 text-primary">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                        </div>
-                        <div class="ms-2">
-                            <small class="text-muted">New Leads</small>
-                            <div class="fw-bold fwb">{{$leads->where('status', 'New')->count()}}</div>
-                        </div>
-                    </div>
-
-                    <!-- In Progress -->
-                    <div class="d-flex align-items-center">
-                        <div class="rounded p-2 d-flex align-items-center justify-content-center"
-                            style="background-color: #e9f9ee; width: 40px; height: 40px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="lucide lucide-clock h-5 w-5 text-secondary">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg>
-                        </div>
-                        <div class="ms-2">
-                            <small class="text-muted">Under Construction</small>
-                            <div class="fw-bold fwb">{{$leads->where('status', 'Under Construction')->count()}}</div>
-                        </div>
-                    </div>
-
-                    <!-- Follow-ups Due -->
-                    <div class="d-flex align-items-center">
-                        <div class="rounded p-2 d-flex align-items-center justify-content-center"
-                            style="background-color: #fdecec; width: 40px; height: 40px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="lucide lucide-circle-alert h-5 w-5 text-destructive">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" x2="12" y1="8" y2="12"></line>
-                                <line x1="12" x2="12.01" y1="16" y2="16"></line>
-                            </svg>
-                        </div>
-                        <div class="ms-2">
-                            <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#followUpModal"><small
-                                    class="text-muted">Follow-ups Due</small></a>
-                            <div class="fw-bold fwb totalFollowups">7</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right button -->
-                <div>
-                    <a href="#" class="btn btn-outline-danger d-flex align-items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-circle-alert h-4 w-4 mr-2"
-                            data-lov-id="src/components/leads/LeadsSummaryBar.tsx:62:12" data-lov-name="AlertCircle"
-                            data-component-path="src/components/leads/LeadsSummaryBar.tsx" data-component-line="62"
-                            data-component-file="LeadsSummaryBar.tsx" data-component-name="AlertCircle"
-                            data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" x2="12" y1="8" y2="12"></line>
-                            <line x1="12" x2="12.01" y1="16" y2="16"></line>
-                        </svg>
-                        View Follow-ups Due
-                    </a>
-                </div>
-
-            </form>
-        </div>
+         
 
         <div class="card p-3 form_1">
             <form class="row align-items-end">
@@ -248,36 +166,21 @@ strong {
         <div class="text-center mt-3">
             <button id="load-more" class="btn btn-primary px-4 bg_s">Load More</button>
         </div>
-
-
-
-
+ 
     </section>
-
-
-
-
+ 
     <!--Models -->
     <!-- Add Lead Modal -->
-    @include('admin.leads._add_lead_modal')
-    @include('admin.leads._view_lead_modal')
-    @include('admin.leads._followup_lead_modal')
-    @include('admin.leads._listfollowup_modal', [
-    'upcoming' => $upcoming,
-    'past' => $past
-    ])
-    @include('admin.leads._email_modal',['emailTemplates'=>$emailTemplates])
+    @include('admin.contact._add_lead_modal')
+    @include('admin.contact._edit_modal')
+    @include('admin.contact._view_lead_modal')
+    @include('admin.contact._followup_lead_modal')
+     
+    @include('admin.contact._email_modal',['emailTemplates'=>$emailTemplates])
 
     <!-- Follow-up Modal -->
     <!-- Follow-up Modal -->
-
-
-
-
-
-
-
-
+ 
     @endsection
 
     @section('scripts')
@@ -287,9 +190,11 @@ strong {
     <script>
     $(document).on('click', '.follow_up', function() {
         let leadId = $(this).data('id'); // get lead id from button
-        let leadName = $(this).data('name');
-        $('.lead_id').val(leadId); // put it in hidden input of form
-        $('.leadName').text(leadName);
+        let leadName = $(this).data('lead');
+        let cont = $(this).data('contract');
+
+        $('.lead_id').val(cont.id); // put it in hidden input of form
+        $('.leadName').text(leadName.first_name+' '+leadName.last_name);
     });
 
     $(document).on('click', '.view-lead', function() {
@@ -337,7 +242,7 @@ strong {
     let isLoading = false;
     let hasMore = true;
 
-    function leadCard(lead) {
+    function leadCard(contract,lead) {
         const statusColors = {
             "New": "primary",
             "Send Intro Email": "info",
@@ -349,48 +254,105 @@ strong {
             "Lost": "danger"
         };
 
-        let color = statusColors[lead.status] || "secondary"; // fallback
+        let color = statusColors[contract.status] || "secondary"; // fallback
 
 
         return `
-    <div class="card shadow-sm rounded-3 p-4 mb-3 form_1" id="lead-${lead.id}">
-        <div class="d-flex justify-content-between align-items-start">
-            <div>
-                <h5 class="fw-bold mb-1 lead">#${lead.id ?? ''} - ${lead.first_name ?? ''} ${lead.last_name ?? ''} </h5>
-                <div class="text-muted mb-1">
-                    <i class="ph-phone me-1"></i> ${lead.phone ?? ''} &nbsp;
-                    <i class="ph-envelope me-1"></i> ${lead.email ?? ''}
-                </div>
-                <div class="text-muted mb-2">
-                    <i class="ph-map-pin me-1"></i> ${lead.address ?? ''}
-                </div>
-                <div class="text-muted">
-                    Source: <strong class="text-dark">${lead.lead_source.source ?? ''}</strong> &nbsp;|&nbsp;
-                    Follow-ups: <strong class="text-dark">${lead.lead_follow_up_count ?? 0}</strong> &nbsp;|&nbsp;
-                    Storeys: <strong class="text-dark">${lead.storeys ?? ''}</strong> &nbsp;|&nbsp;
-                    Roof: <strong class="text-dark">${lead.roof_type ?? ''}</strong> &nbsp;|&nbsp;
-                    Rebate: <strong class="text-dark">${lead.elogible_for_rebate ?? ''}</strong>
-                </div>
+<div class="card shadow-sm rounded-3 p-4 mb-3 form_1" id="lead-${lead.id}">
+    <div class="d-flex justify-content-between align-items-start">
+        <div class="flex-grow-1">
+            <h5 class="fw-bold mb-1 lead">
+                #${contract.id ?? ''} - ${lead.first_name ?? ''} ${lead.last_name ?? ''}
+            </h5>
+            <div class="text-muted mb-1">
+                <i class="ph-phone me-1"></i> ${lead.phone ?? ''} &nbsp;
+                <i class="ph-envelope me-1"></i> ${lead.email ?? ''}
             </div>
-            <div class="d-flex flex-column align-items-end">
-                <div class="d-flex align-items-center mb-2">
-                    <span class="badge text-${color} border border-${color} rounded-pill px-1 py-1 me-2">
-                        ${lead.status ?? ''}
-                    </span>
-                    <div class="text-end">
-                        <small class="text-muted">Assigned to:</small><br>
-                        <strong class="text-dark">${lead.get_assign_user_name.name ?? ''}</strong>
-                    </div>
-                </div>
-                <div>
-                    <button class="btn btn-sm btn-warning me-1 custom-btn send_email" data-lead='${JSON.stringify(lead)}' data-bs-toggle="modal" data-bs-target="#emailModel">
-                        <i class="ph-envelope-simple"></i>&nbsp; Email
-                    </button>
-                    <button class="btn btn-sm btn-primary bg_s px-4 py-2 view-lead" data-lead='${JSON.stringify(lead)}' data-bs-toggle="modal" data-bs-target="#leadDetailsModal">View</button>
-                </div>
+            <div class="text-muted mb-2">
+                <i class="ph-map-pin me-1"></i> ${lead.address ?? ''}
             </div>
         </div>
-    </div>`;
+        <div class="d-flex flex-column align-items-end">
+            <div class="d-flex align-items-center mb-2">
+                <span class="badge text-${color} border border-${color} rounded-pill px-1 py-1 me-2">
+                    ${contract.status ?? ''}
+                </span>
+                <div class="text-end">
+                    <small class="text-muted">Assigned to:</small><br>
+                    <strong class="text-dark">${lead.get_assign_user_name.name ?? ''}</strong>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-sm btn-warning me-1 custom-btn send_email1 d-none"
+                    data-lead='${JSON.stringify(lead)}'
+                    data-bs-toggle="modal" data-bs-target="#emailModel">
+                    <i class="ph-envelope-simple"></i> Email
+                </button>
+
+                
+
+                <button class="btn btn-sm btn-primary bg_s px-4 py-2 view-lead1 d-none"
+                    data-lead='${JSON.stringify(lead)}'
+                    data-bs-toggle="modal" data-bs-target="#leadDetailsModal">
+                    View
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FULL WIDTH SECTION -->
+    <div class="bg-light text-muted small rounded px-3 py-3 mt-3">
+        <div class="row">
+            <div class="col-md-3">
+                <strong>Property</strong><br>
+                ${contract.property ?? ''}
+            </div>
+            <div class="col-md-3">
+                <strong>Phases</strong><br>
+               ${contract.phase ?? ''}
+            </div>
+            <div class="col-md-3">
+                <strong>Switchboard</strong><br>
+                ${contract.switchboard ?? ''}
+            </div>
+            <div class="col-md-3">
+                <strong>Bill Size</strong><br>
+                 ${contract.bill_size ?? ''}
+            </div>
+        </div>
+    </div>
+
+    <div class="text-muted mt-2">
+        Source: <strong class="text-dark">${lead.lead_source.source ?? ''}</strong> &nbsp;|&nbsp;
+        Follow-ups: <strong class="text-dark">${contract.follow_up_count ?? 0}</strong> &nbsp;|&nbsp;
+        Storeys: <strong class="text-dark">${lead.storeys ?? ''}</strong> &nbsp;|&nbsp;
+        Roof: <strong class="text-dark">${lead.roof_type ?? ''}</strong> &nbsp;|&nbsp;
+        Rebate: <strong class="text-dark">${lead.elogible_for_rebate ?? ''}</strong>
+    </div>
+
+    <!-- BUTTONS AT BOTTOM RIGHT -->
+    <div class="d-flex justify-content-end mt-3">
+        <button class="btn btn-outline-secondary btn-sm me-2 view_proposal" data-contract='${JSON.stringify(contract)}'>
+            <i class="ph-eye me-1"></i> View Proposal
+        </button>
+        <button class="btn btn-warning btn-sm me-2 send_email" data-lead='${JSON.stringify(lead)}'
+            data-bs-toggle="modal" data-bs-target="#emailModel">
+            <i class="ph-envelope-simple me-1"></i> Send Email
+        </button>
+        <button class="btn btn-info btn-sm me-2 follow_up" data-contract='${JSON.stringify(contract)}' data-lead='${JSON.stringify(lead)}' data-bs-toggle="modal" data-bs-target="#fUP">
+            <i class="ph-repeat me-1"></i> Follow-up
+        </button>
+        <button class="btn btn-primary btn-sm view-lead" data-lead='${JSON.stringify(lead)}'
+            data-bs-toggle="modal" data-bs-target="#leadDetailsModal">
+            <i class="ph-list me-1"></i> Details
+        </button>
+        &nbsp;&nbsp;
+        <button class="btn btn-sm btn-outline-secondary me-2 edit_contract" data-contract='${JSON.stringify(contract)}' data-bs-toggle="modal" data-bs-target="#editModel">
+                    <i class="ph-pencil-line me-1"></i> Edit
+                </button>
+    </div>
+</div>`;
+
     }
 
 
@@ -401,7 +363,7 @@ strong {
         $('#load-more').prop('disabled', true).text('Loading...');
 
         $.ajax({
-                url: "{{ route('admin.listLeads') }}",
+                url: "{{ route('admin.listContact') }}",
                 method: 'GET',
                 data: {
                     offset,
@@ -409,6 +371,7 @@ strong {
                 },
             })
             .done(function(res) {
+                console.log('>>>>>>>>>>',res);
                 // Support either {data:[...]} or just [...]
                 const leads = Array.isArray(res) ? res : (res.data || []);
                 if (!leads.length) {
@@ -420,7 +383,7 @@ strong {
                 let appended = 0;
                 leads.forEach(lead => {
                     if (!document.getElementById(`lead-${lead.id}`)) {
-                        $('#leads-container').append(leadCard(lead));
+                        $('#leads-container').append(leadCard(lead,lead.lead));
                         appended++;
                     }
                 });

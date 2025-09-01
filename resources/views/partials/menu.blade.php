@@ -218,8 +218,8 @@ div#jsGrid1_filter {
 
 
             <li class="nav-item">
-                <a href="{{ route('admin.lead-inbox.index') }}?mode=agenda"
-                    class="nav-link {{ request()->is('admin/lead-inbox') && request()->query('mode') == 'agenda' ? 'active' : '' }}">
+                <a href="{{ route('admin.contacts') }}"
+                    class="nav-link {{ request()->is('admin/contacts') ? 'active' : '' }}">
                     <i class="ph-user"></i><span>Contacts</span>
                 </a>
             </li>
@@ -238,7 +238,7 @@ div#jsGrid1_filter {
             <li class="nav-item">
                 <a href="{{route('admin.fri.index')}}"
                     class="nav-link {{ request()->is('admin/fri') ? 'active' : '' }}">
-                    <i class="ph-file-text"></i><span>FRI</span>
+                    <i class="ph-file-text"></i><span>RFI</span>
                 </a>
             </li>
 
@@ -260,8 +260,8 @@ div#jsGrid1_filter {
             </li>
 
             <li class="nav-item">
-                <a href="#"
-                    class="nav-link {{ request()->is('admin/text-messages') || request()->is('admin/text-messages/*') ? 'active' : '' }}">
+                <a href="{{route('admin.ticket.index')}}"
+                    class="nav-link {{ request()->is('admin/ticket') || request()->is('admin/ticket/*') ? 'active' : '' }}">
                     <i class="ph-ticket"></i><span>Tickets</span>
                 </a>
             </li>

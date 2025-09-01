@@ -65,7 +65,7 @@
                     </div>
 
                     <!-- Status Dropdown (top-right) -->
-                    <div style="position: absolute; top: 0; right: 0;">
+                    <div style="position: absolute; top: 0; right: 0;" class="d-none">
                         <?php $status = config('fri.lead_status'); ?>
                         <select class="form-select lead_status" style="width:auto; min-width:180px;">
                             <option value="">Select</option>
@@ -175,7 +175,7 @@
             </div>
 
             <!-- Footer -->
-            <div class="modal-footer">
+            <div class="modal-footer d-none">
                 <button class="btn btn-outline-primary send_email_inner" data-bs-toggle="modal" data-bs-target="#emailModel"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" class="lucide lucide-mail h-4 w-4 mr-2"

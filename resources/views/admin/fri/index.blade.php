@@ -45,7 +45,7 @@ strong {
             <div class="col-md-3 ms-auto">
                 <a class="btn btn-primary bg_s mt-5" data-bs-toggle="modal" data-bs-target="#addLeadModal"
                     style="float:right">
-                    <i class="ph-plus"></i>&nbsp;&nbsp;Create Fri
+                    <i class="ph-plus"></i>&nbsp;&nbsp;Create RFI
                 </a>
             </div>
         </div>
@@ -123,9 +123,10 @@ strong {
     </section>
 
     <!-- Modals -->
-    @include('admin.fri._add_modal', ['users' => $users, 'status' => $status, 'categories' => $categories])
+    @include('admin.fri._add_modal', ['users' => $users, 'status' => $status, 'categories' => $categories,'leads'=>$leads])
     @include('admin.fri._edit_modal', ['users' => $users, 'status' => $status, 'categories' => $categories])
     @include('admin.fri._view_modal',['status' => $status])
+    @include('admin.fri._reply_modal')
 
     @endsection
 
@@ -164,6 +165,9 @@ strong {
         $('.fri_status').attr('data-id', fri.id);
 
         $('.fri_data').val(JSON.stringify(fri));
+        const leadFullName = `${fri.lead_name?.first_name ?? ''} ${fri.lead_name?.last_name ?? ''}`;
+        //alert(leadFullName);
+        $('#lead_id').text(leadFullName);
 
 
         // badges
@@ -302,11 +306,26 @@ strong {
                 </div>
 
                 <!-- View Button -->
-                <a href="javascript:;" class="btn btn-outline-primary btn-sm view-fri"
-                    data-fri='${JSON.stringify(fri)}'
-                    data-bs-toggle="modal" data-bs-target="#rfiDetails">
-                    View Details
-                </a>
+                <div class="d-flex justify-content-end gap-2">
+    <a href="javascript:;" 
+       class="btn btn-outline-primary btn-sm view-fri"
+       data-fri='${JSON.stringify(fri)}'
+       data-bs-toggle="modal" 
+       data-bs-target="#rfiDetails"
+       data-bs-dismiss="modal">
+        View Details
+    </a>
+
+    <button class="btn btn-sm btn-outline-secondary reply" 
+            data-id="${fri.id}" 
+            data-bs-toggle="modal" 
+            data-bs-target="#replyModel"
+            data-bs-dismiss="modal">
+        <i class="ph-chat-centered-text me-1"></i> Response
+    </button>
+</div>
+
+
             </div>
 
             <!-- Title & Description -->
@@ -316,8 +335,8 @@ strong {
             <!-- Meta Info -->
             <div class="small text-muted mb-2">
                 <span class="me-3"><i class="ph-briefcase me-1"></i> Project: <strong>${fri.project ?? ''}</strong></span>
-                <span class="me-3"><i class="ph-user me-1"></i> Client: <strong>${fri.client ?? ''}</strong></span>
-                <span class="me-3"><i class="ph-calendar me-1"></i> Due: <strong>${fri.due_date ?? ''}</strong></span>
+                <span class="me-3"><i class="ph-user me-1"></i> Lead: <strong>${fri.lead_name?.first_name ?? ''} ${fri.lead_name?.last_name ?? ''}</strong></span>
+                
                 <span><i class="ph-chat-centered-text me-1"></i> Responses: <strong>${fri.responses_count ?? 0}</strong></span>
             </div>
 
@@ -441,14 +460,18 @@ strong {
         modal.find('input[name="id"]').val(fri.id);
         modal.find('input[name="subject"]').val(fri.subject);
         modal.find('textarea[name="description"]').val(fri.description);
-        modal.find('select[name="project"]').val(fri.project).trigger('change');
-        modal.find('select[name="client"]').val(fri.client).trigger('change');
+        // modal.find('select[name="project"]').val(fri.project).trigger('change');
+        // modal.find('select[name="client"]').val(fri.client).trigger('change');
         modal.find('select[name="status"]').val(fri.status).trigger('change');
         modal.find('select[name="priority"]').val(fri.priority).trigger('change');
         modal.find('select[name="category"]').val(fri.category).trigger('change');
         modal.find('select[name="assigned_to"]').val(fri.assigned_to).trigger('change');
 
         modal.find('input[name="due_date"]').val(fri.due_date);
+       
+
+        // Put lead_id into hidden input
+        modal.find('select[name="lead_id"]').val(fri.lead_id);
 
         // finally show modal
         modal.modal('show');

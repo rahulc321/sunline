@@ -31,6 +31,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('leadFollowUps', [App\Http\Controllers\Admin\LeadInboxController::class, 'leadFollowUps'])->name('leadFollowUps');
     Route::any('updateLeadStatus', [App\Http\Controllers\Admin\LeadInboxController::class, 'updateLeadStatus'])->name('updateLeadStatus');		
 	
+    # For contacts 
+    Route::any('contacts', [App\Http\Controllers\Admin\LeadInboxController::class, 'contacts'])->name('contacts');	
+    Route::any('listContact', [App\Http\Controllers\Admin\LeadInboxController::class, 'listContact'])->name('listContact');	
+    Route::any('updateContact', [App\Http\Controllers\Admin\LeadInboxController::class, 'updateContact'])->name('updateContact');
+    Route::any('contactFollowUp/{id}', [App\Http\Controllers\Admin\LeadInboxController::class, 'contactFollowUp'])->name('contactFollowUp');		
+
 	# lead source
 	Route::resource('leadSource', App\Http\Controllers\Admin\LeadSourceController::class);
     Route::resource('fri', App\Http\Controllers\Admin\FriController::class);
@@ -50,6 +56,20 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('getTask', [App\Http\Controllers\Admin\TasksController::class, 'getTask'])->name('getTask');
     Route::any('taskStore', [App\Http\Controllers\Admin\TasksController::class, 'taskStore'])->name('taskStore');
     Route::any('taskUpdate', [App\Http\Controllers\Admin\TasksController::class, 'taskUpdate'])->name('taskUpdate');
+
+    # for ticket routes
+    Route::resource('ticket', App\Http\Controllers\Admin\TicketController::class);
+    Route::any('getTicket', [App\Http\Controllers\Admin\TicketController::class, 'getTicket'])->name('getTicket');
+    Route::any('closeTicket/{id}', [App\Http\Controllers\Admin\TicketController::class, 'closeTicket'])
+     ->name('admin.closeTicket');
+    Route::any('ticketsRepliesList/{id}', [App\Http\Controllers\Admin\TicketController::class, 'ticketsRepliesList'])
+     ->name('admin.ticketsRepliesList');
+
+    Route::any('ticketsReplies/{id}', [App\Http\Controllers\Admin\TicketController::class, 'ticketsReplies'])
+     ->name('admin.ticketsReplies');
+    Route::any('ticketUpdate/{id}', [App\Http\Controllers\Admin\TicketController::class, 'ticketUpdate'])
+     ->name('admin.ticketUpdate');
+    
 
 
 

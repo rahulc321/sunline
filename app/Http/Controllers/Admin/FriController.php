@@ -28,6 +28,8 @@ class FriController extends Controller
         $this->data['status'] = DB::table('statuses')->where('status', 1)->get();
         $this->data['priority'] = DB::table('priorities')->where('status',1)->get();
         $this->data['category'] = DB::table('categories')->where('status',1)->get();
+        $this->data['leads'] = Lead::get();
+
         return view('admin.fri.index',$this->data);
 	}
 
@@ -46,26 +48,28 @@ class FriController extends Controller
     {
         # validate inputs
         $validated = $request->validate([
-            'project'      => 'required|string|max:255',
-            'client'       => 'required|string|max:255',
+            // 'project'      => 'required|string|max:255',
+            // 'client'       => 'required|string|max:255',
             'category'     => 'required|string|max:255',
             'priority'     => 'required|string|max:255',
             'due_date'     => 'required|date',
             'assigned_to'  => 'required|integer|exists:users,id',
             'subject'      => 'required|string|max:255',
             'description'  => 'required|string',
+            'lead_id'  => 'required',
             'attachments.*'=> 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,xlsx|max:5120'
         ]);
 
         # create Fri record
         $fri = new Fri();
-        $fri->project     = $validated['project'];
-        $fri->client      = $validated['client'];
+        // $fri->project     = $validated['project'];
+        // $fri->client      = $validated['client'];
         $fri->category    = $validated['category'];
         $fri->priority    = $validated['priority'];
         $fri->due_date    = $validated['due_date'];
         $fri->assigned_to = $validated['assigned_to'];
         $fri->subject     = $validated['subject'];
+        $fri->lead_id     = $validated['lead_id'];
         $fri->status     = $request->status;
         $fri->created_by = Auth::Id();
         $fri->description = $validated['description'];
@@ -101,7 +105,7 @@ class FriController extends Controller
 		$offset = $request->offset ?? 0;
 
 		# fetch current batch
-		$leads = Fri::with('createdByName')->orderBy('id', 'desc')
+		$leads = Fri::with('createdByName','leadName')->orderBy('id', 'desc')
 		->skip($offset)
 			->take($limit)
 			->get();
@@ -176,8 +180,8 @@ class FriController extends Controller
     {
         # validate inputs
         $validated = $request->validate([
-            'project'      => 'required|string|max:255',
-            'client'       => 'required|string|max:255',
+            // 'project'      => 'required|string|max:255',
+            // 'client'       => 'required|string|max:255',
             'category'     => 'required|string|max:255',
             'priority'     => 'required|string|max:255',
             'due_date'     => 'required|date',
@@ -189,14 +193,15 @@ class FriController extends Controller
 
         # create Fri record
         $fri = Fri::find($request->id);
-        $fri->project     = $validated['project'];
-        $fri->client      = $validated['client'];
+        // $fri->project     = $validated['project'];
+        // $fri->client      = $validated['client'];
         $fri->category    = $validated['category'];
         $fri->priority    = $validated['priority'];
         $fri->due_date    = $validated['due_date'];
         $fri->assigned_to = $validated['assigned_to'];
         $fri->subject     = $validated['subject'];
         $fri->status     = $request->status;
+        $fri->lead_id     = $request->lead_id;
         $fri->created_by = Auth::Id();
         $fri->description = $validated['description'];
         $fri->save();
