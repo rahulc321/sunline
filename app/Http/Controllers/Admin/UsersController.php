@@ -11,6 +11,7 @@ use App\User;
 use Gate;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Auth;
 
 class UsersController extends Controller
 {
@@ -117,4 +118,15 @@ class UsersController extends Controller
 
 		return response()->json($formattedUsers);
 	}
+
+    # for logout user
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login')->with('message', 'You have been logged out successfully.');
+    }
 }
