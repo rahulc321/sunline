@@ -21,7 +21,7 @@ body{
             </div>
 
             @if(session('message'))
-                <p class="alert alert-info">{{ session('message') }}</p>
+                <p class="alert alert-danger">{{ session('message') }}</p>
             @endif
 
             <form method="POST" action="{{ route('login') }}">
