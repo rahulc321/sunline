@@ -50,9 +50,12 @@
                                     <th>
                                         {{ trans('cruds.user.fields.name') }}
                                     </th>
+                                    
                                     <th>
                                         {{ trans('cruds.user.fields.email') }}
                                     </th>
+                                    <th>Phone</th>
+                                    <th>LInk</th>
 
                                     <th>
                                         {{ trans('cruds.user.fields.roles') }}
@@ -74,6 +77,14 @@
                                     </td>
                                     <td>
                                         {{ $user->email ?? '' }}
+                                    </td>
+
+                                    <td>
+                                        {{ $user->phone ?? '' }}
+                                    </td>
+
+                                    <td>
+                                        {{ $user->link ?? '' }}
                                     </td>
 
                                     <td>
@@ -102,9 +113,11 @@
                                             style="display:inline-block;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger p-1">
-                                                <i class="ph-trash"></i>
-                                            </button>
+                                                @if($user->id != 1)
+                                                <button type="submit" class="btn btn-sm btn-outline-danger p-1">
+                                                    <i class="ph-trash"></i>
+                                                </button>
+                                                @endif
                                         </form>
                                         @endcan
 
