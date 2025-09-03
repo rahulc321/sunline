@@ -43,6 +43,15 @@
                                 {{ trans('cruds.user.fields.name_helper') }}
                             </p>
                         </div>
+
+                        <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                            <label for="phone">Phone*</label>
+                            <input type="text" id="phone" name="phone" class="form-control"
+                                value="{{$user->phone ?? ''}}"   >
+                            
+                        </div>
+
+
                         <div class="form-group {{ $errors->has('email') ? 'has-error' : '' }}">
                             <label for="email">{{ trans('cruds.user.fields.email') }}*</label>
                             <input type="email" id="email" name="email" class="form-control"
@@ -68,6 +77,21 @@
                                 {{ trans('cruds.user.fields.password_helper') }}
                             </p>
                         </div>
+
+                        <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                            <label for="phone">Address</label>
+                             <textarea name="address" class="form-control" placeholder="Address Here.....">{{$user->address ?? ''}}</textarea>
+                            
+                        </div>
+
+                        <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                            <label for="phone">Link</label>
+                            <input type="text" id="link" name="link" class="form-control" value="{{$user->link ?? ''}}"
+                            placeholder="abc.com"   >
+                            
+                        </div>
+
+
                         <div class="form-group {{ $errors->has('roles') ? 'has-error' : '' }}">
                             <label for="roles">{{ trans('cruds.user.fields.roles') }}*
                                 <span class="btn btn-info btn-xs select-all">{{ trans('global.select_all') }}</span>

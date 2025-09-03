@@ -34,6 +34,9 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
+        'link',
+        'address',
         'password',
         'created_at',
         'updated_at',
@@ -48,9 +51,9 @@ class User extends Authenticatable
         self::created(function (User $user) {
             $registrationRole = config('panel.registration_default_role');
 
-            if (!$user->roles()->get()->contains($registrationRole)) {
-                $user->roles()->attach($registrationRole);
-            }
+            // if (!$user->roles()->get()->contains($registrationRole)) {
+            //     $user->roles()->attach($registrationRole);
+            // }
         });
     }
 

@@ -28,8 +28,8 @@ class EmailTemplateController extends Controller
             'category' => 'required|string',
             'status' => 'required|string',
         ]);
-
-        EmailTemplate::create($request->only('subject','body','category','status'));
+       // dd($request->all());
+        EmailTemplate::create($request->all());
 
         return redirect()->back()->with('success', 'Email Template created successfully!');
     }

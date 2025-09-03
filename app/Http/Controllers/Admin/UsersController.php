@@ -19,7 +19,7 @@ class UsersController extends Controller
     {
         abort_if(Gate::denies('user_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $users = User::all();
+        $users = User::orderBy('id','DESC')->get();
 
         return view('admin.users.index', compact('users'));
     }
@@ -35,6 +35,7 @@ class UsersController extends Controller
 
     public function store(StoreUserRequest $request)
     {
+        //dd($request->all());
         $user = User::create($request->all());
         $user->roles()->sync($request->input('roles', []));
         session()->flash('success', 'User has been successfully added!');   

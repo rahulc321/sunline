@@ -65,15 +65,23 @@
                     </div>
 
                     <!-- Status Dropdown (top-right) -->
-                    <div style="position: absolute; top: 0; right: 0;">
+                    <div class="d-flex align-items-center gap-2" style="position: absolute; top: 0; right: 0;">
+                        <!-- Sync button -->
+                        <button class="btn btn-sm btn-warning px-3 py-2 sync" 
+                            data-bs-toggle="modal" data-bs-target="#syncModel">
+                            SYNC
+                        </button>
+
+                        <!-- Status dropdown -->
                         <?php $status = config('fri.lead_status'); ?>
-                        <select class="form-select lead_status" style="width:auto; min-width:180px;">
-                            <option value="">Select</option>
+                        <select class="form-select form-select-sm lead_status" style="min-width: 180px;">
+                            <option value="">Select Status</option>
                             @foreach($status as $value)
                             <option value="{{ $value }}">{{ $value }}</option>
                             @endforeach
                         </select>
                     </div>
+
                 </div>
 
 
@@ -176,7 +184,8 @@
 
             <!-- Footer -->
             <div class="modal-footer">
-                <button class="btn btn-outline-primary send_email_inner" data-bs-toggle="modal" data-bs-target="#emailModel"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                <button class="btn btn-outline-primary send_email_inner" data-bs-toggle="modal"
+                    data-bs-target="#emailModel"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" class="lucide lucide-mail h-4 w-4 mr-2"
                         data-lov-id="src/components/leads/LeadDetailModal.tsx:226:14" data-lov-name="Mail"
@@ -197,9 +206,9 @@
                         <path d="M5 12h14"></path>
                         <path d="M12 5v14"></path>
                     </svg> Create Follow-up</button>
-                <button class="btn btn-outline-info d-none"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-ticket h-4 w-4 mr-2"
+                <button class="btn btn-outline-info d-none"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                        height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ticket h-4 w-4 mr-2"
                         data-lov-id="src/components/leads/LeadDetailModal.tsx:234:14" data-lov-name="Ticket"
                         data-component-path="src/components/leads/LeadDetailModal.tsx" data-component-line="234"
                         data-component-file="LeadDetailModal.tsx" data-component-name="Ticket"
@@ -243,7 +252,7 @@
 $(document).on('change', '.lead_status', function() {
     let leadId = $('.lead_id').val();
     let status = $(this).val();
-   // alert(leadId);
+    // alert(leadId);
     if (!status) return;
 
     if (!confirm("Are you sure you want to update the status?")) {
