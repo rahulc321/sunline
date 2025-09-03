@@ -262,6 +262,7 @@ strong {
     @include('admin.leads._add_lead_modal')
     @include('admin.leads._view_lead_modal')
     @include('admin.leads._followup_lead_modal')
+    @include('admin.leads._sync_modal')
     @include('admin.leads._listfollowup_modal', [
     'upcoming' => $upcoming,
     'past' => $past
@@ -307,6 +308,9 @@ strong {
             $('.follow_up').attr('data-name', [lead.first_name, lead.last_name].filter(Boolean).join(" ") ||
                 'N/A');
             $('.name').text(
+                [lead.first_name, lead.last_name].filter(Boolean).join(" ") || 'N/A'
+            );
+            $('#leadName').text(
                 [lead.first_name, lead.last_name].filter(Boolean).join(" ") || 'N/A'
             );
             $('.lead_email').text(lead.email ?? 'N/A');
@@ -387,7 +391,9 @@ strong {
                         <i class="ph-envelope-simple"></i>&nbsp; Email
                     </button>
                     <button class="btn btn-sm btn-primary bg_s px-4 py-2 view-lead" data-lead='${JSON.stringify(lead)}' data-bs-toggle="modal" data-bs-target="#leadDetailsModal">View</button>
-                </div>
+               
+                   
+                    </div>
             </div>
         </div>
     </div>`;

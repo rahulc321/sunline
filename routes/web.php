@@ -52,6 +52,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 	Route::resource('emailTemplate', App\Http\Controllers\Admin\EmailTemplateController::class);
     Route::any('emailTemplateUpdate', [App\Http\Controllers\Admin\EmailTemplateController::class, 'emailTemplateUpdate'])->name('emailTemplateUpdate');
     Route::any('sendEmail', [App\Http\Controllers\Admin\EmailTemplateController::class, 'sendEmail'])->name('sendEmail');
+    
 
     # for task related routes
     Route::any('taskList', [App\Http\Controllers\Admin\TasksController::class, 'taskList'])->name('taskList');
@@ -71,8 +72,16 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
      ->name('admin.ticketsReplies');
     Route::any('ticketUpdate/{id}', [App\Http\Controllers\Admin\TicketController::class, 'ticketUpdate'])
      ->name('admin.ticketUpdate');
-    
 
-
+    # for webhook
+    Route::any('send', [App\Http\Controllers\Admin\ApiTesterController::class, 'send'])->name('send');
+    Route::any('webhook', [App\Http\Controllers\Admin\ApiTesterController::class, 'webhook'])->name('webhook');
+    Route::any('createWebhook', [App\Http\Controllers\Admin\ApiTesterController::class, 'createWebhook'])->name('createWebhook');
+    Route::any('storeWebhook', [App\Http\Controllers\Admin\ApiTesterController::class, 'storeWebhook'])->name('storeWebhook');
+    Route::any('editWebhook/{id}', [App\Http\Controllers\Admin\ApiTesterController::class, 'editWebhook'])->name('editWebhook');
+    Route::any('updateWebhook/{id}', [App\Http\Controllers\Admin\ApiTesterController::class, 'updateWebhook'])->name('updateWebhook');
+    Route::any('deleteWebhook/{id}', [App\Http\Controllers\Admin\ApiTesterController::class, 'deleteWebhook'])->name('deleteWebhook');
+    Route::any('triggerwebhook', [App\Http\Controllers\Admin\ApiTesterController::class, 'triggerwebhook'])->name('triggerwebhook');
+    Route::any('apiLog/{id}', [App\Http\Controllers\Admin\ApiTesterController::class, 'apiLog'])->name('apiLog');
 
 });

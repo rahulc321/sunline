@@ -273,6 +273,14 @@ div#jsGrid1_filter {
                 </a>
             </li>
 			@endif
+            @can('webhook_access')
+            <li class="nav-item">
+                <a href="{{route('admin.webhook')}}"
+                    class="nav-link {{ request()->is('admin/webhook') ? 'active' : '' }}">
+                    <i class="ph-arrows-clockwise"></i><span>Webhook</span>
+                </a>
+            </li>
+            @endif
 
         </ul>
     </div>
