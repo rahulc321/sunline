@@ -13,7 +13,7 @@
             <form action="{{ route('admin.emailTemplateUpdate') }}" method="post">
                 @csrf
                 <div class="modal-body">
-                <input type="text" name="id" class="form-control">
+                    <input type="hidden" name="id" class="form-control">
                     <div class="mb-3">
                         <label>Title</label>
                         <input type="text" name="subject" class="form-control" placeholder="Enter subject" required>
@@ -21,7 +21,20 @@
 
                     <div class="mb-3">
                         <label>Description</label>
-                        <textarea name="body" id="editorBody1" class="form-control" rows="5" placeholder="Enter description"></textarea>
+                        <div class="mb-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary insert-tag"
+                                data-tag="{name}">Name</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary insert-tag"
+                                data-tag="{phone}">Phone</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary insert-tag"
+                                data-tag="{email}">Email</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary insert-tag"
+                                data-tag="{link}">Link</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary insert-tag"
+                                data-tag="{address}">Address</button>
+                        </div>
+                        <textarea name="body" id="editorBody1" class="form-control editorBody" rows="5"
+                            placeholder="Enter description"></textarea>
                     </div>
 
                     <div class="row">
@@ -46,6 +59,18 @@
                         </div>
                     </div>
 
+                    <div class="col-sm-6 mb-3">
+                        <label>Lead Status<small style="color: red;"> ( For individual email templates, please leave
+                                this empty )</small></label>
+                        <?php $status = config('fri.lead_status'); ?>
+                        <select class="form-select lead_status" name="lead_status">
+                            <option value="">Select</option>
+                            @foreach($status as $value)
+                            <option value="{{ $value }}">{{ $value }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                 </div>
 
                 <div class="modal-footer">
@@ -60,9 +85,14 @@
 
 @push('styles')
 <style>
-    /* make sure CKEditor dialogs stay above Bootstrap modal */
-    .cke_dialog { z-index: 20000 !important; }
-    .cke { z-index: 15000 !important; }
+/* make sure CKEditor dialogs stay above Bootstrap modal */
+.cke_dialog {
+    z-index: 20000 !important;
+}
+
+.cke {
+    z-index: 15000 !important;
+}
 </style>
 @endpush
 

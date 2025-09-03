@@ -97,7 +97,14 @@ error_reporting(0);
                             <span class="badge bg-light text-primary mb-2">
                                 {{ ucfirst($template->category) }}
                             </span>
+
+                            @if($template->lead_status)
+                            <span class="badge bg-light text-warning mb-2">
+                                {{ ucfirst($template->lead_status) }}
+                            </span>
+                            @endif
                         </div>
+
 
                         <!-- Stats row -->
                         <div class="d-flex justify-content-between text-muted small mb-3">
@@ -185,13 +192,13 @@ error_reporting(0);
         modal.find('select').val('').trigger('change');
 
         setTimeout(function() {
-                if (CKEDITOR.instances.editorBody1) {
-                    CKEDITOR.instances.editorBody1.destroy(true);
-                }
-                CKEDITOR.replace('editorBody1', {
-                    height: 250
-                });
-            }, 200);
+            if (CKEDITOR.instances.editorBody1) {
+                CKEDITOR.instances.editorBody1.destroy(true);
+            }
+            CKEDITOR.replace('editorBody1', {
+                height: 250
+            });
+        }, 200);
 
         // loop through keys of template and match input/textarea/select by name
         $.each(template, function(key, value) {
@@ -210,7 +217,37 @@ error_reporting(0);
         modal.modal('show');
     });
     </script>
+
+    <script>
+    $(document).on('click', '.insert-tag', function() {
+        let tag = $(this).data('tag');
+
+        // If CKEditor is enabled
+        if (typeof CKEDITOR !== 'undefined') {
+            if (CKEDITOR.instances.editorBody && CKEDITOR.instances.editorBody.focusManager.hasFocus) {
+                CKEDITOR.instances.editorBody.insertText(tag);
+                return;
+            }
+            if (CKEDITOR.instances.editorBody1 && CKEDITOR.instances.editorBody1.focusManager.hasFocus) {
+                CKEDITOR.instances.editorBody1.insertText(tag);
+                return;
+            }
+        }
+
+        // Fallback for normal textarea
+        let textarea = document.activeElement;
+        if (textarea && textarea.classList.contains('editorBody')) {
+            let start = textarea.selectionStart;
+            let end = textarea.selectionEnd;
+            let text = textarea.value;
+
+            textarea.value = text.substring(0, start) + tag + text.substring(end);
+            textarea.selectionStart = textarea.selectionEnd = start + tag.length;
+            textarea.focus();
+        }
+    });
     </script>
+
 
     <script src="{{asset('js/lead/edit-lead.js')}}"></script>
     <script src="{{asset('js/lead/edit-lead-notes.js')}}"></script>
