@@ -174,7 +174,7 @@ class ApiTesterController extends Controller
 
     # for api logs
     public function apiLog($webhook_id){
-        $this->data['logs'] = ApiLog::where('webhook_id', $webhook_id)->get();
+        $this->data['logs'] = ApiLog::where('webhook_id', $webhook_id)->orderBy('id','DESC')->get();
         return view('admin.webhook.logs',$this->data);
 
     }
