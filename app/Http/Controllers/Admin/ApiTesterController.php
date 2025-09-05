@@ -4,12 +4,45 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{Webhook,ApiLog, Lead};
+use App\Models\{Webhook,ApiLog, Lead, LeadProject};
 
 class ApiTesterController extends Controller
-{
+{   
+
+    protected $token;
+
+    public function __construct(Request $request)
+    {
+        # get token when controller is created
+        //$this->token = $this->generateToken($request);
+        $this->token = "sss";
+    }
+
+    # for generate token over open solar plateform
+    public function generateToken(Request $request){
+
+        $request['method'] = 'POST';
+        $request['url'] = 'https://api.opensolar.com/api-token-auth/';
+        $request['bearer_token'] = '';
+
+        $data = [
+            'username' => 'makeitbetter@sunlineenergy.com.au',
+            'password' => 'Shivam@482',
+        ];
+
+        $request['body'] = json_encode($data);
+
+        $response = $this->send($request);
+
+        # if send() returns a JsonResponse, convert it
+        $decoded = json_decode($response->getContent(), true);
+    
+        return $decoded['token'] ?? null;
+    }
+
     # for get webhook
-    public function webhook(){
+    public function webhook(Request $request){
+        //return $this->createProject($request);
         $this->data['webhooks'] = Webhook::get();
         return view('admin.webhook.index',$this->data);
      
@@ -179,6 +212,64 @@ class ApiTesterController extends Controller
 
     }
 
+    # create project over open solar
+    public function createProject(Request $request){
+        $lead = Lead::with('leadSource')->find(4);
+        // echo '<pre>';print_r($lead);die;
+        $data = [
+            "identifier" => rand(1111,9999),
+            "is_residential" => "1",
+            "lead_source" => @$lead->leadSource->source,
+            "notes" => "New.",
+             "lat" => "35.12364",
+             "lon" => "128.23216",
+            "address" => @$lead->address,
+            //  "locality" => "Fakesville",
+            // "state" => "NSW",
+            //  "country_iso2" => "AU",
+            // "zip" => "2020",
+            "number_of_phases" => "1",
+            // "roof_type" => "https://api.opensolar.com/api/roof_types/6/",
+            // "assigned_role" => "https://api.opensolar.com/api/orgs/1/roles/123/",
+            # assigned_installer_role and assigned_site_inspector_role also available
+            "contacts_new" => [
+                [
+                    "first_name" => @$lead->first_name,
+                    "family_name" => @$lead->last_name,
+                    "email" =>  @$lead->email1,
+                    "phone" =>  @$lead->phone,
+                    //"date_of_birth" => "1990-01-01",
+                    "gender" => "2" # 0 = unset, 1 = female, 2 = male
+                ]
+            ]
+        ];
 
+        $request['method'] = 'POST';
+        $request['url'] = 'https://api.opensolar.com/api/orgs/421/projects/';
+        $request['bearer_token'] = $this->token;
+        $request['body'] = json_encode($data);
 
+       $response =   $this->send($request);
+
+       $decoded = json_decode($response->getContent(), true);
+
+        if (isset($decoded['response']['contacts_new'][0]['email'][0])) {
+            # error from API
+            $error = $decoded['response']['contacts_new'][0]['email'][0];
+            return redirect()->back()->with('error', $error);
+        } else {
+            # no error → save into lead_project
+            LeadProject::create([
+                'lead_id'    => 4,           // comes from your form/request
+                'data'       => json_encode($decoded),       // store whole response as JSON
+                'status'     => 'New',                   // you can change to whatever logic
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            return redirect()->back()->with('success', 'Data saved successfully!');
+        }
+    }
+
+   
 }

@@ -91,6 +91,9 @@
         <div class="tab-pane fade show active" id="templates" role="tabpanel">
             <div class="row">
                 @foreach($templates as $template)
+                <?php
+                    $usersCount = DB::table('emails')->where('template_id',$template->id)->get()->count();
+                ?>
                 <div class="col-md-4 mb-4">
                     <div class="card shadow-sm rounded-3 h-100 border">
                         <div class="card-body d-flex flex-column">
@@ -118,7 +121,7 @@
                             </div>
 
                             <div class="d-flex justify-content-between text-muted small mb-3">
-                                <span><i class="ph-trend-up"></i> {{ $template->uses_count ?? 0 }} uses</span>
+                                <span><i class="ph-trend-up"></i> {{ $usersCount ?? 0 }} uses</span>
                                 <span><i class="ph-calendar"></i> {{ $template->updated_at->format('Y-m-d') }}</span>
                             </div>
 
