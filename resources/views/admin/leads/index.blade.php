@@ -403,7 +403,7 @@ strong {
 
     <script>
     let offset = 0;
-    let limit = 1;
+    let limit = 25;
     let isLoading = false;
     let hasMore = true;
 
