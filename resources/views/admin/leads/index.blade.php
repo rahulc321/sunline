@@ -119,7 +119,7 @@ strong {
 
                 <!-- Right button -->
                 <div>
-                    <a href="#" class="btn btn-outline-danger d-flex align-items-center gap-1">
+                    <a href="#" class="btn btn-outline-danger d-flex align-items-center gap-1 d-none">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                             class="lucide lucide-circle-alert h-4 w-4 mr-2"
@@ -142,56 +142,44 @@ strong {
             <form class="row align-items-end">
 
                 <!-- Title -->
-                <div class="col-12">
-                    <h6 class="mb-3">
-                        <i class="bi bi-funnel"></i><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-filter h-5 w-5 text-primary"
-                            data-lov-id="src/components/dashboard/DashboardFilters.tsx:67:8" data-lov-name="Filter"
-                            data-component-path="src/components/dashboard/DashboardFilters.tsx" data-component-line="67"
-                            data-component-file="DashboardFilters.tsx" data-component-name="Filter"
-                            data-component-content="%7B%22className%22%3A%22h-5%20w-5%20text-primary%22%7D">
-                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                        </svg> Dashboard Filters
-                    </h6>
-                </div>
 
-                <!-- From Date -->
-                <div class="col-md-2">
-                    <label>From Date</label>
-                    <input type="date" class="form-control">
-                </div>
 
-                <!-- To Date -->
-                <div class="col-md-2">
-                    <label>To Date</label>
-                    <input type="date" class="form-control">
+                <!-- Lead Source -->
+                <div class="col-md-3">
+                    <label>Lead Source</label>
+                    <select name="lead_source" class="form-control">
+                        <option value="">Select All</option>
+                        @foreach($leadSource as $data)
+                        <option value="{{@$data->id}}">{{@$data['source']}}</option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <!-- Sales Rep -->
                 <div class="col-md-3">
                     <label>Sales Rep</label>
-                    <select class="form-select">
-                        <option>All Sales Reps</option>
-                        <option>Rep 1</option>
-                        <option>Rep 2</option>
+                    <select name="assign_rep" class="form-control ">
+                        <option value="">Select All</option>
+                        @foreach($users as $data)
+                        <option value="{{@$data->id}}">{{@$data['name']}}</option>
+                        @endforeach
                     </select>
                 </div>
 
-                <!-- Lead Source -->
                 <div class="col-md-3">
-                    <label>Lead Source</label>
-                    <select class="form-select">
-                        <option>All Sources</option>
-                        <option>Source 1</option>
-                        <option>Source 2</option>
+                    <label>Status</label>
+                    <?php $status = config('fri.lead_status'); ?>
+                    <select class="form-select form-select-sm" style="min-width: 180px;" name="status">
+                        <option value="">Select All</option>
+                        @foreach($status as $value)
+                        <option value="{{ $value }}">{{ $value }}</option>
+                        @endforeach
                     </select>
                 </div>
 
                 <!-- Buttons -->
                 <div class="col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary bg_s">Apply</button>
+                    <button type="button" class="btn btn-primary bg_s apply">Apply</button>
                     <button type="reset" class="btn btn-outline-secondary">Reset</button>
                 </div>
 
@@ -334,13 +322,6 @@ strong {
     });
 
 
-
-
-    let offset = 0;
-    const limit = 25;
-    let isLoading = false;
-    let hasMore = true;
-
     function leadCard(lead) {
         const statusColors = {
             "New": "primary",
@@ -400,63 +381,6 @@ strong {
     }
 
 
-    function loadLeads() {
-        if (isLoading || !hasMore) return;
-
-        isLoading = true;
-        $('#load-more').prop('disabled', true).text('Loading...');
-
-        $.ajax({
-                url: "{{ route('admin.listLeads') }}",
-                method: 'GET',
-                data: {
-                    offset,
-                    limit
-                },
-            })
-            .done(function(res) {
-                // Support either {data:[...]} or just [...]
-                const leads = Array.isArray(res) ? res : (res.data || []);
-                if (!leads.length) {
-                    hasMore = false;
-                    $('#load-more').hide();
-                    return;
-                }
-
-                let appended = 0;
-                leads.forEach(lead => {
-                    if (!document.getElementById(`lead-${lead.id}`)) {
-                        $('#leads-container').append(leadCard(lead));
-                        appended++;
-                    }
-                });
-
-                // Advance by what server returned (safer on last page)
-                offset += leads.length;
-
-                // If fewer than limit came back, no more pages
-                if (leads.length < limit) {
-                    hasMore = false;
-                    $('#load-more').hide();
-                }
-
-
-                $('.totalFollowups').text(res.followupCount);
-
-
-            })
-            .always(function() {
-                isLoading = false;
-                if (hasMore) $('#load-more').prop('disabled', false).text('Load More');
-            });
-    }
-
-    // first load
-    $(function() {
-        $('#load-more').on('click', loadLeads);
-        loadLeads();
-    });
-
     $(document).on('click', '.send_email', function() {
         // parse string value into object
         let lead = $(this).data('lead');
@@ -475,9 +399,124 @@ strong {
         $('.lead_name').text(lead.first_name + ' ' + lead.last_name);
         $('.lead_email').val(lead.email);
     });
-
-    
     </script>
+
+    <script>
+    let offset = 0;
+    let limit = 1;
+    let isLoading = false;
+    let hasMore = true;
+
+    function loadLeads(reset = false) {
+        if (reset) {
+            offset = 0;
+            hasMore = true;
+            $('#leads-container').empty();
+            $('#load-more').show();
+        }
+
+        if (isLoading || !hasMore) return;
+
+        isLoading = true;
+        $('#load-more').prop('disabled', true).text('Loading...');
+
+        $.ajax({
+                url: "{{ route('admin.listLeads') }}",
+                method: 'GET',
+                data: {
+                    offset,
+                    limit,
+                    lead_source: $('select[name="lead_source"]').val(),
+                    assign_rep: $('select[name="assign_rep"]').val(),
+                    status: $('select[name="status"]').val()
+                }
+            })
+            .done(function(res) {
+                const leads = Array.isArray(res) ? res : (res.data || []);
+
+                if (!leads.length) {
+                    showNoData();
+                    return;
+                }
+
+                let html = '';
+                leads.forEach(lead => {
+                    if (!document.getElementById(`lead-${lead.id}`)) {
+                        html += leadCard(lead);
+                    }
+                });
+
+                $('#leads-container').append(html);
+                offset += leads.length;
+
+                if (leads.length < limit) {
+                    hasMore = false;
+                    $('#load-more').hide();
+                }
+
+                $('.totalFollowups').text(res.followupCount || 0);
+            })
+            .always(function() {
+                isLoading = false;
+                if (hasMore) $('#load-more').prop('disabled', false).text('Load More');
+            });
+    }
+
+    function showNoData() {
+        $('#leads-container').html(`
+        <div style="display:flex; justify-content:center; align-items:center; height:220px; margin:0;">
+            <div style="text-align:center; padding:20px; border:1px dashed #ccc; border-radius:12px; background:#fff; max-width:350px; width:100%; margin:0; animation: fadeIn 0.6s;">
+                <div style="font-size:48px; color:#f39c12; margin:0 0 10px 0; line-height:1; animation: pulse 1.5s infinite;">
+                    ⚠️
+                </div>
+                <p style="margin:0; font-size:18px; font-weight:600; color:#555;">
+                    Warning: No Data Found!
+                </p>
+            </div>
+        </div>
+        <style>
+            @keyframes fadeIn {
+                from {opacity: 0; transform: scale(0.95);}
+                to {opacity: 1; transform: scale(1);}
+            }
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.15); }
+                100% { transform: scale(1); }
+            }
+        </style>
+    `);
+
+        hasMore = false;
+        $('#load-more').hide();
+    }
+
+    // Apply button
+    $(document).on('click', '.apply', function() {
+        hasMore = true;
+        $('#load-more').show();
+        loadLeads(true);
+    });
+
+    // Reset button
+    $(document).on('click', 'button[type="reset"]', function() {
+        $('select').val('');
+        hasMore = true;
+        $('#load-more').show();
+        loadLeads(true);
+    });
+
+    // Load More button
+    $(document).on('click', '#load-more', function() {
+        loadLeads();
+    });
+
+    // First load
+    $(document).ready(function() {
+        loadLeads(true);
+    });
+    </script>
+
 
     <script src="{{asset('js/lead/edit-lead.js')}}"></script>
     <script src="{{asset('js/lead/edit-lead-notes.js')}}"></script>
