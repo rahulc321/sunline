@@ -62,29 +62,41 @@ class LeadInboxController extends Controller
 	}
 
 	public function listLeads(Request $request)
-	{
-		$limit = $request->limit ?? 1; // limit per request
-		$offset = $request->offset ?? 0;
+{
+    $limit = $request->limit ?? 10;
+    $offset = $request->offset ?? 0;
 
-		# fetch current batch
-		$leads = Lead::with('getAssignUserName','leadSource','leadFollowUp')->orderBy('id', 'desc')
-		->withCount('leadFollowUp')	
-		->skip($offset)
-			->take($limit)
-			->get();
+    $query = Lead::with('getAssignUserName','leadSource','leadFollowUp')
+        ->withCount('leadFollowUp')
+        ->orderBy('id', 'desc');
 
-		# check if more data exists for next load
-		$totalRecords = Lead::count();
-		$hasMore = ($offset + $limit) < $totalRecords;
+    # filters
+    if ($request->lead_source) {
+        $query->where('lead_source', $request->lead_source);
+    }
 
-		$totalFollowups = \DB::table('lead_follow_ups')->count();
+    if ($request->assign_rep) {
+        $query->where('assign_rep', $request->assign_rep);
+    }
 
-		return response()->json([
-			'data' => $leads,
-			'hasMore' => $hasMore,
-			'followupCount' => $totalFollowups
-		]);
-	}
+    if ($request->status) {
+        $query->where('status', $request->status);
+    }
+
+    $leads = $query->skip($offset)->take($limit)->get();
+
+    $totalRecords = $query->count();
+    $hasMore = ($offset + $limit) < $totalRecords;
+
+    $totalFollowups = \DB::table('lead_follow_ups')->count();
+
+    return response()->json([
+        'data' => $leads,
+        'hasMore' => $hasMore,
+        'followupCount' => $totalFollowups
+    ]);
+}
+
 
 
 	public function leadStore(Request $request)

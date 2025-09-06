@@ -211,6 +211,9 @@ strong {
             $('.follow_up').attr('data-id', lead?.id ?? '');
             $('.follow_up').attr('data-name', [lead.first_name, lead.last_name].filter(Boolean).join(" ") ||
                 'N/A');
+
+            $('#leadName').text([lead.first_name, lead.last_name].filter(Boolean).join(" ") ||
+                'N/A');
             $('.name').text(
                 [lead.first_name, lead.last_name].filter(Boolean).join(" ") || 'N/A'
             );
