@@ -33,10 +33,10 @@ strong {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-i.ph-user{
+i.ph-user {
     /* background: #0c83ff; */
     color: #6889f3;
-} 
+}
 
 
 .ph-calendar:before {
@@ -117,49 +117,40 @@ i.ph-user{
         <div class="card p-3 form_1">
             <form class="row align-items-end">
 
-                <!-- Title -->
-
-
-                <!-- From Date -->
-                <div class="col-md-2">
-
-                    <select class="form-select form-select-sm filter-select">
-                        <option>All Tasks</option>
-                        <option>Task 1</option>
-                        <option>Task 2</option>
-                    </select>
-                </div>
-
                 <!-- To Date -->
                 <div class="col-md-2">
-                    <select class="form-select form-select-sm filter-select">
-                        <option>All Reps</option>
-                        <option>Rep 1</option>
-                        <option>Rep 2</option>
+                    <select name="assigned_to" class="form-select form-select-sm" required>
+                        <option value="">Select All</option>
+                        @foreach($users as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                        @endforeach
                     </select>
                 </div>
 
                 <!-- Sales Rep -->
                 <div class="col-md-3">
-                    <select class="form-select form-select-sm filter-select">
-                        <option>All Priorities</option>
-                        <option>High</option>
-                        <option>Low</option>
+                    <select name="priority" class="form-select form-select-sm" required>
+                        <option value="">Select priority</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
                     </select>
                 </div>
 
                 <!-- Lead Source -->
                 <div class="col-md-3">
-                    <select class="form-select form-select-sm filter-select active-filter">
-                        <option>Task Type</option>
-                        <option>Call</option>
-                        <option>Meeting</option>
+                    <select name="task_type" class="form-select form-select-sm" required>
+                        <option value="">Select type</option>
+                        <option value="Call">Call</option>
+                        <option value="Meeting">Meeting</option>
+                        <option value="Follow-up">Follow-up</option>
+                        <option value="Email">Email</option>
                     </select>
                 </div>
 
                 <!-- Buttons -->
                 <div class="col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary bg_s">Apply</button>
+                    <button type="button" class="btn btn-primary bg_s apply">Apply</button>
                     <button type="reset" class="btn btn-outline-secondary">Reset</button>
                 </div>
 
@@ -333,18 +324,26 @@ i.ph-user{
         isLoading = true;
         $('#load-more').prop('disabled', true).text('Loading...');
 
+        // get filters
+        const assigned_to = $('[name="assigned_to"]').val();
+        const priority = $('[name="priority"]').val();
+        const task_type = $('[name="task_type"]').val();
+
         $.ajax({
                 url: "{{ route('admin.getTask') }}",
                 method: 'GET',
                 data: {
                     offset,
-                    limit
+                    limit,
+                    assigned_to,
+                    priority,
+                    task_type
                 },
             })
             .done(function(res) {
-                // Support either {data:[...]} or just [...]
                 const leads = Array.isArray(res) ? res : (res.data || []);
                 if (!leads.length) {
+                    showNoData();
                     hasMore = false;
                     $('#load-more').hide();
                     return;
@@ -358,19 +357,16 @@ i.ph-user{
                     }
                 });
 
-                // Advance by what server returned (safer on last page)
                 offset += leads.length;
 
-                // If fewer than limit came back, no more pages
                 if (leads.length < limit) {
                     hasMore = false;
                     $('#load-more').hide();
                 }
 
-
-                $('.totalFollowups').text(res.followupCount);
-
-
+                if (res.followupCount !== undefined) {
+                    $('.totalFollowups').text(res.followupCount);
+                }
             })
             .always(function() {
                 isLoading = false;
@@ -378,11 +374,60 @@ i.ph-user{
             });
     }
 
+    function showNoData() {
+        $('#leads-container').html(`
+        <div style="display:flex; justify-content:center; align-items:center; height:220px; margin:0;">
+            <div style="text-align:center; padding:20px; border:1px dashed #ccc; border-radius:12px; background:#fff; max-width:350px; width:100%; margin:0; animation: fadeIn 0.6s;">
+                <div style="font-size:48px; color:#f39c12; margin:0 0 10px 0; line-height:1; animation: pulse 1.5s infinite;">
+                    ⚠️
+                </div>
+                <p style="margin:0; font-size:18px; font-weight:600; color:#555;">
+                    Warning: No Data Found!
+                </p>
+            </div>
+        </div>
+        <style>
+            @keyframes fadeIn {
+                from {opacity: 0; transform: scale(0.95);}
+                to {opacity: 1; transform: scale(1);}
+            }
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.15); }
+                100% { transform: scale(1); }
+            }
+        </style>
+    `);
+
+        hasMore = false;
+        $('#load-more').hide();
+    }
+
+
     // first load
     $(function() {
-        $('#load-more').on('click', loadLeads);
+        // first load
         loadLeads();
+
+        // load more
+        $('#load-more').on('click', loadLeads);
+
+        // apply filters
+        $('.apply').on('click', function(e) {
+            e.preventDefault();
+            offset = 0;
+            hasMore = true;
+            isLoading = false;
+            $('#leads-container').empty();
+            loadLeads();
+        });
+
+        // reset filters
+        $('button[type="reset"]').on('click', function() {
+             location.reload();
+        });
     });
+
 
 
 

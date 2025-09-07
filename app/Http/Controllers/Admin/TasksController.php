@@ -69,36 +69,62 @@ class TasksController extends Controller
 
 	public function getTask(Request $request)
 	{
-		$limit = $request->limit ?? 1; // limit per request
+		$limit = $request->limit ?? 10;
 		$offset = $request->offset ?? 0;
-
-		# fetch current batch
-		$tasks = Task::with('getAssignUserName','leadName')->orderBy('id', 'desc')
-        ->skip($offset)
-        ->take($limit)
-        ->get()
-        ->map(function ($task) {
-            # split due_date into date and time
-            if (!empty($task->due_date)) {
-                $task->due_date_only = \Carbon\Carbon::parse($task->due_date)->format('Y-m-d');
-                $task->due_time_only = \Carbon\Carbon::parse($task->due_date)->format('h:i A');
-				$task->due_time_only1 = \Carbon\Carbon::parse($task->due_date)->format('H:i A');
-            } else {
-                $task->due_date_only = null;
-                $task->due_time_only = null;
-            }
-            return $task;
-        });
-
-		# check if more data exists for next load
-		$totalRecords = Task::count();
+	
+		# base query
+		$query = Task::with(['getAssignUserName','leadName'])->orderBy('id', 'desc');
+	
+		# apply filters dynamically
+		if ($request->filled('assigned_to')) {
+			$query->where('assigned_to', $request->assigned_to);
+		}
+	
+		if ($request->filled('priority')) {
+			$query->where('priority', $request->priority);
+		}
+	
+		if ($request->filled('task_type')) {
+			$query->where('task_type', $request->task_type);
+		}
+	
+		# if you still want search
+		// if ($request->filled('search_key')) {
+		// 	$search = $request->search_key;
+		// 	$query->where(function ($q) use ($search) {
+		// 		$q->where('title', 'like', "%{$search}%")
+		// 		  ->orWhere('description', 'like', "%{$search}%");
+		// 	});
+		// }
+	
+		# count after filters
+		$totalRecords = $query->count();
+	
+		# fetch with pagination
+		$tasks = $query->skip($offset)
+			->take($limit)
+			->get()
+			->map(function ($task) {
+				if (!empty($task->due_date)) {
+					$task->due_date_only = \Carbon\Carbon::parse($task->due_date)->format('Y-m-d');
+					$task->due_time_only = \Carbon\Carbon::parse($task->due_date)->format('h:i A');
+					$task->due_time_only1 = \Carbon\Carbon::parse($task->due_date)->format('H:i');
+				} else {
+					$task->due_date_only = null;
+					$task->due_time_only = null;
+					$task->due_time_only1 = null;
+				}
+				return $task;
+			});
+	
 		$hasMore = ($offset + $limit) < $totalRecords;
-
+	
 		return response()->json([
 			'data' => $tasks,
 			'hasMore' => $hasMore
 		]);
 	}
+	
 
 	# store task
 	public function taskStore(Request $request){
