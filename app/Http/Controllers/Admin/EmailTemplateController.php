@@ -9,11 +9,36 @@ use App\Models\Lead;
 
 class EmailTemplateController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $templates = EmailTemplate::all();
+        $query = EmailTemplate::query();
+
+        // search filter
+        if ($request->filled('search_key')) {
+            $search = $request->search_key;
+            $query->where(function ($q) use ($search) {
+                
+                $q->orWhere('subject', 'like', "%{$search}%")
+                ->orWhere('body', 'like', "%{$search}%");
+            });
+        }
+
+        // category filter
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
+        // status filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // get results (with pagination if needed)
+        $templates = $query->orderBy('id', 'desc')->paginate(10);
+
         return view('admin.email_templates.index', compact('templates'));
     }
+
 
     public function create()
     {
