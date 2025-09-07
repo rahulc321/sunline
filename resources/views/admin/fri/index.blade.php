@@ -56,17 +56,7 @@ strong {
         <div class="card p-2 form_1">
             <form class="d-flex align-items-center justify-content-between flex-wrap">
                 <div class="d-flex gap-4 flex-wrap"></div>
-                <div>
-                    <a href="#" class="btn btn-outline-danger d-flex align-items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor"
-                            stroke-width="2" class="lucide lucide-circle-alert h-4 w-4 mr-2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" x2="12" y1="8" y2="12"></line>
-                            <line x1="12" x2="12.01" y1="16" y2="16"></line>
-                        </svg>
-                        View Follow-ups Due
-                    </a>
-                </div>
+
             </form>
         </div>
 
@@ -74,13 +64,13 @@ strong {
             <form class="row align-items-end">
                 <div class="col-md-4">
                     <label>Search</label>
-                    <input type="text" class="form-control" placeholder="Search here...">
+                    <input type="text" class="form-control" placeholder="Search here..." name="search_key">
                 </div>
 
                 <div class="col-md-2">
                     <label>Status</label>
-                    <select class="form-select">
-                        <option value="">Select</option>
+                    <select class="form-select" name="status">
+                        <option value="">Select All</option>
                         @foreach($status as $value)
                         <option value="{{$value->name}}">{{$value->name}}</option>
                         @endforeach
@@ -89,8 +79,8 @@ strong {
 
                 <div class="col-md-2">
                     <label>Priorities</label>
-                    <select class="form-select">
-                        <option value="">Select</option>
+                    <select class="form-select" name="priority">
+                        <option value="">Select All</option>
                         @foreach($priority as $value)
                         <option value="{{$value->name}}">{{$value->name}}</option>
                         @endforeach
@@ -99,8 +89,8 @@ strong {
 
                 <div class="col-md-2">
                     <label>All Category</label>
-                    <select class="form-select">
-                        <option value="">Select</option>
+                    <select class="form-select" name="category">
+                        <option value="">Select All</option>
                         @foreach($category as $value)
                         <option value="{{$value->name}}">{{$value->name}}</option>
                         @endforeach
@@ -108,7 +98,7 @@ strong {
                 </div>
 
                 <div class="col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary bg_s">Apply</button>
+                    <button type="submit" class="btn btn-primary bg_s apply">Apply</button>
                     <button type="reset" class="btn btn-outline-secondary">Reset</button>
                 </div>
             </form>
@@ -123,7 +113,8 @@ strong {
     </section>
 
     <!-- Modals -->
-    @include('admin.fri._add_modal', ['users' => $users, 'status' => $status, 'categories' => $categories,'leads'=>$leads])
+    @include('admin.fri._add_modal', ['users' => $users, 'status' => $status, 'categories' =>
+    $categories,'leads'=>$leads])
     @include('admin.fri._edit_modal', ['users' => $users, 'status' => $status, 'categories' => $categories])
     @include('admin.fri._view_modal',['status' => $status])
     @include('admin.fri._reply_modal')
@@ -356,17 +347,28 @@ strong {
         isLoading = true;
         $('#load-more').prop('disabled', true).text('Loading...');
 
+        // get filter values from form
+        const search_key = $('input[name="search_key"]').val();
+        const status = $('select[name="status"]').val();
+        const priority = $('select[name="priority"]').val();
+        const category = $('select[name="category"]').val();
+
         $.ajax({
                 url: "{{ route('admin.listFri') }}",
                 method: 'GET',
                 data: {
                     offset,
-                    limit
+                    limit,
+                    search_key,
+                    status,
+                    priority,
+                    category
                 }
             })
             .done(function(res) {
                 const leads = Array.isArray(res) ? res : (res.data || []);
                 if (!leads.length) {
+                    showNoData()
                     hasMore = false;
                     $('#load-more').hide();
                     return;
@@ -394,10 +396,58 @@ strong {
             });
     }
 
+    function showNoData() {
+        $('#leads-container').html(`
+        <div style="display:flex; justify-content:center; align-items:center; height:220px; margin:0;">
+            <div style="text-align:center; padding:20px; border:1px dashed #ccc; border-radius:12px; background:#fff; max-width:350px; width:100%; margin:0; animation: fadeIn 0.6s;">
+                <div style="font-size:48px; color:#f39c12; margin:0 0 10px 0; line-height:1; animation: pulse 1.5s infinite;">
+                    ⚠️
+                </div>
+                <p style="margin:0; font-size:18px; font-weight:600; color:#555;">
+                    Warning: No Data Found!
+                </p>
+            </div>
+        </div>
+        <style>
+            @keyframes fadeIn {
+                from {opacity: 0; transform: scale(0.95);}
+                to {opacity: 1; transform: scale(1);}
+            }
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.15); }
+                100% { transform: scale(1); }
+            }
+        </style>
+    `);
+
+        hasMore = false;
+        $('#load-more').hide();
+    }
+
+
     $(function() {
-        $('#load-more').on('click', loadFri);
+        // load first batch on page ready
         loadFri();
+
+        // load more button
+        $('#load-more').on('click', loadFri);
+
+        // apply filters
+        $('.apply').on('click', function(e) {
+            e.preventDefault();
+            offset = 0;
+            hasMore = true;
+            $('#leads-container').empty(); // clear old leads
+            loadFri();
+        });
+
+        // reset filters
+        $('button[type="reset"]').on('click', function() {
+             location.reload();
+        });
     });
+
 
 
     $(document).on("change", ".fri_status", function() {
@@ -468,7 +518,7 @@ strong {
         modal.find('select[name="assigned_to"]').val(fri.assigned_to).trigger('change');
 
         modal.find('input[name="due_date"]').val(fri.due_date);
-       
+
 
         // Put lead_id into hidden input
         modal.find('select[name="lead_id"]').val(fri.lead_id);
