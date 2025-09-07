@@ -36,37 +36,44 @@
 
     <!-- Filter Card -->
     <div class="card p-3 form_1 mb-3">
-        <form class="row align-items-end">
+        <form class="row align-items-end" method="GET" action="">
             <div class="col-md-4">
                 <label>Search</label>
-                <input type="text" class="form-control" placeholder="Search here...">
+                <input type="text" class="form-control" placeholder="Search here..." name="search_key"
+                    value="{{ request('search_key') }}">
             </div>
 
             <div class="col-md-2">
                 <label>All Category</label>
-                <select class="form-select">
+                <select name="category" class="form-select">
                     <option value="">Select</option>
-                    @foreach($category as $value)
-                    <option value="{{$value->name}}">{{$value->name}}</option>
-                    @endforeach
+                    <option value="Welcome" {{ request('category') == 'Welcome' ? 'selected' : '' }}>Welcome</option>
+                    <option value="Follow-up" {{ request('category') == 'Follow-up' ? 'selected' : '' }}>Follow-up
+                    </option>
+                    <option value="Proposal" {{ request('category') == 'Proposal' ? 'selected' : '' }}>Proposal</option>
+                    <option value="Thank You" {{ request('category') == 'Thank You' ? 'selected' : '' }}>Thank You
+                    </option>
                 </select>
             </div>
 
             <div class="col-md-2">
                 <label>Status</label>
-                <select class="form-select">
+                <select name="status" class="form-select">
                     <option value="">Select</option>
-                    @foreach($status as $value)
-                    <option value="{{$value->name}}">{{$value->name}}</option>
-                    @endforeach
+                    <option value="Active" {{ request('status') == 'Active' ? 'selected' : '' }}>Active</option>
+                    <option value="Draft" {{ request('status') == 'Draft' ? 'selected' : '' }}>Draft</option>
+                    <option value="Archived" {{ request('status') == 'Archived' ? 'selected' : '' }}>Archived</option>
                 </select>
             </div>
 
             <div class="col-md-2 d-flex gap-2">
                 <button type="submit" class="btn btn-primary bg_s">Apply</button>
-                <button type="reset" class="btn btn-outline-secondary">Reset</button>
+
+                {{-- Reset clears filters by redirecting back to index --}}
+                <a href="{{ route('admin.emailTemplate.index') }}" class="btn btn-outline-secondary">Reset</a>
             </div>
         </form>
+
     </div>
 
     <!-- Tabs -->
