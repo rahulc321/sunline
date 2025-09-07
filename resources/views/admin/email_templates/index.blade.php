@@ -153,6 +153,49 @@
                     </div>
                 </div>
                 @endforeach
+
+                @if($templates->count() == 0)
+                <div style="display:flex; justify-content:center; align-items:center; height:220px; margin:0;">
+                    <div
+                        style="text-align:center; padding:20px; border:1px dashed #ccc; border-radius:12px; background:#fff; max-width:350px; width:100%; margin:0; animation: fadeIn 0.6s;">
+                        <div
+                            style="font-size:48px; color:#f39c12; margin:0 0 10px 0; line-height:1; animation: pulse 1.5s infinite;">
+                            ⚠️
+                        </div>
+                        <p style="margin:0; font-size:18px; font-weight:600; color:#555;">
+                            Warning: No Data Found!
+                        </p>
+                    </div>
+                </div>
+                <style>
+                @keyframes fadeIn {
+                    from {
+                        opacity: 0;
+                        transform: scale(0.95);
+                    }
+
+                    to {
+                        opacity: 1;
+                        transform: scale(1);
+                    }
+                }
+
+                @keyframes pulse {
+                    0% {
+                        transform: scale(1);
+                    }
+
+                    50% {
+                        transform: scale(1.15);
+                    }
+
+                    100% {
+                        transform: scale(1);
+                    }
+                }
+                </style>
+                @endif
+
             </div>
         </div>
 
