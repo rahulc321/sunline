@@ -54,62 +54,42 @@ strong {
 
     <!-- Main content -->
     <section class="content">
-         
+
 
         <div class="card p-3 form_1">
             <form class="row align-items-end">
 
-                <!-- Title -->
-                <div class="col-12">
-                    <h6 class="mb-3">
-                        <i class="bi bi-funnel"></i><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-filter h-5 w-5 text-primary"
-                            data-lov-id="src/components/dashboard/DashboardFilters.tsx:67:8" data-lov-name="Filter"
-                            data-component-path="src/components/dashboard/DashboardFilters.tsx" data-component-line="67"
-                            data-component-file="DashboardFilters.tsx" data-component-name="Filter"
-                            data-component-content="%7B%22className%22%3A%22h-5%20w-5%20text-primary%22%7D">
-                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                        </svg> Dashboard Filters
-                    </h6>
-                </div>
-
                 <!-- From Date -->
-                <div class="col-md-2">
-                    <label>From Date</label>
-                    <input type="date" class="form-control">
-                </div>
-
-                <!-- To Date -->
-                <div class="col-md-2">
-                    <label>To Date</label>
-                    <input type="date" class="form-control">
+                <div class="col-md-4">
+                    <label>Search</label>
+                    <input type="text" class="form-control" name="search_key" placeholder="Type Here.....">
                 </div>
 
                 <!-- Sales Rep -->
                 <div class="col-md-3">
                     <label>Sales Rep</label>
-                    <select class="form-select">
-                        <option>All Sales Reps</option>
-                        <option>Rep 1</option>
-                        <option>Rep 2</option>
+                    <select name="assign_rep" class="form-control ">
+                        <option value="">Select All</option>
+                        @foreach($users as $data)
+                        <option value="{{@$data->id}}">{{@$data['name']}}</option>
+                        @endforeach
                     </select>
                 </div>
 
                 <!-- Lead Source -->
                 <div class="col-md-3">
                     <label>Lead Source</label>
-                    <select class="form-select">
-                        <option>All Sources</option>
-                        <option>Source 1</option>
-                        <option>Source 2</option>
+                    <select name="lead_source" class="form-control">
+                        <option value="">Select All</option>
+                        @foreach($leadSource as $data)
+                        <option value="{{@$data->id}}">{{@$data['source']}}</option>
+                        @endforeach
                     </select>
                 </div>
 
                 <!-- Buttons -->
                 <div class="col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary bg_s">Apply</button>
+                    <button type="button" class="btn btn-primary bg_s apply">Apply</button>
                     <button type="reset" class="btn btn-outline-secondary">Reset</button>
                 </div>
 
@@ -166,21 +146,21 @@ strong {
         <div class="text-center mt-3">
             <button id="load-more" class="btn btn-primary px-4 bg_s">Load More</button>
         </div>
- 
+
     </section>
- 
+
     <!--Models -->
     <!-- Add Lead Modal -->
     @include('admin.contact._add_lead_modal')
     @include('admin.contact._edit_modal')
     @include('admin.contact._view_lead_modal')
     @include('admin.contact._followup_lead_modal')
-     
+
     @include('admin.contact._email_modal',['emailTemplates'=>$emailTemplates])
 
     <!-- Follow-up Modal -->
     <!-- Follow-up Modal -->
- 
+
     @endsection
 
     @section('scripts')
@@ -194,7 +174,7 @@ strong {
         let cont = $(this).data('contract');
 
         $('.lead_id').val(cont.id); // put it in hidden input of form
-        $('.leadName').text(leadName.first_name+' '+leadName.last_name);
+        $('.leadName').text(leadName.first_name + ' ' + leadName.last_name);
     });
 
     $(document).on('click', '.view-lead', function() {
@@ -245,7 +225,7 @@ strong {
     let isLoading = false;
     let hasMore = true;
 
-    function leadCard(contract,lead) {
+    function leadCard(contract, lead) {
         const statusColors = {
             "New": "primary",
             "Send Intro Email": "info",
@@ -359,51 +339,65 @@ strong {
     }
 
 
-    function loadLeads() {
-        if (isLoading || !hasMore) return;
+    function loadLeads(reset = false) {
+        if (isLoading || (!hasMore && !reset)) return;
+
+        if (reset) {
+            offset = 0;
+            hasMore = true;
+            $('#leads-container').empty();
+            $('#load-more').show();
+        }
 
         isLoading = true;
         $('#load-more').prop('disabled', true).text('Loading...');
+
+        // get filter values
+        let search_key = $('input[name="search_key"]').val();
+        let assign_rep = $('select[name="assign_rep"]').val();
+        let lead_source = $('select[name="lead_source"]').val();
 
         $.ajax({
                 url: "{{ route('admin.listContact') }}",
                 method: 'GET',
                 data: {
                     offset,
-                    limit
+                    limit,
+                    search_key,
+                    assign_rep,
+                    lead_source
                 },
             })
             .done(function(res) {
-                console.log('>>>>>>>>>>',res);
-                // Support either {data:[...]} or just [...]
+                console.log('>>>>>>>>>>', res);
+
                 const leads = Array.isArray(res) ? res : (res.data || []);
+                if (!leads.length && offset == 0) {
+                    showNoData()
+                    $('#load-more').hide();
+                    return;
+                }
+
                 if (!leads.length) {
                     hasMore = false;
                     $('#load-more').hide();
                     return;
                 }
 
-                let appended = 0;
                 leads.forEach(lead => {
                     if (!document.getElementById(`lead-${lead.id}`)) {
-                        $('#leads-container').append(leadCard(lead,lead.lead));
-                        appended++;
+                        $('#leads-container').append(leadCard(lead, lead.lead));
                     }
                 });
 
-                // Advance by what server returned (safer on last page)
                 offset += leads.length;
 
-                // If fewer than limit came back, no more pages
                 if (leads.length < limit) {
                     hasMore = false;
                     $('#load-more').hide();
                 }
 
-
                 $('.totalFollowups').text(res.followupCount);
-
-
             })
             .always(function() {
                 isLoading = false;
@@ -411,11 +405,59 @@ strong {
             });
     }
 
+
+    function showNoData() {
+        $('#leads-container').html(`
+        <div style="display:flex; justify-content:center; align-items:center; height:220px; margin:0;">
+            <div style="text-align:center; padding:20px; border:1px dashed #ccc; border-radius:12px; background:#fff; max-width:350px; width:100%; margin:0; animation: fadeIn 0.6s;">
+                <div style="font-size:48px; color:#f39c12; margin:0 0 10px 0; line-height:1; animation: pulse 1.5s infinite;">
+                    ⚠️
+                </div>
+                <p style="margin:0; font-size:18px; font-weight:600; color:#555;">
+                    Warning: No Data Found!
+                </p>
+            </div>
+        </div>
+        <style>
+            @keyframes fadeIn {
+                from {opacity: 0; transform: scale(0.95);}
+                to {opacity: 1; transform: scale(1);}
+            }
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.15); }
+                100% { transform: scale(1); }
+            }
+        </style>
+    `);
+
+        hasMore = false;
+        $('#load-more').hide();
+    }
+
+
     // first load
     $(function() {
-        $('#load-more').on('click', loadLeads);
+        // load more pagination
+        $('#load-more').on('click', function() {
+            loadLeads();
+        });
+
+        // first load
         loadLeads();
+
+        // apply filter
+        $('.apply').on('click', function() {
+            loadLeads(true); // reset list and apply filters
+        });
+
+        // reset filter
+        $('button[type="reset"]').on('click', function() {
+            $('form')[0].reset(); // reset form inputs
+            loadLeads(true); // reload without filters
+        });
     });
+
 
     $(document).on('click', '.send_email', function() {
         // parse string value into object
@@ -435,8 +477,6 @@ strong {
         $('.lead_name').text(lead.first_name + ' ' + lead.last_name);
         $('.lead_email').val(lead.email);
     });
-
-    
     </script>
 
     <script src="{{asset('js/lead/edit-lead.js')}}"></script>

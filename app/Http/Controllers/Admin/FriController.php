@@ -100,25 +100,52 @@ class FriController extends Controller
     }
 
     public function listFri(Request $request)
-	{
-		$limit = $request->limit ?? 1; // limit per request
-		$offset = $request->offset ?? 0;
+    {
+        $limit = $request->limit ?? 10; // default limit
+        $offset = $request->offset ?? 0;
 
-		# fetch current batch
-		$leads = Fri::with('createdByName','leadName')->orderBy('id', 'desc')
-		->skip($offset)
-			->take($limit)
-			->get();
+        # build query
+        $query = Fri::with(['createdByName', 'leadName'])
+            ->orderBy('id', 'desc');
 
-		# check if more data exists for next load
-		$totalRecords = Fri::count();
-		$hasMore = ($offset + $limit) < $totalRecords;
+        # apply filters
+        if ($request->filled('search_key')) {
+            $search = $request->search_key;
+            $query->where(function ($q) use ($search) {
+                $q->where('subject', 'like', "%{$search}%")
+                ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
 
-		return response()->json([
-			'data' => $leads,
-			'hasMore' => $hasMore
-		]);
-	}
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('priority')) {
+            $query->where('priority', $request->priority);
+        }
+
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
+        # clone query for total count
+        $totalRecords = (clone $query)->count();
+
+        # fetch current batch
+        $leads = $query->skip($offset)
+            ->take($limit)
+            ->get();
+
+        $hasMore = ($offset + $limit) < $totalRecords;
+
+        return response()->json([
+            'data' => $leads,
+            'hasMore' => $hasMore,
+            'totalRecords' => $totalRecords
+        ]);
+    }
+
 
 
     /**

@@ -237,22 +237,53 @@ class LeadInboxController extends Controller
 		$limit = $request->limit ?? 10; 
 		$offset = $request->offset ?? 0;
 
-		# fetch contacts with their leads
-		$contacts = LeadContact::with([
+		# base query
+		$query = LeadContact::with([
 				'lead.getAssignUserName',
 				'lead.leadSource',
-				//'lead.leadFollowUp'
 			])
-			->withCount('followUp')	
-			->orderBy('id', 'desc')
-			->skip($offset)
-			->take($limit)
-			->get();
+			->withCount('followUp')
+			->orderBy('id', 'desc');
+
+		# apply search filter
+		if ($request->filled('search_key')) {
+			$search = $request->search_key;
+		
+			$query->whereHas('lead', function ($leadQuery) use ($search) {
+				$leadQuery->where(\DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%")
+						  ->orWhere('email', 'like', "%{$search}%")
+						  ->orWhere('address', 'like', "%{$search}%")
+						  ->orWhere('phone', 'like', "%{$search}%");
+			});
+		}
+		
+
+		# apply assign rep filter
+		if ($request->filled('assign_rep')) {
+			$query->whereHas('lead', function ($q) use ($request) {
+				$q->where('assign_rep', $request->assign_rep);
+			});
+		}
+
+		# apply lead source filter
+		if ($request->filled('lead_source')) {
+			$query->whereHas('lead', function ($q) use ($request) {
+				$q->where('lead_source', $request->lead_source);
+			});
+		}
+
+		# clone query for total count with filters
+		$totalRecords = (clone $query)->count();
+
+		# get paginated data
+		$contacts = $query->skip($offset)
+						->take($limit)
+						->get();
 
 		# check if more data exists for next load
-		$totalRecords = LeadContact::count();
 		$hasMore = ($offset + $limit) < $totalRecords;
 
+		# total followups count (global)
 		$totalFollowups = \DB::table('lead_follow_ups')->count();
 
 		return response()->json([
