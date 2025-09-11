@@ -124,9 +124,9 @@ i.ph-user {
                 <div class="col-md-2">
 
 
-                    <option>All Tickets</option>
-                    <select id="status" name="status" class="form-select form-select-sm">
 
+                    <select id="status" name="status" class="form-select form-select-sm">
+                        <option value="">All Tickets</option>
                         <option value="open">Open</option>
                         <option value="closed">Closed</option>
                         <option value="responded">Responded</option>
@@ -138,7 +138,7 @@ i.ph-user {
                 <!-- To Date -->
                 <div class="col-md-2">
                     <select id="assign_to" name="assign_to" class="form-select form-select-sm">
-                        <option value="">Select rep</option>
+                        <option value="">All Reps</option>
                         @foreach($users as $user)
                         <option value="{{ $user->id }}">{{ $user->name }}</option>
                         @endforeach
@@ -158,9 +158,9 @@ i.ph-user {
 
                 <!-- Lead Source -->
                 <div class="col-md-3">
-                    <label for="category" class="form-label1 mb-1">All Category</label>
+
                     <select id="category" name="category" class="form-select form-select-sm">
-                        <option value="">Select category</option>
+                        <option value="">All Category</option>
                         <option value="Pricing/Quote">Pricing/Quote</option>
                         <option value="Product Question">Product Question</option>
                         <option value="Technical Issue">Technical Issue</option>
