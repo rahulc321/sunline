@@ -40,7 +40,8 @@
 
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class=" table table-bordered table-striped table-hover datatable datatable-User" id="jsGrid1">
+                        <table class=" table table-bordered table-striped table-hover datatable datatable-User"
+                            id="jsGrid1">
                             <thead>
                                 <tr>
 
@@ -50,7 +51,7 @@
                                     <th>
                                         {{ trans('cruds.user.fields.name') }}
                                     </th>
-                                    
+
                                     <th>
                                         {{ trans('cruds.user.fields.email') }}
                                     </th>
@@ -61,7 +62,7 @@
                                         {{ trans('cruds.user.fields.roles') }}
                                     </th>
                                     <th>
-                                       Action
+                                        Action
                                     </th>
                                 </tr>
                             </thead>
@@ -113,11 +114,14 @@
                                             style="display:inline-block;">
                                             @csrf
                                             @method('DELETE')
-                                                @if($user->id != 1)
-                                                <button type="submit" class="btn btn-sm btn-outline-danger p-1">
-                                                    <i class="ph-trash"></i>
-                                                </button>
-                                                @endif
+                                                @foreach($user->roles as $key => $item)
+                                                    @if($item->title !== env('SUPERADMIN'))
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger p-1">
+                                                        <i class="ph-trash"></i>
+                                                    </button>
+                                                    @endif
+                                                @endforeach
+                                            
                                         </form>
                                         @endcan
 
