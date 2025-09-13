@@ -65,10 +65,12 @@ i.ph-user {
             </div>
 
             <div class="col-md-3 ms-auto">
+                @can('task_create')
                 <a class="btn btn-primary bg_s mt-5" data-bs-toggle="modal" data-bs-target="#addTaskModal"
                     style="float:right">
                     <i class="ph-plus"></i>&nbsp;&nbsp;Raise Ticket
                 </a>
+                @endcan
             </div>
         </div>
     </div>
@@ -346,24 +348,32 @@ i.ph-user {
             </span>
 
             </div>
+        
         <div class="d-flex align-items-center">
+            @can('ticket_reply')
             <button class="btn btn-sm btn-outline-secondary me-2 reply" data-id="${ticket.id}" data-bs-toggle="modal" data-bs-target="#replyModel">
                 <i class="ph-chat-centered-text me-1"></i> Reply
             </button>
-
+            @endcan
+            
             <div class="d-flex align-items-center">
+            @can('ticket_edit')
             <button class="btn btn-sm btn-outline-secondary me-2 edit_ticket" data-ticket='${JSON.stringify(ticket)}' data-bs-toggle="modal" data-bs-target="#editModel">
                 <i class="ph-pencil-line me-1"></i> Edit
             </button>
-
+            @endcan
+            @can('ticket_close')
            <a href="/admin/closeTicket/${ticket.id}"
             class="btn btn-sm btn-outline-danger me-2 ${hiddenClass}"
             onclick="return confirm('Are you sure you want to close this ticket?')">
             <i class="ph-x-circle me-1"></i> Close
             </a>
+             @endcan
+             @can('ticket_view_details')
             <button class="btn btn-sm btn-primary bg_s view_ticket" data-ticket='${JSON.stringify(ticket)}' data-bs-toggle="modal" data-bs-target="#viewModel">
                 <i class="ph-ticket me-1"></i> View Details
             </button>
+            @endcan
         </div>
     </div>
 </div>

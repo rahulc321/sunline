@@ -22,10 +22,12 @@
             </div>
 
             <div class="col-md-3 ms-auto">
+                @can('automation_create')
                 <a class="btn btn-primary bg_s mt-5" data-bs-toggle="modal" data-bs-target="#addLeadModal"
                     style="float:right">
                     <i class="ph-plus"></i>&nbsp;&nbsp;Create Template
                 </a>
+                @endcan
             </div>
         </div>
     </div>
@@ -136,11 +138,14 @@
                                 <button class="btn btn-sm btn-outline-secondary flex-fill">
                                     <i class="ph-eye"></i> Preview
                                 </button>
+                                @can('automation_edit')
                                 <a href="#" class="btn btn-sm btn-outline-primary flex-fill editTemplate"
                                     data-templete="{{ json_encode($template) }}" data-bs-toggle="modal"
                                     data-bs-target="#editTemplate">
                                     <i class="ph-pencil"></i> Edit
                                 </a>
+                                @endcan
+                                @can('automation_delete')
                                 <form action="{{ route('admin.emailTemplate.destroy',[$template->id]) }}" method="POST"
                                     onsubmit="return confirm('Are you sure?')">
                                     @csrf @method('DELETE')
@@ -148,6 +153,7 @@
                                         <i class="ph-trash"></i>
                                     </button>
                                 </form>
+                                @endcan
                             </div>
                         </div>
                     </div>

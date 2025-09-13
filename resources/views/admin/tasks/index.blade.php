@@ -65,10 +65,12 @@ i.ph-user {
             </div>
 
             <div class="col-md-3 ms-auto">
+                @can('task_create')
                 <a class="btn btn-primary bg_s mt-5" data-bs-toggle="modal" data-bs-target="#addTaskModal"
                     style="float:right">
                     <i class="ph-plus"></i>&nbsp;&nbsp;Add Task
                 </a>
+                @endcan
             </div>
         </div>
     </div>
@@ -301,10 +303,12 @@ i.ph-user {
             <span class="badge bg-light text-${priorityColor} border border-${priorityColor} rounded-pill px-2 py-1 me-2">
                 ${priority}
             </span>
+            @can('task_edit')
             <button class="btn btn-sm btn-outline-secondary me-1 edit_task" 
                 data-rel='${JSON.stringify(task)}' 
                 data-bs-toggle="modal" 
                 data-bs-target="#editTaskModal">Edit</button>
+            @endcan
             <button class="btn btn-sm btn-outline-success d-none">Complete</button>
         </div>
     </div>
