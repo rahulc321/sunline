@@ -5,7 +5,7 @@
     <div class="page-header-content d-lg-flex">
         <div class="d-flex">
             <h4 class="page-title mb-0 crm_c">
-                Roles 
+                Roles
             </h4>
 
             <a href="#page_header"
@@ -41,10 +41,12 @@
 
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class=" table table-bordered table-striped table-hover datatable datatable-Role text-wrap" id="jsGrid1">
+                        <table
+                            class=" table table-bordered table-striped table-hover datatable datatable-Role text-wrap"
+                            id="jsGrid1">
                             <thead>
                                 <tr>
-                                     
+
                                     <th>
                                         #
                                     </th>
@@ -62,7 +64,7 @@
                             <tbody>
                                 @foreach($roles as $key => $role)
                                 <tr data-entry-id="{{ $role->id }}">
-                                    
+
                                     <td>
                                         {{ $role->id ?? '' }}
                                     </td>
@@ -83,10 +85,21 @@
                                         @endcan
 
                                         @can('role_edit')
+                                        @php
+                                        $loggedInUser = auth()->user();
+                                        @endphp
+
+                                        <?php ?>
+                                        @if(
+                                        $loggedInUser->roles->contains('title', env('SUPERADMIN')) ||
+                                          $role->title !=
+                                        'Director')
+                                       
                                         <a class="btn btn-sm btn-outline-info p-1"
                                             href="{{ route('admin.roles.edit', $role->id) }}">
                                             <i class="ph-pencil"></i>
                                         </a>
+                                        @endif
                                         @endcan
 
                                         @can('role_delete')
@@ -95,9 +108,13 @@
                                             style="display:inline-block;">
                                             @csrf
                                             @method('DELETE')
+
+                                            @if($role->title !== env('SUPERADMIN'))
                                             <button type="submit" class="btn btn-sm btn-outline-danger p-1">
                                                 <i class="ph-trash"></i>
                                             </button>
+                                            @endif
+
                                         </form>
                                         @endcan
 

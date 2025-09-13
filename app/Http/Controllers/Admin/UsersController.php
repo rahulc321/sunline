@@ -18,8 +18,12 @@ class UsersController extends Controller
     public function index()
     {
         abort_if(Gate::denies('user_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
-        $users = User::orderBy('id','DESC')->get();
+        
+        $users = User::whereDoesntHave('roles', function ($q) {
+            $q->where('title', env('SUPERADMIN'));
+        })
+        ->orderBy('id', 'DESC')
+        ->get();
 
         return view('admin.users.index', compact('users'));
     }
