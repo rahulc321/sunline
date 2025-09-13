@@ -21,7 +21,7 @@ class FriController extends Controller
 		$this->data['fris'] = Fri::get();
 
         $this->data['users'] = User::whereHas('roles', function ($query) {
-			$query->where('title', 'Sales Rep');
+			$query->where('title', env('ROLE'));
 		})->get();
 
 

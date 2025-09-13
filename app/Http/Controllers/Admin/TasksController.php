@@ -33,7 +33,7 @@ class TasksController extends Controller
 	public function taskList(Request $request)
     {	
 		$this->data['users'] = User::whereHas('roles', function ($query) {
-			$query->where('title', 'Sales Rep');
+			$query->where('title', env('ROLE'));
 		})->get();
 
 	
