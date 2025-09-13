@@ -43,10 +43,12 @@ strong {
             </div>
 
             <div class="col-md-3 ms-auto">
+                @can('RFI_create')
                 <a class="btn btn-primary bg_s mt-5" data-bs-toggle="modal" data-bs-target="#addLeadModal"
                     style="float:right">
                     <i class="ph-plus"></i>&nbsp;&nbsp;Create RFI
                 </a>
+                @endcan
             </div>
         </div>
     </div>
@@ -298,6 +300,7 @@ strong {
 
                 <!-- View Button -->
                 <div class="d-flex justify-content-end gap-2">
+    @can('RFI_details')
     <a href="javascript:;" 
        class="btn btn-outline-primary btn-sm view-fri"
        data-fri='${JSON.stringify(fri)}'
@@ -306,6 +309,8 @@ strong {
        data-bs-dismiss="modal">
         View Details
     </a>
+    @endcan
+    @can('RFI_response')
 
     <button class="btn btn-sm btn-outline-secondary reply" 
             data-id="${fri.id}" 
@@ -314,6 +319,7 @@ strong {
             data-bs-dismiss="modal">
         <i class="ph-chat-centered-text me-1"></i> Response
     </button>
+    @endcan
 </div>
 
 
@@ -444,7 +450,7 @@ strong {
 
         // reset filters
         $('button[type="reset"]').on('click', function() {
-             location.reload();
+            location.reload();
         });
     });
 

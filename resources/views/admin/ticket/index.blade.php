@@ -65,10 +65,12 @@ i.ph-user {
             </div>
 
             <div class="col-md-3 ms-auto">
+                @can('task_create')
                 <a class="btn btn-primary bg_s mt-5" data-bs-toggle="modal" data-bs-target="#addTaskModal"
                     style="float:right">
                     <i class="ph-plus"></i>&nbsp;&nbsp;Raise Ticket
                 </a>
+                @endcan
             </div>
         </div>
     </div>
@@ -123,43 +125,56 @@ i.ph-user {
                 <!-- From Date -->
                 <div class="col-md-2">
 
-                    <select class="form-select form-select-sm filter-select">
-                        <option>All Tasks</option>
-                        <option>Task 1</option>
-                        <option>Task 2</option>
+
+
+                    <select id="status" name="status" class="form-select form-select-sm">
+                        <option value="">All Tickets</option>
+                        <option value="open">Open</option>
+                        <option value="closed">Closed</option>
+                        <option value="responded">Responded</option>
+
                     </select>
+
                 </div>
 
                 <!-- To Date -->
                 <div class="col-md-2">
-                    <select class="form-select form-select-sm filter-select">
-                        <option>All Reps</option>
-                        <option>Rep 1</option>
-                        <option>Rep 2</option>
+                    <select id="assign_to" name="assign_to" class="form-select form-select-sm">
+                        <option value="">All Reps</option>
+                        @foreach($users as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }}</option>
+                        @endforeach
                     </select>
                 </div>
 
                 <!-- Sales Rep -->
                 <div class="col-md-3">
-                    <select class="form-select form-select-sm filter-select">
-                        <option>All Priorities</option>
-                        <option>High</option>
-                        <option>Low</option>
+                    <select id="urgency_label" name="urgency_label" class="form-select form-select-sm">
+                        <option value="">All Priorities</option>
+                        <option value="Low">Low - General inquiry</option>
+                        <option value="Medium">Medium - Needs response within 24h</option>
+                        <option value="High">High - Urgent customer issue</option>
+
                     </select>
                 </div>
 
                 <!-- Lead Source -->
                 <div class="col-md-3">
-                    <select class="form-select form-select-sm filter-select active-filter">
-                        <option>Task Type</option>
-                        <option>Call</option>
-                        <option>Meeting</option>
+
+                    <select id="category" name="category" class="form-select form-select-sm">
+                        <option value="">All Category</option>
+                        <option value="Pricing/Quote">Pricing/Quote</option>
+                        <option value="Product Question">Product Question</option>
+                        <option value="Technical Issue">Technical Issue</option>
+                        <option value="Scheduling">Scheduling</option>
+                        <option value="Commission">Commission</option>
+                        <option value="Other">Other</option>
                     </select>
                 </div>
 
                 <!-- Buttons -->
                 <div class="col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary bg_s">Apply</button>
+                    <button type="button" class="btn btn-primary bg_s apply">Apply</button>
                     <button type="reset" class="btn btn-outline-secondary">Reset</button>
                 </div>
 
@@ -333,24 +348,32 @@ i.ph-user {
             </span>
 
             </div>
+        
         <div class="d-flex align-items-center">
+            @can('ticket_reply')
             <button class="btn btn-sm btn-outline-secondary me-2 reply" data-id="${ticket.id}" data-bs-toggle="modal" data-bs-target="#replyModel">
                 <i class="ph-chat-centered-text me-1"></i> Reply
             </button>
-
+            @endcan
+            
             <div class="d-flex align-items-center">
+            @can('ticket_edit')
             <button class="btn btn-sm btn-outline-secondary me-2 edit_ticket" data-ticket='${JSON.stringify(ticket)}' data-bs-toggle="modal" data-bs-target="#editModel">
                 <i class="ph-pencil-line me-1"></i> Edit
             </button>
-
+            @endcan
+            @can('ticket_close')
            <a href="/admin/closeTicket/${ticket.id}"
             class="btn btn-sm btn-outline-danger me-2 ${hiddenClass}"
             onclick="return confirm('Are you sure you want to close this ticket?')">
             <i class="ph-x-circle me-1"></i> Close
             </a>
+             @endcan
+             @can('ticket_view_details')
             <button class="btn btn-sm btn-primary bg_s view_ticket" data-ticket='${JSON.stringify(ticket)}' data-bs-toggle="modal" data-bs-target="#viewModel">
                 <i class="ph-ticket me-1"></i> View Details
             </button>
+            @endcan
         </div>
     </div>
 </div>
@@ -424,7 +447,9 @@ i.ph-user {
         $.ajax({
             url: '/admin/ticketsRepliesList/' + ticketId,
             method: 'GET',
-            data:{'type':'ticket'},
+            data: {
+                'type': 'ticket'
+            },
             success: function(res) {
                 let repliesHtml = '';
 
@@ -561,7 +586,7 @@ i.ph-user {
         $("#ticket_user").text(ticket.submited?.name ?? "N/A");
 
         $("#assign_to1").text(ticket.get_assign_user_name.name ?? "N/A");
-        
+
         $("#categoryv").text(ticket.category);
         $("#ticket_description").text(ticket.description);
     });

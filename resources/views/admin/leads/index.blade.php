@@ -368,9 +368,11 @@ strong {
                     </div>
                 </div>
                 <div>
+                @can('lead_email_access')
                     <button class="btn btn-sm btn-warning me-1 custom-btn send_email" data-lead='${JSON.stringify(lead)}' data-bs-toggle="modal" data-bs-target="#emailModel">
                         <i class="ph-envelope-simple"></i>&nbsp; Email
                     </button>
+                @endcan
                     <button class="btn btn-sm btn-primary bg_s px-4 py-2 view-lead" data-lead='${JSON.stringify(lead)}' data-bs-toggle="modal" data-bs-target="#leadDetailsModal">View</button>
                
                    

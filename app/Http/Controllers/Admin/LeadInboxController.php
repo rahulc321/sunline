@@ -41,7 +41,7 @@ class LeadInboxController extends Controller
 
 		abort_if(Gate::denies('lead_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 		$this->data['users'] = User::whereHas('roles', function ($query) {
-			$query->where('title', 'User');
+			$query->where('title', env('ROLE'));
 		})->get();
 
 		
@@ -213,7 +213,7 @@ class LeadInboxController extends Controller
 	///////////////////////////////////////////////////// Contacts ///////////////////////////////////////////
 	public function contacts(){
 		$this->data['users'] = User::whereHas('roles', function ($query) {
-			$query->where('title', 'User');
+			$query->where('title', env('ROLE'));
 		})->get();
 
 		

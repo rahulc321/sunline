@@ -41,10 +41,12 @@
 
                     <!-- RIGHT: Actions -->
                     <div class="d-flex gap-2">
+                        @can('RFI_edit')
                         <button class="btn btn-outline-secondary btn-sm editFri" data-bs-toggle="modal"
                             data-bs-target="#editFriDetails">
                             <i class="bi bi-pencil-square me-1"></i> Edit
                         </button>
+                        @endcan
 
 
                         <select class="form-select fri_status">

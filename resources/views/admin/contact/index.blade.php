@@ -315,24 +315,35 @@ strong {
 
     <!-- BUTTONS AT BOTTOM RIGHT -->
     <div class="d-flex justify-content-end mt-3">
+        @can('contact_proposal')
         <button class="btn btn-outline-secondary btn-sm me-2 view_proposal" data-contract='${JSON.stringify(contract)}'>
             <i class="ph-eye me-1"></i> View Proposal
         </button>
+        @endcan
+
+        @can('contact_send_email')
         <button class="btn btn-warning btn-sm me-2 send_email" data-lead='${JSON.stringify(lead)}'
             data-bs-toggle="modal" data-bs-target="#emailModel">
             <i class="ph-envelope-simple me-1"></i> Send Email
         </button>
+        @endcan
+        @can('contact_follow_up')
         <button class="btn btn-info btn-sm me-2 follow_up" data-contract='${JSON.stringify(contract)}' data-lead='${JSON.stringify(lead)}' data-bs-toggle="modal" data-bs-target="#fUP">
             <i class="ph-repeat me-1"></i> Follow-up
         </button>
+        @endcan
+        @can('contact_details')
         <button class="btn btn-primary btn-sm view-lead" data-lead='${JSON.stringify(lead)}'
             data-bs-toggle="modal" data-bs-target="#leadDetailsModal">
             <i class="ph-list me-1"></i> Details
         </button>
+        @endcan
+        @can('contact_edit')
         &nbsp;&nbsp;
         <button class="btn btn-sm btn-outline-secondary me-2 edit_contract" data-contract='${JSON.stringify(contract)}' data-bs-toggle="modal" data-bs-target="#editModel">
                     <i class="ph-pencil-line me-1"></i> Edit
                 </button>
+        @endcan
     </div>
 </div>`;
 
