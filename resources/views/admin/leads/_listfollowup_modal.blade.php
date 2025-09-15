@@ -23,10 +23,10 @@
                 <div class="card mb-2 shadow-sm {{ $f->is_overdue ? 'border-danger' : 'border-success' }}">
                     <div class="card-body d-flex justify-content-between align-items-start">
                         <div>
-                            <strong>{{ $f->lead->first_name }} {{ $f->lead->last_name }}</strong><br>
+                            <strong>{{ @$f->lead->first_name }} {{ @$f->lead->last_name }}</strong><br>
                             <span class="badge bg-light text-dark me-2">{{ ucfirst($f->type) }}</span>
                             <span class="{{ $f->is_overdue ? 'text-danger' : '' }}">
-                                {{ $f->date }}
+                                {{ @$f->date }}
                             </span>
                             @if($f->is_overdue)
                             <span class="badge bg-danger ms-2">Overdue</span>
@@ -64,11 +64,11 @@
                 <div class="card shadow-sm border-info">
                     <div class="card-body d-flex justify-content-between align-items-start">
                         <div>
-                            <strong>{{ $f->lead->first_name }} {{ $f->lead->last_name }}</strong><br>
+                            <strong>{{ @$f->lead->first_name }} {{ @$f->lead->last_name }}</strong><br>
                             <span class="badge bg-info text-dark me-2">{{ ucfirst($f->type) }}</span>
                             <span class="">{{ $f->date }}</span>
                             <span class="badge bg-success ms-2">Completed</span>
-                            <p class="mb-1 small text-muted">{{ $f->notes }}</p>
+                            <p class="mb-1 small text-muted">{{ @$f->notes }}</p>
                         </div>
                     </div>
                 </div>

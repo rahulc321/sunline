@@ -316,9 +316,10 @@ strong {
     <!-- BUTTONS AT BOTTOM RIGHT -->
     <div class="d-flex justify-content-end mt-3">
         @can('contact_proposal')
-        <button class="btn btn-outline-secondary btn-sm me-2 view_proposal" data-contract='${JSON.stringify(contract)}'>
+        <a  href="${lead.project_id ? `https://app.opensolar.com/projects/${lead.project_id}/design` : '#'}"
+ target="_blank" class="btn btn-outline-secondary btn-sm me-2 view_proposal" data-contract='${JSON.stringify(contract)}'>
             <i class="ph-eye me-1"></i> View Proposal
-        </button>
+        </a>
         @endcan
 
         @can('contact_send_email')

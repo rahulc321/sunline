@@ -15,7 +15,7 @@ class ApiTesterController extends Controller
     {
         # get token when controller is created
         //$this->token = $this->generateToken($request);
-        $this->token = "sss";
+        $this->token = "s_RZLJ47XCC3UDXUPGCPXTA7OPT2YCEPBO";
     }
 
     # for generate token over open solar plateform
@@ -213,8 +213,9 @@ class ApiTesterController extends Controller
     }
 
     # create project over open solar
-    public function createProject(Request $request){
-        $lead = Lead::with('leadSource')->find(4);
+    public function createProject(Request $request, $id){
+        $lead = Lead::with('leadSource')->find($id);
+        //dd($this->token);
         // echo '<pre>';print_r($lead);die;
         $data = [
             "identifier" => rand(1111,9999),
@@ -252,7 +253,7 @@ class ApiTesterController extends Controller
        $response =   $this->send($request);
 
        $decoded = json_decode($response->getContent(), true);
-
+        //dd($decoded['response']['id']);
         if (isset($decoded['response']['contacts_new'][0]['email'][0])) {
             # error from API
             $error = $decoded['response']['contacts_new'][0]['email'][0];
@@ -267,7 +268,10 @@ class ApiTesterController extends Controller
                 'updated_at' => now(),
             ]);
 
-            return redirect()->back()->with('success', 'Data saved successfully!');
+            $lead->project_id = @$decoded['response']['id'];
+            $lead->save();
+
+            return redirect()->back()->with('success', 'You have  successfully generate quote!');
         }
     }
 
