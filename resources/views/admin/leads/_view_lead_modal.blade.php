@@ -244,7 +244,7 @@
                     </svg> Log Call</button>
                 @endcan
                 @can('lead_generate_quote')
-                <button class="btn btn-outline-success"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                <button class="btn btn-outline-success generateQuote"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" class="lucide lucide-file-text h-4 w-4 mr-2"
                         data-lov-id="src/components/leads/LeadDetailModal.tsx:245:14" data-lov-name="FileText"
@@ -257,6 +257,21 @@
                         <path d="M16 13H8"></path>
                         <path d="M16 17H8"></path>
                     </svg> Generate Quote</button>
+                @endcan
+
+                @can('lead_delete')
+                <button class="btn btn-outline-danger deleteLead">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-trash-2 h-4 w-4 mr-2">
+                        <path d="M3 6h18"></path>
+                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                    Delete
+                </button>
                 @endcan
             </div>
         </div>
@@ -293,5 +308,31 @@ $(document).on('change', '.lead_status', function() {
             alert("Something went wrong!");
         }
     });
+});
+
+// Delete lead
+$(document).on('click', '.deleteLead', function () {
+    let leadId = $('.lead_id').val();  
+    // if hidden input is inside table row
+    //alert(leadId); return;
+    if (confirm("Are you sure you want to delete this lead?")) {
+        let url = "{{ route('admin.deleteLead', ':id') }}";
+        url = url.replace(':id', leadId);
+
+        window.location.href = url;
+    }
+});
+
+// Generate Quote
+$(document).on('click', '.generateQuote', function () {
+    let leadId = $('.lead_id').val();  
+    // if hidden input is inside table row
+    //alert(leadId); return;
+    if (confirm("Are you sure you want to generate this quote?")) {
+        let url = "{{ route('admin.generateQuote', ':id') }}";
+        url = url.replace(':id', leadId);
+
+        window.location.href = url;
+    }
 });
 </script>

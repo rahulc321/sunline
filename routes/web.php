@@ -32,7 +32,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 	Route::any('listLeads', [App\Http\Controllers\Admin\LeadInboxController::class, 'listLeads'])->name('listLeads');	
     Route::any('leadFollowUps', [App\Http\Controllers\Admin\LeadInboxController::class, 'leadFollowUps'])->name('leadFollowUps');
     Route::any('updateLeadStatus', [App\Http\Controllers\Admin\LeadInboxController::class, 'updateLeadStatus'])->name('updateLeadStatus');		
-	
+	Route::any('updateStore', [App\Http\Controllers\Admin\LeadInboxController::class, 'updateStore'])->name('updateStore');
+    Route::any('deleteLead/{id}', [App\Http\Controllers\Admin\LeadInboxController::class, 'deleteLead'])->name('deleteLead');
+
     # For contacts 
     Route::any('contacts', [App\Http\Controllers\Admin\LeadInboxController::class, 'contacts'])->name('contacts');	
     Route::any('listContact', [App\Http\Controllers\Admin\LeadInboxController::class, 'listContact'])->name('listContact');	
@@ -83,5 +85,6 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('deleteWebhook/{id}', [App\Http\Controllers\Admin\ApiTesterController::class, 'deleteWebhook'])->name('deleteWebhook');
     Route::any('triggerwebhook', [App\Http\Controllers\Admin\ApiTesterController::class, 'triggerwebhook'])->name('triggerwebhook');
     Route::any('apiLog/{id}', [App\Http\Controllers\Admin\ApiTesterController::class, 'apiLog'])->name('apiLog');
+    Route::any('generateQuote/{id}', [App\Http\Controllers\Admin\ApiTesterController::class, 'createProject'])->name('generateQuote');
 
 });

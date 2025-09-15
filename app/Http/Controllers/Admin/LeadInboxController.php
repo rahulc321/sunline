@@ -46,7 +46,10 @@ class LeadInboxController extends Controller
 
 		
 
-		$followups = LeadFollowUp::with('lead')
+		$followups = LeadFollowUp::whereHas('lead', function ($q) {
+			$q->whereNull('deleted_at');   // only leads that are not soft deleted
+		})
+		->with('lead')
         ->orderBy('date', 'desc')
         ->get();
 
@@ -118,6 +121,26 @@ class LeadInboxController extends Controller
 			$lead = Lead::create($validated);
 
 			return redirect()->back()->with('success', 'Lead created successfully!');
+	}
+
+	# update lead data
+	public function updateStore(Request $request)
+    {
+
+			$lead = Lead::find($request->id);
+			$lead->update($request->all());
+
+			return redirect()->back()->with('success', 'You have successfully updated lead!');
+	}
+
+	# delete lead data
+	public function deleteLead($id)
+    {
+
+			$lead = Lead::findOrFail($id);
+			$lead->delete();
+
+			return redirect()->back()->with('danger', 'You have successfully deleted!');
 	}
 
 
@@ -238,7 +261,10 @@ class LeadInboxController extends Controller
 		$offset = $request->offset ?? 0;
 
 		# base query
-		$query = LeadContact::with([
+		$query = LeadContact::whereHas('lead', function ($q) {
+			$q->whereNull('deleted_at');  // exclude soft-deleted leads
+		})
+		->with([
 				'lead.getAssignUserName',
 				'lead.leadSource',
 			])

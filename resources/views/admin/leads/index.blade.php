@@ -44,11 +44,14 @@ strong {
             </div>
 
             <div class="col-md-3 ms-auto">
+                @can('lead_add')
                 <a class="btn btn-primary bg_s mt-5" data-bs-toggle="modal" data-bs-target="#addLeadModal"
                     style="float:right">
                     <i class="ph-plus"></i>&nbsp;&nbsp;Add Lead
                 </a>
+                @endcan
             </div>
+
         </div>
     </div>
 
@@ -112,7 +115,7 @@ strong {
                         <div class="ms-2">
                             <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#followUpModal"><small
                                     class="text-muted">Follow-ups Due</small></a>
-                            <div class="fw-bold fwb totalFollowups">7</div>
+                            <div class="fw-bold fwb totalFollowups1">{{$upcoming->count() + $past->count()}}</div>
                         </div>
                     </div>
                 </div>
@@ -248,6 +251,7 @@ strong {
     <!--Models -->
     <!-- Add Lead Modal -->
     @include('admin.leads._add_lead_modal')
+    @include('admin.leads._edit_modal')
     @include('admin.leads._view_lead_modal')
     @include('admin.leads._followup_lead_modal')
     @include('admin.leads._sync_modal')
@@ -323,24 +327,23 @@ strong {
 
 
     function leadCard(lead) {
-        const statusColors = {
-            "New": "primary",
-            "Send Intro Email": "info",
-            "1st Attempt": "warning",
-            "2nd Attempt": "warning",
-            "3rd Attempt": "warning",
-            "Under Construction": "secondary",
-            "Qualified": "success",
-            "Lost": "danger"
-        };
+    const statusColors = {
+        "New": "primary",
+        "Send Intro Email": "info",
+        "1st Attempt": "warning",
+        "2nd Attempt": "warning",
+        "3rd Attempt": "warning",
+        "Under Construction": "secondary",
+        "Qualified": "success",
+        "Lost": "danger"
+    };
 
-        let color = statusColors[lead.status] || "secondary"; // fallback
+    let color = statusColors[lead.status] || "secondary"; // fallback
 
-
-        return `
+    return `
     <div class="card shadow-sm rounded-3 p-4 mb-3 form_1" id="lead-${lead.id}">
-        <div class="d-flex justify-content-between align-items-start">
-            <div>
+        <div class="d-flex justify-content-between flex-wrap">
+            <div class="mb-2">
                 <h5 class="fw-bold mb-1 lead">#${lead.id ?? ''} - ${lead.first_name ?? ''} ${lead.last_name ?? ''} </h5>
                 <div class="text-muted mb-1">
                     <i class="ph-phone me-1"></i> ${lead.phone ?? ''} &nbsp;
@@ -354,33 +357,50 @@ strong {
                     Follow-ups: <strong class="text-dark">${lead.lead_follow_up_count ?? 0}</strong> &nbsp;|&nbsp;
                     Storeys: <strong class="text-dark">${lead.storeys ?? ''}</strong> &nbsp;|&nbsp;
                     Roof: <strong class="text-dark">${lead.roof_type ?? ''}</strong> &nbsp;|&nbsp;
-                    Rebate: <strong class="text-dark">${lead.elogible_for_rebate ?? ''}</strong>
+                    Rebate: <strong class="text-dark">${lead.elogible_for_rebate ?? ''}</strong> &nbsp;|&nbsp;
+                    Assign To: <strong class="text-dark">${lead.get_assign_user_name.name ?? ''}</strong>
                 </div>
             </div>
-            <div class="d-flex flex-column align-items-end">
-                <div class="d-flex align-items-center mb-2">
-                    <span class="badge text-${color} border border-${color} rounded-pill px-1 py-1 me-2">
+
+            <div class="text-end">
+                <div class="d-flex align-items-center justify-content-end flex-wrap mb-2 gap-2">
+                    <span class="badge text-${color} border border-${color} rounded-pill px-2 py-1">
                         ${lead.status ?? ''}
                     </span>
-                    <div class="text-end">
-                        <small class="text-muted">Assigned to:</small><br>
-                        <strong class="text-dark">${lead.get_assign_user_name.name ?? ''}</strong>
-                    </div>
+                     
                 </div>
-                <div>
-                @can('lead_email_access')
-                    <button class="btn btn-sm btn-warning me-1 custom-btn send_email" data-lead='${JSON.stringify(lead)}' data-bs-toggle="modal" data-bs-target="#emailModel">
-                        <i class="ph-envelope-simple"></i>&nbsp; Email
+
+                <div class="d-flex flex-wrap justify-content-end gap-2">
+                    @can('lead_email_access')
+                        <button class="btn btn-sm btn-warning custom-btn send_email"
+                            data-lead='${JSON.stringify(lead)}' 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#emailModel">
+                            <i class="ph-envelope-simple"></i>
+                        </button>
+                    @endcan
+
+                    <button class="btn btn-sm btn-primary view-lead"
+                        data-lead='${JSON.stringify(lead)}' 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#leadDetailsModal">
+                        <i class="ph-eye"></i>
                     </button>
-                @endcan
-                    <button class="btn btn-sm btn-primary bg_s px-4 py-2 view-lead" data-lead='${JSON.stringify(lead)}' data-bs-toggle="modal" data-bs-target="#leadDetailsModal">View</button>
-               
-                   
-                    </div>
+
+                    @can('lead_edit')
+                        <button class="btn btn-sm btn-outline-secondary edit_lead"
+                            data-lead='${JSON.stringify(lead)}' 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#editlead">
+                            <i class="ph-pencil-line"></i>
+                        </button>
+                    @endcan
+                </div>
             </div>
         </div>
     </div>`;
-    }
+}
+
 
 
     $(document).on('click', '.send_email', function() {
