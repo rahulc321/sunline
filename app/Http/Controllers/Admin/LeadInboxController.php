@@ -71,7 +71,8 @@ class LeadInboxController extends Controller
 
     $query = Lead::with('getAssignUserName','leadSource','leadFollowUp')
         ->withCount('leadFollowUp')
-        ->orderBy('id', 'desc');
+        ->orderBy('id', 'desc')
+		->where('status','!=','Qualified');
 
     # filters
     if ($request->lead_source) {
