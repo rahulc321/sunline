@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\User;
+use Illuminate\Database\Eloquent\Builder;
+use Auth;
 
 class Fri extends Model
 {
@@ -25,5 +27,17 @@ class Fri extends Model
     public function leadName()
     {
         return $this->hasOne(Lead::class,'id','lead_id');
+    }
+
+    public function scopeForCurrentUser(Builder $query): Builder
+    {
+        $user = Auth::user();
+
+        if ($user->roles->contains('title', env('ROLE'))) {
+            return $query->where('assigned_to', $user->id);
+        }
+
+        # if Admin or Director → no restriction
+        return $query;
     }
 }

@@ -47,7 +47,7 @@ class LeadInboxController extends Controller
 		
 
 		$followups = LeadFollowUp::whereHas('lead', function ($q) {
-			$q->whereNull('deleted_at');   // only leads that are not soft deleted
+			$q->whereNull('deleted_at')->forCurrentUser();
 		})
 		->with('lead')
         ->orderBy('date', 'desc')
@@ -58,7 +58,7 @@ class LeadInboxController extends Controller
 
 		$this->data['leadSource'] = LeadSource::where('status',1)->get();
 		$this->data['emailTemplates'] = EmailTemplate::get();
-		$this->data['leads'] = Lead::get();
+		$this->data['leads'] = Lead::forCurrentUser()->get();
 
 		 
 		return view('admin.leads.index',$this->data);
@@ -72,7 +72,8 @@ class LeadInboxController extends Controller
     $query = Lead::with('getAssignUserName','leadSource','leadFollowUp')
         ->withCount('leadFollowUp')
         ->orderBy('id', 'desc')
-		->where('status','!=','Qualified');
+		->where('status','!=','Qualified')
+		->forCurrentUser();
 
     # filters
     if ($request->lead_source) {

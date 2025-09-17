@@ -106,7 +106,7 @@ class FriController extends Controller
 
         # build query
         $query = Fri::with(['createdByName', 'leadName'])
-            ->orderBy('id', 'desc');
+            ->orderBy('id', 'desc')->forCurrentUser();
 
         # apply filters
         if ($request->filled('search_key')) {
