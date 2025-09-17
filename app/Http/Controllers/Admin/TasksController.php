@@ -40,27 +40,27 @@ class TasksController extends Controller
 		$task = Task::get();
 
 		// pending tasks
-		$this->data['pending'] = Task::where('status', 'Pending')->count();
+		$this->data['pending'] = Task::where('status', 'Pending')->forCurrentUser()->count();
 
 		// completed tasks
-		$this->data['completed'] = Task::where('status', 'Completed')->count();
+		$this->data['completed'] = Task::where('status', 'Completed')->forCurrentUser()->count();
 
 		// overdue tasks (not completed & due before today)
 		$this->data['overdue'] = Task::where('status', '!=', 'Completed')
-			->whereDate('due_date', '<', Carbon::today())
+			->whereDate('due_date', '<', Carbon::today())->forCurrentUser()
 			->count();
 
 		// today tasks (any status but due today)
-		$this->data['today'] = Task::where('status', '!=', 'Completed')->whereDate('due_date', Carbon::today())->count();
+		$this->data['today'] = Task::where('status', '!=', 'Completed')->whereDate('due_date', Carbon::today())->forCurrentUser()->count();
 
 		// upcoming tasks (not completed & due after today)
 		$this->data['upcoming'] = Task::where('status', '!=', 'Completed')
-			->whereDate('due_date', '>', Carbon::today())
+			->whereDate('due_date', '>', Carbon::today())->forCurrentUser()
 			->count();
 
 		//dd($this->data);
 		 
-		$this->data['leads'] = Lead::get();
+		$this->data['leads'] = Lead::forCurrentUser()->get();
 
 		 
 		return view('admin.tasks.index',$this->data); 
@@ -73,7 +73,7 @@ class TasksController extends Controller
 		$offset = $request->offset ?? 0;
 	
 		# base query
-		$query = Task::with(['getAssignUserName','leadName'])->orderBy('id', 'desc');
+		$query = Task::with(['getAssignUserName','leadName'])->orderBy('id', 'desc')->forCurrentUser();
 	
 		# apply filters dynamically
 		if ($request->filled('assigned_to')) {

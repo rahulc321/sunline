@@ -23,7 +23,7 @@ class TicketController extends Controller
 		})->get();
 
 
-        $this->data['ticket'] = Ticket::get();
+        $this->data['ticket'] = Ticket::forCurrentUser()->get();
 
 	 
 		return view('admin.ticket.index',$this->data); 
@@ -38,7 +38,7 @@ class TicketController extends Controller
 		$offset = $request->offset ?? 0;
 
 		# fetch current batch
-		$tkt = Ticket::with('getAssignUserName','submited')->orderBy('id', 'desc')
+		$tkt = Ticket::with('getAssignUserName','submited')->orderBy('id', 'desc')->forCurrentUser()
         ->skip($offset)
         ->take($limit)
         ->get();
