@@ -72,7 +72,7 @@ class LeadInboxController extends Controller
     $query = Lead::with('getAssignUserName','leadSource','leadFollowUp')
         ->withCount('leadFollowUp')
         ->orderBy('id', 'desc')
-		->where('status','!=','Qualified')
+		->whereNotIn('status', ['Qualified', 'Sold'])
 		->forCurrentUser();
 
     # filters
@@ -264,7 +264,8 @@ class LeadInboxController extends Controller
 
 		# base query
 		$query = LeadContact::whereHas('lead', function ($q) {
-			$q->whereNull('deleted_at');  // exclude soft-deleted leads
+			$q->whereNull('deleted_at')
+			->whereNotIn('status', ['Sold']);
 		})
 		->with([
 				'lead.getAssignUserName',
