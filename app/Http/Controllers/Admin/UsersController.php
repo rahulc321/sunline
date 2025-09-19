@@ -131,6 +131,7 @@ class UsersController extends Controller
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        session()->forget('notif_shown');
 
         return redirect()->route('login')->with('message', 'You have been logged out successfully.');
     }

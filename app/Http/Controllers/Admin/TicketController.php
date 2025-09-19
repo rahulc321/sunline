@@ -9,6 +9,7 @@ use App\User;
 use App\Models\{Task, Fri};
 use Auth;
 use App\Models\TicketReply;
+use App\Notifications\NewNotification;
 
 class TicketController extends Controller
 {
@@ -61,6 +62,11 @@ class TicketController extends Controller
             $data = $request->all();
             $data['user_id'] = Auth::Id();
 			Ticket::create($data);
+
+            # for notification
+			$user = User::find($request->assign_to);
+			$user->notify(new NewNotification("🎟️ New ticket created for you!", @$request->subject, route('admin.ticket.index')));
+
 			return redirect()->back()->with('success', 'You have successfully added!');
     }
 

@@ -21,6 +21,7 @@ use App\Models\LeadFollowUp;
 use App\Models\LeadSource;
 use App\Models\EmailTemplate;
 use App\Models\Lead;
+use App\Notifications\NewNotification;
 
 
 class TasksController extends Controller
@@ -133,6 +134,11 @@ class TasksController extends Controller
 			$data['due_date'] = $request->due_date.' '.$request->due_time;
 			unset($data['due_time']);
 			Task::create($data);
+
+			# for notification
+			$user = User::find($request->assigned_to);
+			$user->notify(new NewNotification("📝 New task created for you!", $request->description, route('admin.taskList')));
+
 			return redirect()->back()->with('success', 'You have successfully added!');
 	}
 

@@ -6,7 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌞</text></svg>">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌞</text></svg>">
 
     <title>Sunline Energy - @yield('title', 'Sunline Energy')</title>
     <link href="{{ asset('vendor/fonts/inter/inter.css') }}" rel="stylesheet" type="text/css">
@@ -18,7 +19,7 @@
     <!-- /global stylesheets -->
 
     <!-- Core JS files -->
-      <script src="{{ asset('vendor/demo/demo_configurator.js') }}"></script>
+    <script src="{{ asset('vendor/demo/demo_configurator.js') }}"></script>
     <script src="{{ asset('vendor/demo/demo_configurator.js') }}"></script>
     <script src="{{ asset('vendor/js/bootstrap/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('vendor/js/jquery/jquery.min.js') }}"></script>
@@ -29,7 +30,7 @@
     <script src="{{ asset('vendor/demo/pages/datatables_extension_responsive.js') }}"></script>
     <script src="{{ asset('vendor/js/vendor/forms/selects/select2.min.js') }}"></script>
     <script src="{{ asset('vendor/js/vendor/notifications/sweetalert2@11.js') }}"></script>
-   
+
 
     <script>
     $(document).ready(function() {
@@ -448,137 +449,89 @@
                                 </div>
                             </div>
                         </li>
-                        <li class="nav-item nav-item-dropdown-lg dropdown ms-lg-2  d-none">
+                        <li class="nav-item nav-item-dropdown-lg dropdown ms-lg-2  d-none1">
                             <a href="#" class="navbar-nav-link navbar-nav-link-icon rounded-pill"
                                 data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                                <i class="ph-chats"></i>
+                                <i class="ph-bell"></i>
                                 <span
-                                    class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1">8</span>
+                                    class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1">{{ auth()->user()->unreadNotifications->count() }}</span>
                             </a>
 
                             <div class="dropdown-menu wmin-lg-400 p-0">
+
                                 <div class="d-flex align-items-center p-3">
-                                    <h6 class="mb-0">Messages</h6>
+                                    <h6 class="mb-0">Notifications</h6>
                                     <div class="ms-auto">
-                                        <a href="#" class="text-body">
-                                            <i class="ph-plus-circle"></i>
+                                        <a href="{{ route('admin.notifications.markAllRead') }}" class="text-body">
+                                            <i class="ph-checks"></i>
                                         </a>
-                                        <a href="#search_messages" class="collapsed text-body ms-2"
+                                        <a href="#search_notifications" class="collapsed text-body ms-2"
                                             data-bs-toggle="collapse">
                                             <i class="ph-magnifying-glass"></i>
                                         </a>
                                     </div>
                                 </div>
 
-                                <div class="collapse" id="search_messages">
+                                <div class="collapse" id="search_notifications">
                                     <div class="px-3 mb-2">
                                         <div class="form-control-feedback form-control-feedback-start">
-                                            <input type="text" class="form-control" placeholder="Search messages">
+                                            <input type="text" class="form-control" placeholder="Search notifications"
+                                                id="searchNotificationInput">
                                             <div class="form-control-feedback-icon">
                                                 <i class="ph-magnifying-glass"></i>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                                <style>
+                                .dropdown-menu[data-bs-popper] {
+                                    top: 100%;
+                                    left: -175px !important;
+                                    margin-top: var(--dropdown-spacer);
 
-                                <div class="dropdown-menu-scrollable pb-2">
-                                    <a href="#" class="dropdown-item align-items-start text-wrap py-2">
+                                }
+
+                                a.navbar-nav-link.navbar-nav-link-icon.rounded-pill {
+                                    color: var(--navbar-active-color);
+                                    background-color: var(--navbar-active-bg);
+                                }
+                                </style>
+                                <?php $notifications = auth()->user()->unreadNotifications()->latest()->get(); ?>
+                                <div class="dropdown-menu-scrollable pb-2" id="notificationsList">
+                                    @forelse($notifications as $notification)
+                                    <a href="{{ route('admin.notifications.read', $notification->id) }}"
+                                        class="dropdown-item align-items-start text-wrap py-2 {{ $notification->read_at ? '' : 'bg-light' }}">
                                         <div class="status-indicator-container me-3">
-                                            <img src="{{ asset('vendor/images/demo/users/face10.jpg')}}"
+                                            <img src="https://themes.kopyov.com/limitless/demo/template/assets/images/demo/users/face1.jpg"
                                                 class="w-40px h-40px rounded-pill" alt="">
-                                            <span class="status-indicator bg-warning"></span>
-                                        </div>
-
-                                        <div class="flex-1">
-                                            <span class="fw-semibold">James Alexander</span>
-                                            <span class="text-muted float-end fs-sm">04:58</span>
-                                            <div class="text-muted">who knows, maybe that would be the best thing for
-                                                me...</div>
-                                        </div>
-                                    </a>
-
-                                    <a href="#" class="dropdown-item align-items-start text-wrap py-2">
-                                        <div class="status-indicator-container me-3">
-                                            <img src="{{ asset('vendor/images/demo/users/face3.jpg')}}"
-                                                class="w-40px h-40px rounded-pill" alt="">
-                                            <span class="status-indicator bg-success"></span>
-                                        </div>
-
-                                        <div class="flex-1">
-                                            <span class="fw-semibold">Margo Baker</span>
-                                            <span class="text-muted float-end fs-sm">12:16</span>
-                                            <div class="text-muted">That was something he was unable to do because...
-                                            </div>
-                                        </div>
-                                    </a>
-
-                                    <a href="#" class="dropdown-item align-items-start text-wrap py-2">
-                                        <div class="status-indicator-container me-3">
-                                            <img src="{{ asset('vendor/images/demo/users/face24.jpg')}}"
-                                                class="w-40px h-40px rounded-pill" alt="">
-                                            <span class="status-indicator bg-success"></span>
+                                            <span
+                                                class="status-indicator {{ $notification->read_at ? 'bg-grey' : 'bg-warning' }}"></span>
                                         </div>
                                         <div class="flex-1">
-                                            <span class="fw-semibold">Jeremy Victorino</span>
-                                            <span class="text-muted float-end fs-sm">22:48</span>
-                                            <div class="text-muted">But that would be extremely strained and
-                                                suspicious...</div>
+                                            <span
+                                                class="fw-semibold">{{ $notification->data['title'] ?? 'Notification' }}</span>
+                                            <span
+                                                class="text-muted float-end fs-sm">{{ $notification->created_at->diffForHumans() }}</span>
+                                            <div class="text-muted">{{ $notification->data['message'] ?? '' }}</div>
                                         </div>
                                     </a>
-
-                                    <a href="#" class="dropdown-item align-items-start text-wrap py-2">
-                                        <div class="status-indicator-container me-3">
-                                            <img src="{{ asset('vendor/images/demo/users/face4.jpg')}}"
-                                                class="w-40px h-40px rounded-pill" alt="">
-                                            <span class="status-indicator bg-grey"></span>
-                                        </div>
-                                        <div class="flex-1">
-                                            <span class="fw-semibold">Beatrix Diaz</span>
-                                            <span class="text-muted float-end fs-sm">Tue</span>
-                                            <div class="text-muted">What a strenuous career it is that I've chosen...
-                                            </div>
-                                        </div>
-                                    </a>
-
-                                    <a href="#" class="dropdown-item align-items-start text-wrap py-2">
-                                        <div class="status-indicator-container me-3">
-                                            <img src="{{ asset('vendor/images/demo/users/face25.jpg')}}"
-                                                class="w-40px h-40px rounded-pill" alt="">
-                                            <span class="status-indicator bg-danger"></span>
-                                        </div>
-                                        <div class="flex-1">
-                                            <span class="fw-semibold">Richard Vango</span>
-                                            <span class="text-muted float-end fs-sm">Mon</span>
-                                            <div class="text-muted">Other travelling salesmen live a life of luxury...
-                                            </div>
-                                        </div>
-                                    </a>
+                                    @empty
+                                    <span class="dropdown-item text-muted">No new notifications</span>
+                                    @endforelse
                                 </div>
 
                                 <div class="d-flex border-top py-2 px-3">
-                                    <a href="#" class="text-body">
-                                        <i class="ph-checks me-1"></i>
-                                        Dismiss all
+                                    <a href="{{ route('admin.notifications.markAllRead') }}" class="text-body">
+                                        <i class="ph-checks me-1"></i> Dismiss all
                                     </a>
-                                    <a href="#" class="text-body ms-auto">
+                                    <a href="{{ route('admin.notifications.index') }}" class="text-body ms-auto">
                                         View all
                                         <i class="ph-arrow-circle-right ms-1"></i>
                                     </a>
                                 </div>
                             </div>
+
                         </li>
-
-
-
-                        <li class="nav-item ms-lg-2 d-none">
-                            <a href="#" class="navbar-nav-link navbar-nav-link-icon rounded-pill"
-                                data-bs-toggle="offcanvas" data-bs-target="#notifications">
-                                <i class="ph-bell"></i>
-                                <span
-                                    class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1">2</span>
-                            </a>
-                        </li>
-
 
                         <li class="nav-item nav-item-dropdown-lg dropdown ms-lg-2">
                             <a href="#" class="navbar-nav-link align-items-center rounded-pill p-1 bg_s"
@@ -666,15 +619,58 @@
     @yield('scripts')
 </body>
 <script>
-    $('#jsGrid1').DataTable({
-        responsive: true,
-        pageLength: 10,
-        order: [
-            [0, 'asc']
-        ],
-        dom: "<'row mb-3 d-flex justify-content-between'<'col-sm-6'l><'col-sm-6'f>>" +
-            "<'row'<'col-sm-12'tr>>" +
-            "<'row mt-3'<'col-sm-5'i><'col-sm-7'p>>"
-    });
-    </script>
+$('#jsGrid1').DataTable({
+    responsive: true,
+    pageLength: 10,
+    order: [
+        [0, 'asc']
+    ],
+    dom: "<'row mb-3 d-flex justify-content-between'<'col-sm-6'l><'col-sm-6'f>>" +
+        "<'row'<'col-sm-12'tr>>" +
+        "<'row mt-3'<'col-sm-5'i><'col-sm-7'p>>"
+});
+
+ 
+</script>
+
+<button id="notifyBtn" onclick="sendNotification()" style="display:none">Send Notification</button>
+@if(auth()->check() && auth()->user()->unreadNotifications->count() > 0 && !session('notif_shown'))
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // auto trigger notification
+                document.getElementById("notifyBtn").click();
+            });
+        </script>
+
+        @php
+            // mark it as shown in Laravel session
+            session(['notif_shown' => true]);
+        @endphp
+    @endif  
+<script>
+   
+
+    function sendNotification(count = {{ auth()->user()->unreadNotifications->count() }}) {
+        if (Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+
+        if (Notification.permission === "granted") {
+            let notif = new Notification("Sunline Energy", {
+                body: "You have " + count + " new notification(s).",
+                icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌞</text></svg>" // replace with your ticket/task icon
+            });
+
+            // optional: play sound
+            let audio = new Audio("{{url('/')}}/not.mp3");
+            audio.play();
+
+            notif.onclick = function () {
+                window.location.href = "{{ url('/admin/notifications') }}";
+            };
+        }
+    }
+</script>
+
+
 </html>
