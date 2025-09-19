@@ -87,4 +87,23 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('apiLog/{id}', [App\Http\Controllers\Admin\ApiTesterController::class, 'apiLog'])->name('apiLog');
     Route::any('generateQuote/{id}', [App\Http\Controllers\Admin\ApiTesterController::class, 'createProject'])->name('generateQuote');
 
+
+    # for notification
+    Route::any('/notifications/{id}/read', function($id){
+        $notification = auth()->user()->notifications()->findOrFail($id);
+        $notification->markAsRead();
+        return back();
+    })->name('notifications.read');
+
+    Route::any('/notifications', function(){
+        $notifications = auth()->user()->notifications()->latest()->get();
+        auth()->user()->unreadNotifications->markAsRead();
+        return view('notifications.index', compact('notifications'));
+    })->name('notifications.index');
+
+    Route::any('/notifications/mark-all-read', function(){
+        auth()->user()->unreadNotifications->markAsRead();
+        return back();
+    })->name('notifications.markAllRead');
+
 });

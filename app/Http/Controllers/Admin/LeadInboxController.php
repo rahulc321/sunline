@@ -17,6 +17,7 @@ use App\Models\Lead;
 use App\Models\EmailTemplate;
 use DB;
 use Auth;
+use App\Notifications\NewNotification;
 
 class LeadInboxController extends Controller
 {
@@ -27,6 +28,9 @@ class LeadInboxController extends Controller
 	*/	
     public function index(Request $request)
 	{	
+		$user = User::find(1);
+		$user->notify(new NewNotification("📝 New task created for you!", 'The task icon appears on the left (depends on browser)', route('admin.taskList')));
+
 		//Auth::logout();
  
 		// $this->data['body'] = "
