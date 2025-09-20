@@ -107,8 +107,13 @@
 $(document).on("click", ".edit_lead", function() {
     let lead = $(this).data("lead");
 
+    // if it's a string, parse it
+    if (typeof lead == "string") {
+        lead = JSON.parse(lead);
+    }
+
     // text inputs
-    $("input[name='id']").val(lead.id);
+    $("input[name='id']").val(lead.id || "");
     $("input[name='first_name']").val(lead.first_name || "");
     $("input[name='last_name']").val(lead.last_name || "");
     $("input[name='email']").val(lead.email || "");
@@ -116,9 +121,10 @@ $(document).on("click", ".edit_lead", function() {
     $("input[name='address']").val(lead.address || "");
 
     // select inputs
-    $("select[name='assign_rep']").val(lead.get_assign_user_name.id || "");
-    $("select[name='lead_source']").val(lead.lead_source.id || "");
-    $("select[name='roof_type']").val(lead.roof_type || "");
-    $("select[name='elogible_for_rebate']").val(lead.elogible_for_rebate || "No");
+    $("select[name='assign_rep']").val(lead.get_assign_user_name?.id || "").trigger("change");
+    $("select[name='lead_source']").val(lead.lead_source?.id || "").trigger("change");
+    $("select[name='roof_type']").val(lead.roof_type || "").trigger("change");
+    $("select[name='elogible_for_rebate']").val(lead.elogible_for_rebate || "No").trigger("change");
 });
+
 </script>
