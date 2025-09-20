@@ -358,7 +358,7 @@ strong {
                     Storeys: <strong class="text-dark">${lead.storeys ?? ''}</strong> &nbsp;|&nbsp;
                     Roof: <strong class="text-dark">${lead.roof_type ?? ''}</strong> &nbsp;|&nbsp;
                     Rebate: <strong class="text-dark">${lead.elogible_for_rebate ?? ''}</strong> &nbsp;|&nbsp;
-                    Assign To: <strong class="text-dark">${lead.get_assign_user_name.name ?? ''}</strong>
+                    Assign To: <strong class="text-dark">${lead.get_assign_user_name?.name ?? ''}</strong>
                 </div>
             </div>
 

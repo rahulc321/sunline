@@ -66,10 +66,10 @@
                                 <tr data-entry-id="{{ $value->id }}">
 
                                     <td>
-                                        {{ $key+1 }}
+                                    #{{$value->id}}
                                     </td>
                                     <td>
-                                        {{ $value->source ?? '' }}
+                                       {{ $value->source ?? '' }}  
                                     </td>
 
 

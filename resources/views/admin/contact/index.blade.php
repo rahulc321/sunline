@@ -262,7 +262,7 @@ strong {
                 </span>
                 <div class="text-end">
                     <small class="text-muted">Assigned to:</small><br>
-                    <strong class="text-dark">${lead.get_assign_user_name.name ?? ''}</strong>
+                    <strong class="text-dark">${lead.get_assign_user_name?.name ?? ''}</strong>
                 </div>
             </div>
             <div>
