@@ -173,7 +173,7 @@ div#jsGrid1_filter {
             </li>
 
             <li class="nav-item">
-                <a href="/admin" class="nav-link {{ request()->is('admin') ? 'active' : '' }}">
+                <a href="/admin"  class="nav-link {{ request()->is('admin') ? 'active' : '' }}">
                     <i class="ph-house"></i>
                     <span>
                         {{ trans('dashboard.dashboard') }}
