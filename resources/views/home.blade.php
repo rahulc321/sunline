@@ -115,7 +115,7 @@
                                 </svg>
                             </div>
                         </div>
-                        <h4 class="mb-0 txt_2">186</h4>
+                        <h4 class="mb-0 txt_2">{{$assign_lead->count() ?? 0}}</h4>
                         <small class="text-success">+12% from last month</small>
                     </div>
                 </div>
@@ -141,7 +141,7 @@
                                 </svg>
                             </div>
                         </div>
-                        <h4 class="mb-0 txt_2">152</h4>
+                        <h4 class="mb-0 txt_2">{{$contacts->count() ?? 0}}</h4>
                         <small class="text-success">82% contact rate</small>
                     </div>
                 </div>
@@ -193,7 +193,7 @@
                                 </svg>
                             </div>
                         </div>
-                        <h4 class="mb-0 txt_2">353</h4>
+                        <h4 class="mb-0 txt_2">{{$closed_sale->count() ?? 0}}</h4>
                         <small class="text-success">25.8% conversion rate</small>
                     </div>
                 </div>
