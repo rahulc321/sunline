@@ -50,6 +50,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('friUpdate', [App\Http\Controllers\Admin\FriController::class, 'friUpdate'])->name('friUpdate');
     Route::any('followupComplete', [App\Http\Controllers\Admin\LeadInboxController::class, 'followupComplete'])->name('followupComplete');
 
+    #sales 
+    Route::get('sales', [App\Http\Controllers\Admin\LeadInboxController::class, 'sales'])->name('sales');
+    Route::get('getSale', [App\Http\Controllers\Admin\LeadInboxController::class, 'getSale'])->name('getSale');
+
     # email templete
 	Route::resource('emailTemplate', App\Http\Controllers\Admin\EmailTemplateController::class);
     Route::any('emailTemplateUpdate', [App\Http\Controllers\Admin\EmailTemplateController::class, 'emailTemplateUpdate'])->name('emailTemplateUpdate');

@@ -244,13 +244,13 @@ div#jsGrid1_filter {
             </li>
             @endcan
 
-
+            @can('sale_access')
             <li class="nav-item">
-                <a href="#" class="nav-link {{ request()->is('admin/intakes/create') ? 'active' : '' }}">
+                <a href="{{ route('admin.sales') }}" class="nav-link {{ request()->is('admin/sales') ? 'active' : '' }}">
                     <i class="ph-currency-dollar"></i><span>Sales</span>
                 </a>
             </li>
-
+            @endcan
 
 
             @can('RFI_access')
