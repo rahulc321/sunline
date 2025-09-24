@@ -69,42 +69,42 @@ class LeadInboxController extends Controller
 	}
 
 	public function listLeads(Request $request)
-{
-    $limit = $request->limit ?? 10;
-    $offset = $request->offset ?? 0;
+	{
+		$limit = $request->limit ?? 10;
+		$offset = $request->offset ?? 0;
 
-    $query = Lead::with('getAssignUserName','leadSource','leadFollowUp')
-        ->withCount('leadFollowUp')
-        ->orderBy('id', 'desc')
-		->whereNotIn('status', ['Qualified', 'Sold'])
-		->forCurrentUser();
+		$query = Lead::with('getAssignUserName','leadSource','leadFollowUp')
+			->withCount('leadFollowUp')
+			->orderBy('id', 'desc')
+			->whereNotIn('status', ['Qualified', 'Sold'])
+			->forCurrentUser();
 
-    # filters
-    if ($request->lead_source) {
-        $query->where('lead_source', $request->lead_source);
-    }
+		# filters
+		if ($request->lead_source) {
+			$query->where('lead_source', $request->lead_source);
+		}
 
-    if ($request->assign_rep) {
-        $query->where('assign_rep', $request->assign_rep);
-    }
+		if ($request->assign_rep) {
+			$query->where('assign_rep', $request->assign_rep);
+		}
 
-    if ($request->status) {
-        $query->where('status', $request->status);
-    }
+		if ($request->status) {
+			$query->where('status', $request->status);
+		}
 
-    $leads = $query->skip($offset)->take($limit)->get();
+		$leads = $query->skip($offset)->take($limit)->get();
 
-    $totalRecords = $query->count();
-    $hasMore = ($offset + $limit) < $totalRecords;
+		$totalRecords = $query->count();
+		$hasMore = ($offset + $limit) < $totalRecords;
 
-    $totalFollowups = \DB::table('lead_follow_ups')->count();
+		$totalFollowups = \DB::table('lead_follow_ups')->count();
 
-    return response()->json([
-        'data' => $leads,
-        'hasMore' => $hasMore,
-        'followupCount' => $totalFollowups
-    ]);
-}
+		return response()->json([
+			'data' => $leads,
+			'hasMore' => $hasMore,
+			'followupCount' => $totalFollowups
+		]);
+	}
 
 
 
@@ -348,6 +348,70 @@ class LeadInboxController extends Controller
 
     	return response()->json(['html' => $html]);
 
+	}
+
+	// /////////////////////////////For Salse ///////////////////////////
+	public function sales(Request $request)
+	{	
+		 
+		$this->data['users'] = User::whereHas('roles', function ($query) {
+			$query->where('title', env('ROLE'));
+		})->get();
+
+		$followups = LeadFollowUp::whereHas('lead', function ($q) {
+			$q->whereNull('deleted_at')->forCurrentUser();
+		})
+		->with('lead')
+        ->orderBy('date', 'desc')
+        ->get();
+
+		$this->data['upcoming'] = $followups->where('is_completed', 0);
+		$this->data['past'] = $followups->where('is_completed', 1);
+
+		$this->data['leadSource'] = LeadSource::where('status',1)->get();
+		$this->data['emailTemplates'] = EmailTemplate::get();
+		$this->data['leads'] = Lead::forCurrentUser()->get();
+
+		return view('admin.sales.index',$this->data);
+	}
+
+	# get sale where status is sold
+	public function getSale(Request $request)
+	{
+		$limit = $request->limit ?? 10;
+		$offset = $request->offset ?? 0;
+
+		$query = Lead::with('getAssignUserName','leadSource','leadFollowUp')
+			->withCount('leadFollowUp')
+			->orderBy('id', 'desc')
+			->whereIn('status', ['Sold']);
+			//->forCurrentUser();
+
+		# filters
+		if ($request->lead_source) {
+			$query->where('lead_source', $request->lead_source);
+		}
+
+		if ($request->assign_rep) {
+			$query->where('assign_rep', $request->assign_rep);
+		}
+
+		if ($request->status) {
+			$query->where('status', $request->status);
+		}
+
+		$leads = $query->skip($offset)->take($limit)->get();
+
+		$totalRecords = $query->count();
+		$hasMore = ($offset + $limit) < $totalRecords;
+
+		$totalFollowups = \DB::table('lead_follow_ups')->count();
+
+		return response()->json([
+			'data' => $leads,
+			'hasMore' => $hasMore,
+			'followupCount' => $totalFollowups
+		]);
 	}
 
 
