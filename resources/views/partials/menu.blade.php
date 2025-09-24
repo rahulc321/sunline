@@ -172,6 +172,8 @@ div#jsGrid1_filter {
 
             </li>
 
+
+            <!-- For dashboard -->
             <li class="nav-item">
                 <a href="/admin"  class="nav-link {{ request()->is('admin') ? 'active' : '' }}">
                     <i class="ph-house"></i>
