@@ -287,7 +287,7 @@ i.ph-user {
         let status = ticket.status?.toLowerCase() ?? "open";
         let color = statusColors[status] || "secondary";
         let hiddenClass = ticket.status == 'closed' ? 'd-none' : '';
-
+        const currentUserId = {{ auth()->id() }};
 
 
         return `
@@ -297,7 +297,15 @@ i.ph-user {
         <!-- Left content -->
         <div class="flex-grow-1 pe-3">
             <h6 class="fw-bold mb-1">
-                #${ticket.id} - ${ticket.subject ?? 'No subject'}
+                #${ticket.id} - ${ticket.subject ?? 'No subject'} 
+
+                ${
+                    ticket.user_id === currentUserId
+                        ? '<span class="badge bg-primary ms-2">Created by you</span>'
+                        : (ticket.assign_to == currentUserId
+                            ? '<span class="badge bg-success ms-2">Assigned to you</span>'
+                            : '')
+                }
             </h6>
             <p class="text-muted mb-2 small">
                 ${ticket.description ?? ''}
@@ -358,9 +366,9 @@ i.ph-user {
             
             <div class="d-flex align-items-center">
             @can('ticket_edit')
-            <button class="btn btn-sm btn-outline-secondary me-2 edit_ticket" data-ticket='${JSON.stringify(ticket)}' data-bs-toggle="modal" data-bs-target="#editModel">
+           ${ticket.user_id === currentUserId ? `<button class="btn btn-sm btn-outline-secondary me-2 edit_ticket" data-ticket='${JSON.stringify(ticket)}' data-bs-toggle="modal" data-bs-target="#editModel">
                 <i class="ph-pencil-line me-1"></i> Edit
-            </button>
+            </button>` : '' }
             @endcan
             @can('ticket_close')
            <a href="/admin/closeTicket/${ticket.id}"

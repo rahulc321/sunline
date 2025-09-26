@@ -39,10 +39,20 @@ class TicketController extends Controller
 		$offset = $request->offset ?? 0;
 
 		# fetch current batch
-		$tkt = Ticket::with('getAssignUserName','submited')->orderBy('id', 'desc')->forCurrentUser()
-        ->skip($offset)
-        ->take($limit)
-        ->get();
+		$currentUserId = auth()->id();
+
+        $tkt = Ticket::with(['getAssignUserName', 'submited'])
+            ->where(function ($q) use ($currentUserId) {
+                # include tickets assigned to current user
+                $q->forCurrentUser()
+
+                # include tickets created by current user
+                ->orWhere('user_id', $currentUserId);
+            })
+            ->orderBy('id', 'desc')
+            ->skip($offset)
+            ->take($limit)
+            ->get();
 
 		# check if more data exists for next load
 		$totalRecords = Ticket::count();
