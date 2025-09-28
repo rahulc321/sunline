@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 class FetchZoomPhoneRecordings extends Command
 {
-    protected $signature = 'zoom:fetch-phone-recordings';
+    protected $signature = 'zoom:fetch-today-recordings';
     protected $description = 'Fetch today’s Zoom Phone recordings and store in DB';
 
     public function handle()
