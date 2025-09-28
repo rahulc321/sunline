@@ -27,6 +27,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')
         //          ->hourly();
         $schedule->command('projects:sync-status')->everyMinute();
+        $schedule->command('zoom:fetch-today-recordings')->everyMinute();
     }
 
     /**
