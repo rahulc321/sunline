@@ -1,4 +1,6 @@
 <?php
+ 
+use App\User;
 
 Route::redirect('/', '/login');
 Route::redirect('/home', '/admin');
@@ -17,6 +19,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::resource('roles', 'RolesController');
 
     // Users
+    Route::any('updateProfile', 'UsersController@updateProfile')->name('updateProfile');
     Route::delete('users/destroy', 'UsersController@massDestroy')->name('users.massDestroy');
     Route::resource('users', 'UsersController');
 	Route::get('users-list', [App\Http\Controllers\Admin\UsersController::class, 'getUsersForSelect2'])->name('users.select2');
@@ -98,6 +101,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
         $notification->markAsRead();
         return back();
     })->name('notifications.read');
+
+
+    Route::any('/profile', function(){
+        $user = User::find(auth()->user()->id);
+        return view('profile', compact('user'));
+    })->name('profile');
 
     Route::any('/notifications', function(){
         $notifications = auth()->user()->notifications()->latest()->get();

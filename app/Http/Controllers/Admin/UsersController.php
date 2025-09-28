@@ -135,4 +135,33 @@ class UsersController extends Controller
 
         return redirect()->route('login')->with('message', 'You have been logged out successfully.');
     }
+
+    # update profile
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();  // get currently logged-in user
+
+        # validate input
+        $validated = $request->validate([
+            'name'    => 'required|string|max:255',
+            'phone'   => 'required|string|max:20',
+            'address' => 'nullable|string|max:500',
+            
+        ]);
+
+        # update fields
+        $user->name    = $validated['name'];
+        $user->phone   = $validated['phone'];
+        $user->address = $validated['address'] ?? null;
+        $user->link    = $validated['link'] ?? null;
+
+        # update password only if provided
+        if ($request->filled('password')) {
+           // $user->password = Hash::make($validated['password']);
+        }
+
+        $user->save();
+
+        return redirect()->back()->with('success', 'Profile updated successfully.');
+    }
 }
