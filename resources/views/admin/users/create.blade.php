@@ -30,11 +30,12 @@
                                 <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                                     <label for="name">{{ trans('cruds.user.fields.name') }}*</label>
                                     <input type="text" id="name" name="name" class="form-control"
-                                        value="{{ old('name', isset($user) ? $user->name : '') }}" required placeholder="Full Name">
+                                        value="{{ old('name', isset($user) ? $user->name : '') }}" required
+                                        placeholder="Full Name">
                                     @if($errors->has('name'))
-                                        <em class="invalid-feedback">
-                                            {{ $errors->first('name') }}
-                                        </em>
+                                    <em class="invalid-feedback">
+                                        {{ $errors->first('name') }}
+                                    </em>
                                     @endif
                                     <p class="helper-block">
                                         {{ trans('cruds.user.fields.name_helper') }}
@@ -58,9 +59,9 @@
                                     <input type="email" id="email" name="email" class="form-control"
                                         value="{{ old('email', isset($user) ? $user->email : '') }}" required>
                                     @if($errors->has('email'))
-                                        <em class="invalid-feedback">
-                                            {{ $errors->first('email') }}
-                                        </em>
+                                    <em class="invalid-feedback">
+                                        {{ $errors->first('email') }}
+                                    </em>
                                     @endif
                                     <p class="helper-block">
                                         {{ trans('cruds.user.fields.email_helper') }}
@@ -74,9 +75,9 @@
                                     <label for="password">{{ trans('cruds.user.fields.password') }}</label>
                                     <input type="password" id="password" name="password" class="form-control" required>
                                     @if($errors->has('password'))
-                                        <em class="invalid-feedback">
-                                            {{ $errors->first('password') }}
-                                        </em>
+                                    <em class="invalid-feedback">
+                                        {{ $errors->first('password') }}
+                                    </em>
                                     @endif
                                     <p class="helper-block">
                                         {{ trans('cruds.user.fields.password_helper') }}
@@ -88,7 +89,8 @@
                             <div class="col-sm-6">
                                 <div class="form-group {{ $errors->has('address') ? 'has-error' : '' }}">
                                     <label for="address">Address</label>
-                                    <textarea name="address" class="form-control" placeholder="Address Here.....">{{ old('address', isset($user) ? $user->address : '') }}</textarea>
+                                    <textarea name="address" class="form-control"
+                                        placeholder="Address Here.....">{{ old('address', isset($user) ? $user->address : '') }}</textarea>
                                 </div>
                             </div>
 
@@ -96,8 +98,8 @@
                             <div class="col-sm-6">
                                 <div class="form-group {{ $errors->has('link') ? 'has-error' : '' }}">
                                     <label for="link">Link</label>
-                                    <input type="text" id="link" name="link" class="form-control"
-                                        placeholder="abc.com" value="{{ old('link', isset($user) ? $user->link : '') }}">
+                                    <input type="text" id="link" name="link" class="form-control" placeholder="abc.com"
+                                        value="{{ old('link', isset($user) ? $user->link : '') }}">
                                 </div>
                             </div>
 
@@ -105,27 +107,40 @@
                             <div class="col-sm-6">
                                 <div class="form-group {{ $errors->has('roles') ? 'has-error' : '' }}">
                                     <label for="roles">{{ trans('cruds.user.fields.roles') }}*
-                                        <span class="btn btn-info btn-xs select-all">{{ trans('global.select_all') }}</span>
-                                        <span class="btn btn-info btn-xs deselect-all">{{ trans('global.deselect_all') }}</span>
+                                        <span
+                                            class="btn btn-info btn-xs select-all">{{ trans('global.select_all') }}</span>
+                                        <span
+                                            class="btn btn-info btn-xs deselect-all">{{ trans('global.deselect_all') }}</span>
                                     </label>
-                                    <select name="roles[]" id="roles" class="form-control select2" multiple="multiple" required>
+                                    <select name="roles[]" id="roles" class="form-control select2" multiple="multiple"
+                                        required>
                                         @foreach($roles as $id => $rolesName)
-                                            <option value="{{ $id }}"
-                                                {{ (in_array($id, old('roles', [])) || isset($user) && $user->roles->contains($id)) ? 'selected' : '' }}>
-                                                {{ $rolesName }}
-                                            </option>
+                                        <option value="{{ $id }}"
+                                            {{ (in_array($id, old('roles', [])) || isset($user) && $user->roles->contains($id)) ? 'selected' : '' }}>
+                                            {{ $rolesName }}
+                                        </option>
                                         @endforeach
                                     </select>
                                     @if($errors->has('roles'))
-                                        <em class="invalid-feedback">
-                                            {{ $errors->first('roles') }}
-                                        </em>
+                                    <em class="invalid-feedback">
+                                        {{ $errors->first('roles') }}
+                                    </em>
                                     @endif
                                     <p class="helper-block">
                                         {{ trans('cruds.user.fields.roles_helper') }}
                                     </p>
                                 </div>
                             </div>
+
+
+                            <div class="col-sm-6">
+                                <div class="form-group {{ $errors->has('link') ? 'has-error' : '' }}">
+                                    <label for="link">Zoom Ext.</label>
+                                    <input type="text" id="zoom_ext" name="zoom_ext" class="form-control" placeholder=""
+                                        value="{{ old('zoom_ext', isset($user) ? $user->zoom_ext : '') }}">
+                                </div>
+                            </div>
+
                         </div> <!-- row -->
 
                         <div class="mt-3">

@@ -414,5 +414,28 @@ class LeadInboxController extends Controller
 		]);
 	}
 
+	public function zoomRecordings($id){
+		$getLead = Lead::find($id);
+		
+		$logs = DB::table('zoom_phone_recordings')
+        ->where('caller_number', $getLead->phone)
+        ->orWhere('callee_number', $getLead->phone)
+       // ->orderBy('call_start_time', 'desc')
+        ->get();
+
+		if ($logs->isEmpty()) {
+			return response()->json([
+				'success' => false,
+				'logs' => [],
+				'message' => 'No recordings found'
+			]);
+		}
+
+		return response()->json([
+			'success' => true,
+			'logs' => $logs
+		]);
+	}
+
 
 }

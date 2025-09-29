@@ -44,6 +44,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('updateContact', [App\Http\Controllers\Admin\LeadInboxController::class, 'updateContact'])->name('updateContact');
     Route::any('contactFollowUp/{id}', [App\Http\Controllers\Admin\LeadInboxController::class, 'contactFollowUp'])->name('contactFollowUp');		
 
+    # zoom recordings
+    
+    Route::any('/zoomRecordings/{id}', [App\Http\Controllers\Admin\LeadInboxController::class, 'zoomRecordings']);		
+
 	# lead source
 	Route::resource('leadSource', App\Http\Controllers\Admin\LeadSourceController::class);
     Route::resource('fri', App\Http\Controllers\Admin\FriController::class);

@@ -127,6 +127,13 @@
                                     </p>
                                 </div>
                             </div>
+                            <div class="col-sm-6">
+                                <div class="form-group {{ $errors->has('link') ? 'has-error' : '' }}">
+                                    <label for="link">Zoom Ext.</label>
+                                    <input type="text" id="zoom_ext" name="zoom_ext" class="form-control" placeholder=""
+                                        value="{{ old('zoom_ext', isset($user) ? $user->zoom_ext : '') }}">
+                                </div>
+                            </div>
                         </div> <!-- row -->
 
                         <div class="mt-3">

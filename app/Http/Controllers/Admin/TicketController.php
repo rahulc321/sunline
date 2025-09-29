@@ -68,7 +68,33 @@ class TicketController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
+    {       
+
+         $user = Auth::user(); // get current user
+ 
+            if ($user->roles[0]->title == 'Sales Rep') {
+        
+                // count existing tickets by this user
+                $highTicketsCount = Ticket::where('user_id', $user->id)
+                    ->where('urgency_label', 'High')
+                    ->count();
+        
+                $mediumTicketsCount = Ticket::where('user_id', $user->id)
+                    ->where('urgency_label', 'Medium')
+                    ->count();
+        
+                // check limits
+                if ($request->urgency_label == 'High' && $highTicketsCount >= 1) {
+                    return redirect()->back()->with('error', 'Sales Rep can only create 1 High priority ticket.');
+                }
+        
+                if ($request->urgency_label == 'Medium' && $mediumTicketsCount >= 3) {
+                    return redirect()->back()->with('error', 'Sales Rep can only create 3 Medium priority tickets.');
+                }
+            }
+
+         
+
             $data = $request->all();
             $data['user_id'] = Auth::Id();
 			Ticket::create($data);

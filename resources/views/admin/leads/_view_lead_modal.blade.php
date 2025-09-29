@@ -132,7 +132,7 @@
                     <div class="col-md-6">
                         <div class="border p-3 rounded">
                             <h6 class="fw-bold">Call Logs</h6>
-                            <ul class="list-unstyled">
+                            <!-- <ul class="list-unstyled">
                                 <li class="log-item">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
@@ -165,7 +165,9 @@
                                         <button class="btn btn-sm btn-outline-secondary">No Recording</button>
                                     </div>
                                 </li>
-                            </ul>
+                            </ul> -->
+
+                            <div class="call-logs"></div>
 
                         </div>
                     </div>
@@ -244,9 +246,9 @@
                     </svg> Log Call</button>
                 @endcan
                 @can('lead_generate_quote')
-                <button class="btn btn-outline-success generateQuote"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" class="lucide lucide-file-text h-4 w-4 mr-2"
+                <button class="btn btn-outline-success generateQuote"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                        height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text h-4 w-4 mr-2"
                         data-lov-id="src/components/leads/LeadDetailModal.tsx:245:14" data-lov-name="FileText"
                         data-component-path="src/components/leads/LeadDetailModal.tsx" data-component-line="245"
                         data-component-file="LeadDetailModal.tsx" data-component-name="FileText"
@@ -277,6 +279,19 @@
         </div>
     </div>
 </div>
+<style>
+    .call-logs {
+    max-height: 400px; /* adjust height as needed */
+    overflow-y: auto;
+    padding: 0;          /* remove default padding if any */
+    margin: 0;           /* remove default margin if any */
+}
+.call-logs ul {
+    padding-left: 0;     /* remove bullet spacing */
+    margin: 0;
+}
+</style>
+
 <script>
 $(document).on('change', '.lead_status', function() {
     let leadId = $('.lead_id').val();
@@ -311,8 +326,8 @@ $(document).on('change', '.lead_status', function() {
 });
 
 // Delete lead
-$(document).on('click', '.deleteLead', function () {
-    let leadId = $('.lead_id').val();  
+$(document).on('click', '.deleteLead', function() {
+    let leadId = $('.lead_id').val();
     // if hidden input is inside table row
     //alert(leadId); return;
     if (confirm("Are you sure you want to delete this lead?")) {
@@ -324,8 +339,8 @@ $(document).on('click', '.deleteLead', function () {
 });
 
 // Generate Quote
-$(document).on('click', '.generateQuote', function () {
-    let leadId = $('.lead_id').val();  
+$(document).on('click', '.generateQuote', function() {
+    let leadId = $('.lead_id').val();
     // if hidden input is inside table row
     //alert(leadId); return;
     if (confirm("Are you sure you want to generate this quote?")) {
@@ -335,4 +350,83 @@ $(document).on('click', '.generateQuote', function () {
         window.location.href = url;
     }
 });
+
+
+// when the modal is shown
+$('#leadDetailsModal').on('shown.bs.modal', function() {
+    let leadId = $('.lead_id').val(); // get lead ID from hidden input
+    //alert(leadId);
+
+    // show loading message
+    $(".call-logs").html('<li class="text-info">Loading call logs...</li>');
+
+    $.ajax({
+        url: '/admin/zoomRecordings/' + leadId,
+        type: 'GET',
+        success: function(response) {
+            if (response.success) {
+                renderCallLogs(response.logs);
+            } else {
+                $(".call-logs").html('<li class="text-danger">No call logs found.</li>');
+            }
+        },
+        error: function() {
+            $(".call-logs").html('<li class="text-danger">Error fetching logs.</li>');
+        }
+    });
+});
+
+
+// Render logs into the <ul>
+function renderCallLogs(logs) {
+    if (logs.length === 0) {
+        $(".call-logs").html('<li class="text-muted">No call logs available</li>');
+        return;
+    }
+   // alert(logs.length);
+    let html = '';
+    logs.forEach(log => {
+        // status color based on call duration or type
+        let statusClass = 'text-muted';
+        if (log.duration > 0) statusClass = 'text-success'; // example: contacted
+        else statusClass = 'text-warning';
+
+        // direction: already provided by API
+        let direction = log.direction.charAt(0).toUpperCase() + log.direction.slice(1); // Inbound/Outbound
+
+        // show other party number
+        let phoneNumber = direction === 'Inbound' ? log.caller_number : log.callee_number;
+
+        // convert duration from seconds to minutes:seconds
+        let minutes = Math.floor(log.duration / 60);
+        let seconds = log.duration % 60;
+        let durationFormatted = `${minutes}:${seconds.toString().padStart(2,'0')} min`;
+
+        // recording button
+        let btn = log.download_url ?
+            `<button class="btn btn-sm btn-outline-primary" 
+                 onclick="window.open('${log.download_url}', '_blank')">
+             🎵 Recording
+         </button>` :
+            `<button class="btn btn-sm btn-outline-secondary" disabled>
+             No Recording
+         </button>`;
+
+        html += `
+        <li class="log-item" style="list-style: none;">
+            <div class="d-flex justify-content-between align-items-center">
+               <div class="small">
+                    <span class="me-2 ${statusClass}">📞</span>
+                    <strong>${new Date(log.start_time).toLocaleString()}</strong> ${durationFormatted}
+                    <div class="text-info">${direction} • ${phoneNumber}</div>
+                </div>
+                ${btn}
+            </div>
+        </li>
+    `;
+    });
+
+
+    $(".call-logs").html(html);
+}
 </script>
