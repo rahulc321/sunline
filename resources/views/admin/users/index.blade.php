@@ -61,6 +61,10 @@
                                     <th>
                                         {{ trans('cruds.user.fields.roles') }}
                                     </th>
+
+                                    <th>
+                                        Zoom Ext.
+                                    </th>
                                     <th>
                                         Action
                                     </th>
@@ -92,6 +96,10 @@
                                         @foreach($user->roles as $key => $item)
                                         <span class="badge badge-info bg_s">{{ $item->title }}</span>
                                         @endforeach
+                                    </td>
+
+                                    <td>
+                                        {{ $user->zoom_ext ?? '' }}
                                     </td>
                                     <td>
                                         @can('user_show')

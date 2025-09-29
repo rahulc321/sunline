@@ -36,6 +36,7 @@ class User extends Authenticatable
         'email',
         'phone',
         'link',
+        'zoom_ext',
         'address',
         'password',
         'created_at',
