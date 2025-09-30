@@ -53,6 +53,17 @@ i.ph-user {
     content: "\f335";
     color: #0f33ff;
 }
+
+.red-dot {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 8px;
+    height: 8px;
+    background: red;
+    border-radius: 50%;
+    display: inline-block;
+}
 </style>
 <!-- Page header -->
 <div class="page-header">
@@ -287,7 +298,7 @@ i.ph-user {
         let status = ticket.status?.toLowerCase() ?? "open";
         let color = statusColors[status] || "secondary";
         let hiddenClass = ticket.status == 'closed' ? 'd-none' : '';
-        const currentUserId = {{ auth()->id() }};
+        const currentUserId = {{auth()->id() }};
 
 
         return `
@@ -360,7 +371,7 @@ i.ph-user {
         <div class="d-flex align-items-center">
             @can('ticket_reply')
             <button class="btn btn-sm btn-outline-secondary me-2 reply" data-id="${ticket.id}" data-bs-toggle="modal" data-bs-target="#replyModel">
-                <i class="ph-chat-centered-text me-1"></i> Reply
+                <i class="ph-chat-centered-text me-1 "></i> Reply <div class="dot position-relative"></div>
             </button>
             @endcan
             
@@ -537,10 +548,27 @@ i.ph-user {
 
 
     // open modal + load replies
+    let replyInterval; // store interval ID
+
     $(document).on('click', '.reply', function() {
         let ticketId = $(this).data('id');
         $('#reply_ticket_id').val(ticketId);
+
+        // load replies immediately
         loadReplies(ticketId);
+
+        // clear any previous interval
+        if (replyInterval) clearInterval(replyInterval);
+
+        // set interval to refresh every 2 seconds
+        replyInterval = setInterval(function() {
+            loadReplies(ticketId);
+        }, 2000);
+    });
+
+    // Optional: clear interval when modal closes to stop AJAX calls
+    $('#replyModel').on('hidden.bs.modal', function () {
+        if (replyInterval) clearInterval(replyInterval);
     });
 
     // submit reply
@@ -599,6 +627,44 @@ i.ph-user {
         $("#ticket_description").text(ticket.description);
     });
     </script>
+
+    <script>
+    function fetchUnreadReplies() {
+    $.ajax({
+        url: "{{ route('admin.fetchUnreadReplies') }}",
+        type: "GET",
+        success: function(response) {
+            const tickets = response.tickets; // access array from JSON
+
+            // Loop through each ticket button
+            $('.reply').each(function() {
+                const ticketId = $(this).data('id');
+                const ticketData = tickets.find(t => t.id == ticketId);
+                const dotContainer = $(this).find('.dot');
+                
+
+                // remove any old dot
+                dotContainer.find('.red-dot').remove();
+
+                // add red dot if unread replies exist
+                if (ticketData && ticketData.unread_replies_count > 0) {
+                    dotContainer.append('<span class="red-dot"></span>');
+                }
+            });
+        },
+        error: function() {
+            console.error('Failed to fetch unread replies.');
+        }
+    });
+}
+
+    // run every 10 seconds
+    setInterval(fetchUnreadReplies, 2000);
+
+    // initial fetch
+    fetchUnreadReplies();
+    </script>
+
 
     <script src="{{asset('js/lead/edit-lead.js')}}"></script>
     <script src="{{asset('js/lead/edit-lead-notes.js')}}"></script>

@@ -38,10 +38,28 @@ class UsersController extends Controller
     }
 
     public function store(StoreUserRequest $request)
-    {
+    {   
+        if (User::where('email', $request->email)->exists()) {
+            session()->flash('warning', 'This email is already registered.'); 
+            return redirect()->back();
+                 
+        }
         //dd($request->all());
         $user = User::create($request->all());
         $user->roles()->sync($request->input('roles', []));
+        $this->data['data'] = $request->all();
+        //return view('admin.emails.signup', $this->data);
+        $email = $request->email;
+        //dd($email);
+        \Mail::send("admin.emails.signup", $this->data, function (
+            $message
+        ) use ($email) {
+            $message
+                ->to($email)
+                ->from("info@gmail.com")
+                ->subject("Account Created");
+        });
+
         session()->flash('success', 'User has been successfully added!');   
         return redirect()->route('admin.users.index');
     }
@@ -163,5 +181,20 @@ class UsersController extends Controller
         $user->save();
 
         return redirect()->back()->with('success', 'Profile updated successfully.');
+    }
+
+    # for notification
+    public function fetchNotification()
+    {
+        $notifications = auth()->user()
+        ->unreadNotifications()
+        ->latest()
+        ->take(10)
+        ->get();
+
+        return response()->json([
+            'count' => auth()->user()->unreadNotifications->count(),
+            'html' => view('partials.notifications_list', compact('notifications'))->render(),
+        ]);
     }
 }

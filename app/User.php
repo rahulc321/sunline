@@ -37,6 +37,7 @@ class User extends Authenticatable
         'phone',
         'link',
         'zoom_ext',
+        'open_solar_password',
         'address',
         'password',
         'created_at',

@@ -146,7 +146,13 @@ class TicketController extends Controller
 
     # get ticket Replies
     public function ticketsRepliesList(Request $request, $ticketId)
-    {
+    {   
+
+        TicketReply::where('ticket_id', $ticketId)
+        ->where('user_id', '!=', auth()->id()) // only opposite side
+        ->whereNull('read_at')
+        ->update(['read_at' => now()]);
+
         $query = TicketReply::with('user:id,name')
             ->where('ticket_id', $ticketId);
 
@@ -218,5 +224,25 @@ class TicketController extends Controller
 			$ticket->update($data);
 			return redirect()->back()->with('success', 'You have successfully updated!');
     }
+
+    # TicketController
+
+    public function fetchUnreadReplies()
+    {
+        $currentUserId = auth()->id();
+
+        $counts = Ticket::withCount([
+            'replies as unread_replies_count' => function ($q) use ($currentUserId) {
+                $q->whereNull('read_at')           // only unread
+                ->where('user_id', '!=', $currentUserId); // exclude current user's own replies
+            }
+        ])->where(function ($q) use ($currentUserId) {
+            $q->where('assign_to', $currentUserId)  // tickets assigned to current user
+            ->orWhere('user_id', $currentUserId);   // tickets created by current user
+        })->get(['id', 'unread_replies_count']);
+
+        return response()->json(['tickets' => $counts]);
+    }
+
 
 }
