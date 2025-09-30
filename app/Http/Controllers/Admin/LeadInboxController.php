@@ -123,6 +123,31 @@ class LeadInboxController extends Controller
 				'elogible_for_rebate'   => 'nullable|string|max:255',
 			]);
 
+			// Check manually if phone or email exists
+			$existingLead = Lead::where(function($q) use ($validated) {
+				if (!empty($validated['phone'])) {
+					$q->where('phone', $validated['phone']);
+				}
+				if (!empty($validated['email'])) {
+					$q->orWhere('email', $validated['email']);
+				}
+			})->first();
+			
+			if ($existingLead) {
+				$messages = [];
+			
+				if (!empty($validated['email']) && $existingLead->email === $validated['email']) {
+					$messages[] = 'Email already exists';
+				}
+				if (!empty($validated['phone']) && $existingLead->phone === $validated['phone']) {
+					$messages[] = 'Phone already exists';
+				}
+			
+				// join messages with ' and '
+				session()->flash('warning', implode(' and ', $messages) . '!');
+				return redirect()->back();
+			}
+
 			// Create lead
 			$lead = Lead::create($validated);
 
