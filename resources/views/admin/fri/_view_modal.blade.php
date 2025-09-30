@@ -48,13 +48,14 @@
                         </button>
                         @endcan
 
-
+                        @if(isSalesRep() == 0)
                         <select class="form-select fri_status">
                             <option value="">Select</option>
                             @foreach($status as $value)
                             <option value="{{$value->name}}">{{$value->name}}</option>
                             @endforeach
                         </select>
+                        @endcan
 
                     </div>
                 </div>

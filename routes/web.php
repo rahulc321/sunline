@@ -90,6 +90,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('fetchUnreadReplies', [App\Http\Controllers\Admin\TicketController::class, 'fetchUnreadReplies'])
      ->name('fetchUnreadReplies');
 
+    Route::any('fetchUnreadRepliesFri', [App\Http\Controllers\Admin\TicketController::class, 'fetchUnreadRepliesFri'])
+     ->name('fetchUnreadRepliesFri');
+
     # for webhook
     Route::any('send', [App\Http\Controllers\Admin\ApiTesterController::class, 'send'])->name('send');
     Route::any('webhook', [App\Http\Controllers\Admin\ApiTesterController::class, 'webhook'])->name('webhook');

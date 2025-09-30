@@ -30,6 +30,16 @@ strong {
     border-radius: 10px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
+.red-dot {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 8px;
+    height: 8px;
+    background: red;
+    border-radius: 50%;
+    display: inline-block;
+}
 </style>
 
 <!-- Page header -->
@@ -317,7 +327,7 @@ strong {
             data-bs-toggle="modal" 
             data-bs-target="#replyModel"
             data-bs-dismiss="modal">
-        <i class="ph-chat-centered-text me-1"></i> Response
+        <i class="ph-chat-centered-text me-1"></i> Response <div class="dot position-relative"></div>
     </button>
     @endcan
 </div>

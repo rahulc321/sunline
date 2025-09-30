@@ -184,6 +184,7 @@ i.ph-user {
                 </div>
 
                 <!-- Buttons -->
+                 
                 <div class="col-md-2 d-flex gap-2">
                     <button type="button" class="btn btn-primary bg_s apply">Apply</button>
                     <button type="reset" class="btn btn-outline-secondary">Reset</button>

@@ -26,7 +26,10 @@ class Ticket extends Model
         $user = Auth::user();
 
         if ($user->roles->contains('title', env('ROLE'))) {
-            return $query->where('assign_to', $user->id);
+            return $query->where(function ($q) use ($user) {
+                $q->where('assign_to', $user->id)   // tickets assigned to me
+                  ->orWhere('user_id', $user->id); // tickets created by me
+            });
         }
 
         # if Admin or Director → no restriction
