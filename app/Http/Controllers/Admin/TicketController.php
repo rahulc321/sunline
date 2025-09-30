@@ -44,10 +44,10 @@ class TicketController extends Controller
         $tkt = Ticket::with(['getAssignUserName', 'submited'])
             ->where(function ($q) use ($currentUserId) {
                 # include tickets assigned to current user
-                $q->forCurrentUser()
+                $q->forCurrentUser();
 
                 # include tickets created by current user
-                ->orWhere('user_id', $currentUserId);
+               // ->orWhere('user_id', $currentUserId);
             })
             ->orderBy('id', 'desc')
             ->skip($offset)
@@ -167,6 +167,8 @@ class TicketController extends Controller
                 return $reply;
             });
 
+        
+
         return response()->json($replies);
     }
 
@@ -184,6 +186,15 @@ class TicketController extends Controller
 
         if($request->type == 'rfi'){
             $ticket = Fri::findOrFail($ticketId);
+
+            if(isSalesRep() == 1){
+                $ticket->status = 'In Progress';
+                
+            }else{
+                $ticket->status = 'Open';
+            }
+
+            $ticket->save();
         }else{
             $ticket = Ticket::findOrFail($ticketId);
         }
@@ -207,6 +218,31 @@ class TicketController extends Controller
         }
 
         $reply->save();
+
+
+        # for notification
+        $currentUserId = Auth::id();
+        if ($request->type == 'rfi') {
+            $rfi = 'fri';
+            $otherUserId = $ticket->created_by != $currentUserId ? $ticket->created_by : $ticket->assigned_to;
+        } else {
+            $rfi = 'ticket';
+            $otherUserId = $ticket->user_id != $currentUserId ? $ticket->user_id : $ticket->assign_to;
+        }
+        //dd($otherUserId);
+        $typeLabel = $request->type ?? 'ticket'; // fallback to 'ticket' if type not provided
+        $routeName = $typeLabel === 'rfi' ? 'admin.fri.index' : 'admin.ticket.index';
+
+        if ($otherUserId) {
+            $user = User::find($otherUserId);
+            if ($user) {
+                $user->notify(new NewNotification(
+                    "💬 New reply on {$typeLabel} #{$ticket->id}",
+                    $request->message,
+                    route($routeName)
+                ));
+            }
+        }
 
         return response()->json([
             'status'  => 'success',
@@ -239,6 +275,24 @@ class TicketController extends Controller
         ])->where(function ($q) use ($currentUserId) {
             $q->where('assign_to', $currentUserId)  // tickets assigned to current user
             ->orWhere('user_id', $currentUserId);   // tickets created by current user
+        })->get(['id', 'unread_replies_count']);
+
+        return response()->json(['tickets' => $counts]);
+    }
+
+    # fetch fri unread reply
+    public function fetchUnreadRepliesFri()
+    {
+        $currentUserId = auth()->id();
+
+        $counts = Fri::withCount([
+            'replies as unread_replies_count' => function ($q) use ($currentUserId) {
+                $q->whereNull('read_at')           // only unread
+                ->where('user_id', '!=', $currentUserId); // exclude current user's own replies
+            }
+        ])->where(function ($q) use ($currentUserId) {
+            $q->where('assigned_to', $currentUserId)  // tickets assigned to current user
+            ->orWhere('created_by', $currentUserId);   // tickets created by current user
         })->get(['id', 'unread_replies_count']);
 
         return response()->json(['tickets' => $counts]);

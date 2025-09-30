@@ -50,4 +50,25 @@ if (! function_exists('sendGlobalEmail')) {
         //     return false;
         // }
     }
+
+    
+}
+
+
+if (! function_exists('isSalesRep')) {
+    /**
+     * Check if the current authenticated user has the Sales Rep role
+     *
+     * @return int 1 if Sales Rep, 0 otherwise
+     */
+    function isSalesRep()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return 0;
+        }
+
+        // assuming your role title is stored in 'title'
+        return $user->roles->contains('title', 'Sales Rep') ? 1 : 0;
+    }
 }

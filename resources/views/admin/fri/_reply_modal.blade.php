@@ -54,53 +54,55 @@
 </div>
 
 <script>
-    function loadReplies(ticketId) {
-        var currentUser = "{{Auth::id()}}";
-        $.ajax({
-            url: '/admin/ticketsRepliesList/' + ticketId,
-            method: 'GET',
-            data:{'type':'rfi'},
-            success: function(res) {
-                let repliesHtml = '';
+function loadReplies(ticketId) {
+    var currentUser = "{{Auth::id()}}";
+    $.ajax({
+        url: '/admin/ticketsRepliesList/' + ticketId,
+        method: 'GET',
+        data: {
+            'type': 'rfi'
+        },
+        success: function(res) {
+            let repliesHtml = '';
 
-                if (res.length) {
-                    res.forEach(r => {
-                        let attachmentHtml = '';
+            if (res.length) {
+                res.forEach(r => {
+                    let attachmentHtml = '';
 
-                        if (r.attachment) {
-                            let ext = r.attachment.split('.').pop().toLowerCase();
-                            if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
-                                // image clickable
-                                attachmentHtml = `
+                    if (r.attachment) {
+                        let ext = r.attachment.split('.').pop().toLowerCase();
+                        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
+                            // image clickable
+                            attachmentHtml = `
                                                     <a href="/${r.attachment}" target="_blank">
                                                         <img src="/${r.attachment}" class="img-fluid rounded mt-1" style="max-width:200px;">
                                                     </a>
                                                 `;
-                            } else if (['mp4', 'webm', 'ogg'].includes(ext)) {
-                                // video
-                                attachmentHtml = `
+                        } else if (['mp4', 'webm', 'ogg'].includes(ext)) {
+                            // video
+                            attachmentHtml = `
                                                     <video controls class="rounded mt-1" style="max-width:200px;">
                                                         <source src="/${r.attachment}" type="video/${ext}">
                                                     </video>
                                                 `;
-                            } else if (['pdf'].includes(ext)) {
-                                attachmentHtml = `
+                        } else if (['pdf'].includes(ext)) {
+                            attachmentHtml = `
                                                     <a href="/${r.attachment}" target="_blank" class="d-block mt-1">
                                                         <i class="ph-file-pdf me-1"></i> View PDF
                                                     </a>
                                                 `;
-                            } else {
-                                attachmentHtml = `
+                        } else {
+                            attachmentHtml = `
                                                     <a href="/${r.attachment}" target="_blank" class="d-block mt-1">
                                                         <i class="ph-file me-1"></i> Download File
                                                     </a>
                                                 `;
-                            }
                         }
+                    }
 
 
-                        // bubble HTML
-                        let bubbleHtml = `
+                    // bubble HTML
+                    let bubbleHtml = `
                         ${r.reply ? `<p class="mb-1">${r.reply}</p>` : ''}
                         ${attachmentHtml}
                         <div class="small mt-1 text-${r.user_id == currentUser ? 'light' : 'muted'}">
@@ -108,16 +110,16 @@
                         </div>
                     `;
 
-                        if (r.user_id == currentUser) {
-                            repliesHtml += `
+                    if (r.user_id == currentUser) {
+                        repliesHtml += `
                             <div class="d-flex justify-content-end mb-2">
                                 <div class="p-2 rounded bg-primary text-white small bg_s" style="max-width:75%;">
                                     ${bubbleHtml}
                                 </div>
                             </div>
                         `;
-                        } else {
-                            repliesHtml += `
+                    } else {
+                        repliesHtml += `
                             <div class="d-flex mb-2">
                                 <div class="p-2 rounded bg-light text-dark small" style="max-width:75%;">
                                     <strong><i class="ph-user me-2"></i>${r.user?.name}</strong>
@@ -125,48 +127,103 @@
                                 </div>
                             </div>
                         `;
-                        }
-                    });
-                } else {
-                    repliesHtml = `<p class="text-muted">No replies yet.</p>`;
-                }
-
-                $('#repliesContainer').html(repliesHtml);
-                $("#repliesContainer").scrollTop($("#repliesContainer")[0].scrollHeight);
+                    }
+                });
+            } else {
+                repliesHtml = `<p class="text-muted">No replies yet.</p>`;
             }
-        });
-    }
+
+            $('#repliesContainer').html(repliesHtml);
+            $("#repliesContainer").scrollTop($("#repliesContainer")[0].scrollHeight);
+        }
+    });
+}
 
 
-    // open modal + load replies
-    $(document).on('click', '.reply', function() {
-        let ticketId = $(this).data('id');
-        $('#reply_ticket_id').val(ticketId);
+// open modal + load replies
+let replyInterval; // store interval ID
+
+$(document).on('click', '.reply', function() {
+    let ticketId = $(this).data('id');
+    $('#reply_ticket_id').val(ticketId);
+
+    // load replies immediately
+    loadReplies(ticketId);
+
+    // clear any existing interval
+    if (replyInterval) clearInterval(replyInterval);
+
+    // set interval to refresh every 2 seconds
+    replyInterval = setInterval(function() {
         loadReplies(ticketId);
+    }, 2000);
+});
+
+// clear the interval when modal closes
+$('#replyModel').on('hidden.bs.modal', function () {
+    if (replyInterval) clearInterval(replyInterval);
+});
+
+
+// submit reply
+$('#replyForm').on('submit', function(e) {
+    e.preventDefault();
+
+    let ticketId = $('#reply_ticket_id').val();
+    let formData = new FormData(this); // includes message + attachment + CSRF token
+
+    $.ajax({
+        url: '/admin/ticketsReplies/' + ticketId,
+        method: 'POST',
+        data: formData,
+        contentType: false, // important for file upload
+        processData: false, // important for file upload
+        success: function(res) {
+            $('#reply_message').val(''); // clear textarea
+            $('#reply_attachment').val(''); // clear file input
+            loadReplies(ticketId); // reload replies
+        },
+        error: function(err) {
+            console.error(err);
+            alert('Failed to send reply');
+        }
     });
+});
+</script>
 
-    // submit reply
-    $('#replyForm').on('submit', function(e) {
-        e.preventDefault();
+<script>
+function fetchUnreadReplies() {
+    $.ajax({
+        url: "{{ route('admin.fetchUnreadRepliesFri') }}",
+        type: "GET",
+        success: function(response) {
+            const tickets = response.tickets; // access array from JSON
 
-        let ticketId = $('#reply_ticket_id').val();
-        let formData = new FormData(this); // includes message + attachment + CSRF token
+            // Loop through each ticket button
+            $('.reply').each(function() {
+                const ticketId = $(this).data('id');
+                const ticketData = tickets.find(t => t.id == ticketId);
+                const dotContainer = $(this).find('.dot');
 
-        $.ajax({
-            url: '/admin/ticketsReplies/' + ticketId,
-            method: 'POST',
-            data: formData,
-            contentType: false, // important for file upload
-            processData: false, // important for file upload
-            success: function(res) {
-                $('#reply_message').val(''); // clear textarea
-                $('#reply_attachment').val(''); // clear file input
-                loadReplies(ticketId); // reload replies
-            },
-            error: function(err) {
-                console.error(err);
-                alert('Failed to send reply');
-            }
-        });
+
+                // remove any old dot
+                dotContainer.find('.red-dot').remove();
+
+                // add red dot if unread replies exist
+                if (ticketData && ticketData.unread_replies_count > 0) {
+                    dotContainer.append('<span class="red-dot"></span>');
+                }
+            });
+        },
+        error: function() {
+            console.error('Failed to fetch unread replies.');
+        }
     });
+}
+
+// run every 10 seconds
+setInterval(fetchUnreadReplies, 2000);
+
+// initial fetch
+fetchUnreadReplies();
 </script>

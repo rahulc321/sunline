@@ -269,7 +269,8 @@ class LeadInboxController extends Controller
 		# base query
 		$query = LeadContact::whereHas('lead', function ($q) {
 			$q->whereNull('deleted_at')
-			->whereNotIn('status', ['Sold']);
+			->whereNotIn('status', ['Sold'])
+			->forCurrentUser();
 		})
 		->with([
 				'lead.getAssignUserName',
