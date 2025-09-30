@@ -454,7 +454,7 @@
                                 data-bs-toggle="dropdown" data-bs-auto-close="outside">
                                 <i class="ph-bell"></i>
                                 <span
-                                    class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1">{{ auth()->user()->unreadNotifications->count() }}</span>
+                                    class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1 notification">{{ auth()->user()->unreadNotifications->count() }}</span>
                             </a>
 
                             <div class="dropdown-menu wmin-lg-400 p-0">
@@ -498,26 +498,7 @@
                                 </style>
                                 <?php $notifications = auth()->user()->unreadNotifications()->latest()->get(); ?>
                                 <div class="dropdown-menu-scrollable pb-2" id="notificationsList">
-                                    @forelse($notifications as $notification)
-                                    <a href="{{ route('admin.notifications.read', $notification->id) }}"
-                                        class="dropdown-item align-items-start text-wrap py-2 {{ $notification->read_at ? '' : 'bg-light' }}">
-                                        <div class="status-indicator-container me-3">
-                                            <img src="https://themes.kopyov.com/limitless/demo/template/assets/images/demo/users/face1.jpg"
-                                                class="w-40px h-40px rounded-pill" alt="">
-                                            <span
-                                                class="status-indicator {{ $notification->read_at ? 'bg-grey' : 'bg-warning' }}"></span>
-                                        </div>
-                                        <div class="flex-1">
-                                            <span
-                                                class="fw-semibold">{{ $notification->data['title'] ?? 'Notification' }}</span>
-                                            <span
-                                                class="text-muted float-end fs-sm">{{ $notification->created_at->diffForHumans() }}</span>
-                                            <div class="text-muted">{{ $notification->data['message'] ?? '' }}</div>
-                                        </div>
-                                    </a>
-                                    @empty
-                                    <span class="dropdown-item text-muted">No new notifications</span>
-                                    @endforelse
+                                    @include('partials.notifications_list', ['notifications' => $notifications])
                                 </div>
 
                                 <div class="d-flex border-top py-2 px-3">
@@ -670,6 +651,33 @@ $('#jsGrid1').DataTable({
             };
         }
     }
+</script>
+
+<script>
+    function fetchNotifications() {
+        $.ajax({
+            url: "{{ route('admin.fetchNotification') }}",
+            type: "GET",
+            success: function (data) {
+                // update count
+                $('.notification').text(data.count);
+
+                // update notifications list
+                $('#notificationsList').html(data.html);
+
+                
+            },
+            error: function () {
+                console.error('Failed to fetch notifications.');
+            }
+        });
+    }
+
+    // run every 10 seconds
+    setInterval(fetchNotifications, 10000);
+
+    // initial load
+    fetchNotifications();
 </script>
 
 

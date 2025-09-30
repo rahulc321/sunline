@@ -134,6 +134,14 @@
                                         value="{{ old('zoom_ext', isset($user) ? $user->zoom_ext : '') }}">
                                 </div>
                             </div>
+
+                            <div class="col-sm-6">
+                                <div class="form-group {{ $errors->has('link') ? 'has-error' : '' }}">
+                                    <label for="link">Open Solar Password</label>
+                                    <input type="text" id="open_solar_password" name="open_solar_password" class="form-control" placeholder="Open Solar Password"
+                                        value="{{ old('open_solar_password', isset($user) ? $user->open_solar_password : '') }}">
+                                </div>
+                            </div>
                         </div> <!-- row -->
 
                         <div class="mt-3">

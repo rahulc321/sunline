@@ -85,6 +85,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
      ->name('admin.ticketsReplies');
     Route::any('ticketUpdate/{id}', [App\Http\Controllers\Admin\TicketController::class, 'ticketUpdate'])
      ->name('admin.ticketUpdate');
+     
+
+    Route::any('fetchUnreadReplies', [App\Http\Controllers\Admin\TicketController::class, 'fetchUnreadReplies'])
+     ->name('fetchUnreadReplies');
 
     # for webhook
     Route::any('send', [App\Http\Controllers\Admin\ApiTesterController::class, 'send'])->name('send');
@@ -122,5 +126,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
         auth()->user()->unreadNotifications->markAsRead();
         return back();
     })->name('notifications.markAllRead');
+
+
+    Route::any('fetchNotification', [App\Http\Controllers\Admin\UsersController::class, 'fetchNotification'])
+    ->name('fetchNotification');
 
 });
