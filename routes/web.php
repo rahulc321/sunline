@@ -46,7 +46,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
     # zoom recordings
     
-    Route::any('/zoomRecordings/{id}', [App\Http\Controllers\Admin\LeadInboxController::class, 'zoomRecordings']);		
+    Route::any('/zoomRecordings/{id}', [App\Http\Controllers\Admin\LeadInboxController::class, 'zoomRecordings']);	
+    Route::any('/audioUrl', [App\Http\Controllers\Admin\LeadInboxController::class, 'audioUrl'])->name('audioUrl');			
 
 	# lead source
 	Route::resource('leadSource', App\Http\Controllers\Admin\LeadSourceController::class);

@@ -280,14 +280,19 @@
     </div>
 </div>
 <style>
-    .call-logs {
-    max-height: 400px; /* adjust height as needed */
+.call-logs {
+    max-height: 400px;
+    /* adjust height as needed */
     overflow-y: auto;
-    padding: 0;          /* remove default padding if any */
-    margin: 0;           /* remove default margin if any */
+    padding: 0;
+    /* remove default padding if any */
+    margin: 0;
+    /* remove default margin if any */
 }
+
 .call-logs ul {
-    padding-left: 0;     /* remove bullet spacing */
+    padding-left: 0;
+    /* remove bullet spacing */
     margin: 0;
 }
 </style>
@@ -383,7 +388,7 @@ function renderCallLogs(logs) {
         $(".call-logs").html('<li class="text-muted">No call logs available</li>');
         return;
     }
-   // alert(logs.length);
+    // alert(logs.length);
     let html = '';
     logs.forEach(log => {
         // status color based on call duration or type
@@ -404,14 +409,20 @@ function renderCallLogs(logs) {
 
         // recording button
         let btn = log.download_url ?
-            `<button class="btn btn-sm btn-outline-primary" 
-                 onclick="window.open('${log.download_url}', '_blank')">
-             🎵 Recording
-         </button>` :
-            `<button class="btn btn-sm btn-outline-secondary" disabled>
-             No Recording
-         </button>`;
-
+        `<div class="audio-item">
+            <button class="btn btn-sm btn-outline-primary play-btn"
+                    onclick="playRecording('${log.download_url}', '${log.recording_id}', this)">
+                🎵 Play
+            </button>
+            <audio class="zoom-player" controls style="display:none;"></audio>
+        </div>` :
+        `<div class="audio-item">
+            <button class="btn btn-sm btn-outline-secondary" disabled>
+                No Recording
+            </button>
+            <audio class="zoom-player" controls style="display:none;"></audio>
+        </div>`;
+        
         html += `
         <li class="log-item" style="list-style: none;">
             <div class="d-flex justify-content-between align-items-center">
@@ -429,4 +440,66 @@ function renderCallLogs(logs) {
 
     $(".call-logs").html(html);
 }
+
+
+// create the audio player only once
+if (!document.getElementById('zoom-player')) {
+    const audio = document.createElement('audio');
+    audio.id = 'zoom-player';
+    audio.controls = true;
+    audio.style.display = 'none';
+    audio.style.marginTop = '10px';
+    document.body.appendChild(audio);
+}
+
+// function to play recording
+function playRecording(fullUrl, recording_id, button) {
+    const btn = $(button); // the clicked button
+    const container = btn.closest('.audio-item'); // wrapper div for this audio
+    const player = container.find('.zoom-player')[0];
+
+    // show loading state
+    const originalText = btn.text();
+    btn.text('Loading...');
+    btn.prop('disabled', true);
+
+    // pause all other players
+    $('.zoom-player').each(function() {
+        if (this !== player) {
+            this.pause();
+            $(this).hide();
+            $(this).closest('.audio-item').find('.play-btn').show().text('🎵 Play').prop('disabled', false);
+        }
+    });
+
+    $.ajax({
+        url: "{{route('admin.audioUrl')}}",
+        type: 'POST',
+        data: {
+            full_url: fullUrl,
+            recording_id: recording_id
+        },
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            btn.prop('disabled', false);
+            if (response.url) {
+                btn.hide();
+                player.src = response.url;
+                player.style.display = 'inline-block';
+                player.play().catch(err => console.error("Playback error:", err));
+            } else {
+                alert('Recording not available');
+                btn.text(originalText);
+            }
+        },
+        error: function() {
+            alert('Failed to fetch recording.');
+            btn.text(originalText);
+            btn.prop('disabled', false);
+        }
+    });
+}
+
 </script>

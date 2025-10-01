@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
+use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -462,6 +462,87 @@ class LeadInboxController extends Controller
 			'logs' => $logs
 		]);
 	}
+
+	/////////////////////////////FOr ZOOM/////////////////////////
+	private function getAccessToken()
+    {
+        $clientId     = env('ZOOM_CLIENT_ID');
+        $clientSecret = env('ZOOM_CLIENT_SECRET');
+        $accountId    = env('ZOOM_ACCOUNT_ID');
+
+        $response = Http::asForm()->withBasicAuth($clientId, $clientSecret)
+            ->post('https://zoom.us/oauth/token', [
+                'grant_type' => 'account_credentials',
+                'account_id' => $accountId,
+            ]);
+
+        if ($response->failed()) {
+            Log::error('Zoom Token Error: ' . $response->body());
+            return null;
+        }
+
+        return $response->json()['access_token'];
+    }
+
+
+	public function audioUrl(Request $request)
+	{
+		$fullUrl = $request->input('full_url');
+		$recordingId = $request->input('recording_id');
+
+		if (empty($fullUrl)) {
+			return response()->json(['error' => 'Missing full_url'], 400);
+		}
+
+		# if recording_id not passed, parse it from URL
+		if (empty($recordingId)) {
+			$recordingId = basename(parse_url($fullUrl, PHP_URL_PATH));
+		}
+
+		if (empty($recordingId)) {
+			return response()->json(['error' => 'Cannot determine recording_id'], 400);
+		}
+
+		# get OAuth token
+		$accessToken = $this->getAccessToken();
+		if (!$accessToken) {
+			return response()->json(['error' => 'Cannot get token'], 500);
+		}
+
+		# define file path
+		$fileName = 'zoom_' . $recordingId . '.mp3';
+		$filePath = public_path('audio/' . $fileName);
+		$publicUrl = asset('audio/' . $fileName);
+
+		# check DB & file
+		$existing = DB::table('zoom_phone_recordings')
+			->where('recording_id', $recordingId)
+			->value('recording_url');
+
+		if (!empty($existing) && file_exists(public_path(parse_url($existing, PHP_URL_PATH)))) {
+			return response()->json(['url' => $existing]);
+		}
+
+		# download recording
+		$response = Http::withToken($accessToken)
+			->timeout(300)      // total request timeout: 5 minutes
+		//	->readTimeout(300) 
+			->sink($filePath)
+			->get($fullUrl);
+
+		if ($response->failed()) {
+			return response()->json(['error' => 'Cannot fetch recording from Zoom'], 403);
+		}
+
+		# save/update DB entry
+		DB::table('zoom_phone_recordings')->updateOrInsert(
+			['recording_id' => $recordingId],
+			['recording_url' => $publicUrl, 'updated_at' => now()]
+		);
+
+		return response()->json(['url' => $publicUrl]);
+	}
+
 
 
 }
