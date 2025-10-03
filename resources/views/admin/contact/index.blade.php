@@ -306,7 +306,7 @@ strong {
     </div>
 
     <div class="text-muted mt-2">
-        Source: <strong class="text-dark">${lead.lead_source.source ?? ''}</strong> &nbsp;|&nbsp;
+        Source: <strong class="text-dark">${lead.lead_source?.source ?? ''}</strong> &nbsp;|&nbsp;
         Follow-ups: <strong class="text-dark">${contract.follow_up_count ?? 0}</strong> &nbsp;|&nbsp;
         Storeys: <strong class="text-dark">${lead.storeys ?? ''}</strong> &nbsp;|&nbsp;
         Roof: <strong class="text-dark">${lead.roof_type ?? ''}</strong> &nbsp;|&nbsp;
