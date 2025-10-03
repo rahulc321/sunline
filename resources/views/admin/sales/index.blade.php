@@ -353,7 +353,7 @@ strong {
                     <i class="ph-map-pin me-1"></i> ${lead.address ?? ''}
                 </div>
                 <div class="text-muted">
-                    Source: <strong class="text-dark">${lead.lead_source.source ?? ''}</strong> &nbsp;|&nbsp;
+                    Source: <strong class="text-dark">${lead.lead_source?.source ?? ''}</strong> &nbsp;|&nbsp;
                     Follow-ups: <strong class="text-dark">${lead.lead_follow_up_count ?? 0}</strong> &nbsp;|&nbsp;
                     Storeys: <strong class="text-dark">${lead.storeys ?? ''}</strong> &nbsp;|&nbsp;
                     Roof: <strong class="text-dark">${lead.roof_type ?? ''}</strong> &nbsp;|&nbsp;
