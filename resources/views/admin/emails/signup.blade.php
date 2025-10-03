@@ -37,6 +37,12 @@
                     <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Password</td>
                     <td style="padding: 10px; border: 1px solid #ddd;">{{ $data['password'] }}</td>
                 </tr>
+
+                <tr style="background-color: #f9f9f9; border: 1px solid #ddd;">
+                    <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Url</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;"><a href="https://sunlineconnect.com.au/login">https://sunlineconnect.com.au/login</a></td>
+                </tr>
+
             </table>
  
             <p style="font-size: 14px; color: #666;">

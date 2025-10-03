@@ -112,7 +112,7 @@
 
                     <div class="d-flex align-items-center lh-sm">
                         <!-- Blue icon -->
-                        <div class="logo_text"
+                        <div class="logo_text d-none"
                             style="padding: 6px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
@@ -130,8 +130,14 @@
 
                         <!-- Text block -->
                         <div>
-                            <div class="fw-bold text-dark">Sunline Energy</div>
-                            <small class="text-muted">CRM Platform</small>
+                            <!-- <div class="fw-bold text-dark">Sunline Energy</div>
+                            <small class="text-muted">CRM Platform</small> -->
+
+                            <img src="{{ url('/') }}/logo.png" style=" 
+    left: 42%;
+    width: 71%;
+    position: absolute;
+    transform: translate(-50%, -50%);" alt="Logo">
                         </div>
                     </div>
 
@@ -610,74 +616,70 @@ $('#jsGrid1').DataTable({
         "<'row'<'col-sm-12'tr>>" +
         "<'row mt-3'<'col-sm-5'i><'col-sm-7'p>>"
 });
-
- 
 </script>
 
 <button id="notifyBtn" onclick="sendNotification()" style="display:none">Send Notification</button>
 @if(auth()->check() && auth()->user()->unreadNotifications->count() > 0 && !session('notif_shown'))
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                // auto trigger notification
-                document.getElementById("notifyBtn").click();
-            });
-        </script>
-
-        @php
-            // mark it as shown in Laravel session
-            session(['notif_shown' => true]);
-        @endphp
-    @endif  
 <script>
-   
+document.addEventListener("DOMContentLoaded", function() {
+    // auto trigger notification
+    document.getElementById("notifyBtn").click();
+});
+</script>
 
-    function sendNotification(count = {{ auth()->user()->unreadNotifications->count() }}) {
-        if (Notification.permission !== "granted") {
-            Notification.requestPermission();
-        }
-
-        if (Notification.permission === "granted") {
-            let notif = new Notification("Sunline Energy", {
-                body: "You have " + count + " new notification(s).",
-                icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌞</text></svg>" // replace with your ticket/task icon
-            });
-
-            // optional: play sound
-            let audio = new Audio("{{url('/')}}/not.mp3");
-            audio.play();
-
-            notif.onclick = function () {
-                window.location.href = "{{ url('/admin/notifications') }}";
-            };
-        }
+@php
+// mark it as shown in Laravel session
+session(['notif_shown' => true]);
+@endphp
+@endif
+<script>
+function sendNotification(count = {{auth()->user()-> unreadNotifications->count() }}) {
+    if (Notification.permission !== "granted") {
+        Notification.requestPermission();
     }
+
+    if (Notification.permission === "granted") {
+        let notif = new Notification("Sunline Energy", {
+            body: "You have " + count + " new notification(s).",
+            icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌞</text></svg>" // replace with your ticket/task icon
+        });
+
+        // optional: play sound
+        let audio = new Audio("{{url('/')}}/not.mp3");
+        audio.play();
+
+        notif.onclick = function() {
+            window.location.href = "{{ url('/admin/notifications') }}";
+        };
+    }
+}
 </script>
 
 <script>
-    function fetchNotifications() {
-        $.ajax({
-            url: "{{ route('admin.fetchNotification') }}",
-            type: "GET",
-            success: function (data) {
-                // update count
-                $('.notification').text(data.count);
+function fetchNotifications() {
+    $.ajax({
+        url: "{{ route('admin.fetchNotification') }}",
+        type: "GET",
+        success: function(data) {
+            // update count
+            $('.notification').text(data.count);
 
-                // update notifications list
-                $('#notificationsList').html(data.html);
+            // update notifications list
+            $('#notificationsList').html(data.html);
 
-                
-            },
-            error: function () {
-                console.error('Failed to fetch notifications.');
-            }
-        });
-    }
 
-    // run every 10 seconds
-    setInterval(fetchNotifications, 10000);
+        },
+        error: function() {
+            console.error('Failed to fetch notifications.');
+        }
+    });
+}
 
-    // initial load
-    fetchNotifications();
+// run every 10 seconds
+setInterval(fetchNotifications, 10000);
+
+// initial load
+fetchNotifications();
 </script>
 
 

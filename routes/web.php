@@ -49,7 +49,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('/zoomRecordings/{id}', [App\Http\Controllers\Admin\LeadInboxController::class, 'zoomRecordings']);	
     Route::any('/audioUrl', [App\Http\Controllers\Admin\LeadInboxController::class, 'audioUrl'])->name('audioUrl');			
 
-	# lead source
+	# lead source friImages
 	Route::resource('leadSource', App\Http\Controllers\Admin\LeadSourceController::class);
     Route::resource('fri', App\Http\Controllers\Admin\FriController::class);
     Route::any('listFri', [App\Http\Controllers\Admin\FriController::class, 'listFri'])->name('listFri');
@@ -57,6 +57,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('updateFriStaus', [App\Http\Controllers\Admin\FriController::class, 'updateFriStaus'])->name('updateFriStaus');
     Route::any('friUpdate', [App\Http\Controllers\Admin\FriController::class, 'friUpdate'])->name('friUpdate');
     Route::any('followupComplete', [App\Http\Controllers\Admin\LeadInboxController::class, 'followupComplete'])->name('followupComplete');
+    Route::any('friImages', [App\Http\Controllers\Admin\FriController::class, 'fri_images'])->name('friImages');
 
     #sales 
     Route::get('sales', [App\Http\Controllers\Admin\LeadInboxController::class, 'sales'])->name('sales');

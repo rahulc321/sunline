@@ -175,15 +175,19 @@ strong {
 
         // badges
         $("#fri_badges").html(generateFriBadges(fri));
-
+       
         // attachments
+        $('.fileCount').text('');
+        $(".fileList").html('');
         let attachHtml = '';
-        if (fri.attachments && fri.attachments.length) {
-            fri.attachments.forEach(file => {
-                attachHtml += `<li><a href="${file.url}" target="_blank">${file.name}</a></li>`;
+        if (fri.images && fri.images.length) {
+            fri.images.forEach(file => {
+                let fileUrl = file.image_path.replace(/^admin\//, '');
+                attachHtml += `<li><a href="/${fileUrl}" target="_blank">${file.image_path}</a></li>`;
             });
         }
-        $("#fri_attachments").html(attachHtml);
+        $('.fileCount').text(fri.images ? fri.images.length : 0);
+        $(".fileList").html(attachHtml);
 
         // responses
         let responseHtml = '';

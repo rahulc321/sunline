@@ -68,6 +68,19 @@
                                 placeholder="Price" required>
                         </div>
 
+                        <div class="col-12">
+                            <label for="property" class="form-label1 mb-1">Status</label>
+                            <select id="status" name="status" class="form-select" required>
+                                <option value="">Select Property</option>
+                                <option value="Getting Proposal Ready">Getting Proposal Ready</option>
+                                <option value="Proposal Sent">Proposal Sent</option>
+                                <option value="Follow Up Scheduled">Follow Up Scheduled</option>
+                                <option value="Proposal Accepted">Proposal Accepted</option>
+                                <option value="Lost">Lost</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                        </div>
+
 
 
 

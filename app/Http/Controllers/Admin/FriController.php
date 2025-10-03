@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Fri;
+use App\Models\{Fri,FriImages};
 use DB;
 use App\User;
 use App\Models\Lead;
@@ -105,7 +105,7 @@ class FriController extends Controller
         $offset = $request->offset ?? 0;
 
         # build query
-        $query = Fri::with(['createdByName', 'leadName'])
+        $query = Fri::with(['createdByName', 'leadName','images'])
             ->orderBy('id', 'desc')->forCurrentUser();
 
         # apply filters
@@ -256,6 +256,34 @@ class FriController extends Controller
         
         return redirect()->back()->with('success', 'RFI updated successfully.');
     }
+
+    # uplaod rfi images
+    public function fri_images(Request $request)
+    {
+        $request->validate([
+            'fri_id' => 'required|integer',
+            'file'   => 'required|file|max:2048'
+        ]);
+
+        # get original file name
+        $originalName = $request->file('file')->getClientOriginalName();
+
+        # move file to public/fri_images
+        $file = $request->file('file');
+        $file->move(public_path('fri_images'), $originalName);
+
+        # store in db
+        $image = FriImages::create([
+            'fri_id'    => $request->fri_id,
+            'image_path' => 'fri_images/' . $originalName
+        ]);
+
+        return response()->json([
+            'file_name' => $originalName,
+            'file_url'  => asset('fri_images/'.$originalName)
+        ]);
+    }
+
 
    
 
