@@ -46,4 +46,6 @@ class Fri extends Model
         return $this->hasMany(TicketReply::class, 'ticket_id');
         # 'ticket_id' is the foreign key in the replies table
     }
+
+     
 }

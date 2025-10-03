@@ -166,7 +166,7 @@ body {
             <div class="text-center mb-4">
                 <img src="{{ url('/') }}/logo.png" style="top: 56px;
     left: 50%;
-    width: 100%;
+    width: 54%;
     position: absolute;
     transform: translate(-50%, -50%);" alt="Logo">
                 <h3>&nbsp;</h3>

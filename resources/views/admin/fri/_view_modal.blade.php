@@ -9,6 +9,9 @@
                     <input type="hidden" class="fri_data" name="fri_data">
                     <!-- LEFT: Title + Badges + Meta -->
                     <div>
+                        <div id="uploadMessage" style="display:none;">
+                            File uploaded successfully!
+                        </div>
                         <!-- Title -->
                         <h5 class="modal-title fw-bold mb-2" id="rfiDetailsLabel">
                             <i class="bi bi-file-earmark-text me-1"></i>
@@ -82,15 +85,15 @@
                         <!-- Attachments -->
                         <div class="border rounded p-3">
                             <div class="d-flex justify-content-between align-items-center">
-                                <strong>Attachments (3)</strong>
-                                <button class="btn btn-sm btn-outline-primary">+ Add Files</button>
+                                <strong>Attachments (<span id="fileCount"
+                                        class="fileCount">{{ count($attachments ?? []) }}</span>)</strong>
+                                <button id="addFileBtn" class="btn btn-sm btn-outline-primary">+ Add Files</button>
+                                <input type="file" id="fileInput" hidden>
                             </div>
-                            <ul class="list-unstyled mt-2 mb-0">
-                                <li><a href="#">site_photos.zip</a></li>
-                                <li><a href="#">roof_layout.pdf</a></li>
-                                <li><a href="#">specifications.docx</a></li>
-                            </ul>
+
+                            <ul id="fileList" class="list-unstyled mt-2 mb-0 fileList"></ul>
                         </div>
+
                     </div>
 
                     <!-- RIGHT PANEL -->
@@ -135,3 +138,65 @@
         </div>
     </div>
 </div>
+<style>
+    #uploadMessage {
+    background-color: #d4edda;      /* light green background */
+    color: #155724;                 /* dark green text */
+    border: 2px solid #28a745;      /* green border */
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+</style>
+<script>
+
+function showUploadMessage() {
+    $('#uploadMessage')
+        .stop(true, true)
+        .fadeIn(500)      // fade in 0.5 sec
+        .delay(3000)      // visible for 3 sec
+        .fadeOut(500);    // fade out 0.5 sec
+}
+
+$(function() {
+    $('#addFileBtn').on('click', function() {
+        $('#fileInput').click();
+    });
+
+    $('#fileInput').on('change', function() {
+        let friId = $('.fri_id1').val();
+        let file = this.files[0];
+        let formData = new FormData();
+        formData.append('file', file);
+        formData.append('fri_id', friId);
+        formData.append('_token', '{{ csrf_token() }}');
+
+        $.ajax({
+            url: '{{ route("admin.friImages") }}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(res) {
+                showUploadMessage();
+                $('#fileList').append(
+                    `<li><a href="${res.file_url}" target="_blank">${res.file_name}</a></li>`
+                );
+                $('#fileCount').text($('#fileList li').length);
+                $('#fileInput').val('');
+            },
+            error: function(err) {
+                alert('Upload failed!');
+            }
+        });
+    });
+});
+</script>
