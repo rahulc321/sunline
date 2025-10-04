@@ -57,7 +57,10 @@ strong {
 
     <!-- Main content -->
     <section class="content">
+        
         <div class="card p-2 form_1 d-none">
+
+        
             <form class="d-flex align-items-center justify-content-between flex-wrap">
 
                 <!-- Left stats -->
