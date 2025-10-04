@@ -54,10 +54,32 @@ strong {
 
         </div>
     </div>
+    <?php $status = config('fri.lead_status'); ?>
+    <section class="content">
+    <div class="d-flex flex-wrap gap-2">
+        @foreach($status as $value)
+            @php
+                # generate random rgb color
+                $r = rand(0, 255);
+                $g = rand(0, 255);
+                $b = rand(0, 255);
+                $bgColor = "rgb($r, $g, $b)";
+            @endphp
+
+            <div class="rounded p-3 text-center text-white" style="background-color: {{ $bgColor }};">
+                <div class="fw-bold fs-5">
+                    {{ $leads->where('status', $value)->count() }}
+                </div>
+                <small>{{ $value }}</small>
+            </div>
+        @endforeach
+    </div>
+</section>
+
 
     <!-- Main content -->
     <section class="content">
-        <div class="card p-2 form_1">
+        <div class="card p-2 form_1 d-none">
             <form class="d-flex align-items-center justify-content-between flex-wrap">
 
                 <!-- Left stats -->
@@ -171,7 +193,7 @@ strong {
 
                 <div class="col-md-3">
                     <label>Status</label>
-                    <?php $status = config('fri.lead_status'); ?>
+
                     <select class="form-select form-select-sm" style="min-width: 180px;" name="status">
                         <option value="">Select All</option>
                         @foreach($status as $value)
@@ -327,20 +349,20 @@ strong {
 
 
     function leadCard(lead) {
-    const statusColors = {
-        "New": "primary",
-        "Send Intro Email": "info",
-        "1st Attempt": "warning",
-        "2nd Attempt": "warning",
-        "3rd Attempt": "warning",
-        "Under Construction": "secondary",
-        "Qualified": "success",
-        "Lost": "danger"
-    };
+        const statusColors = {
+            "New": "primary",
+            "Send Intro Email": "info",
+            "1st Attempt": "warning",
+            "2nd Attempt": "warning",
+            "3rd Attempt": "warning",
+            "Under Construction": "secondary",
+            "Qualified": "success",
+            "Lost": "danger"
+        };
 
-    let color = statusColors[lead.status] || "secondary"; // fallback
+        let color = statusColors[lead.status] || "secondary"; // fallback
 
-    return `
+        return `
     <div class="card shadow-sm rounded-3 p-4 mb-3 form_1" id="lead-${lead.id}">
         <div class="d-flex justify-content-between flex-wrap">
             <div class="mb-2">
@@ -399,7 +421,7 @@ strong {
             </div>
         </div>
     </div>`;
-}
+    }
 
 
 
