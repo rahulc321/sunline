@@ -113,6 +113,45 @@
                                     "lead_source": {
                                         "type": "string",
                                         "example": "5"
+                                    },
+                                    "customer_type": {
+                                        "type": "string",
+                                        "example": "Residential"
+                                    },
+                                    "request_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-11-03"
+                                    },
+                                    "suburb": {
+                                        "type": "string",
+                                        "example": "Sydney"
+                                    },
+                                    "state": {
+                                        "type": "string",
+                                        "example": "NSW"
+                                    },
+                                    "postcode": {
+                                        "type": "string",
+                                        "example": "2000"
+                                    },
+                                    "preferred_time_of_contact": {
+                                        "type": "string",
+                                        "example": "Morning"
+                                    },
+                                    "when_customer_wants_jobs_done": {
+                                        "type": "string",
+                                        "example": "Next Week"
+                                    },
+                                    "rejection_url": {
+                                        "type": "string",
+                                        "format": "url",
+                                        "example": "https://example.com/reject/lead123"
+                                    },
+                                    "power_bill_url": {
+                                        "type": "string",
+                                        "format": "url",
+                                        "example": "https://example.com/uploads/powerbill123.jpg"
                                     }
                                 },
                                 "type": "object"

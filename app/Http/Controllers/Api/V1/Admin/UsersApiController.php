@@ -11,6 +11,7 @@ use Gate;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Auth;
+use App\Models\Lead;
 
 class UsersApiController extends Controller
 {
@@ -124,7 +125,7 @@ class UsersApiController extends Controller
         }
     }
 
-    /**
+   /**
      * @OA\Post(
      *     path="/api/v1/createLead",
      *     summary="Create a new lead",
@@ -139,8 +140,16 @@ class UsersApiController extends Controller
      *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
      *             @OA\Property(property="phone", type="string", example="+911234567890"),
      *             @OA\Property(property="address", type="string", example="123 Street, City, Country"),
-     *             @OA\Property(property="lead_source", type="string", example="5")
-     *             
+     *             @OA\Property(property="lead_source", type="string", example="5"),
+     *             @OA\Property(property="customer_type", type="string", example="Residential"),
+     *             @OA\Property(property="request_date", type="string", format="date", example="2025-11-03"),
+     *             @OA\Property(property="suburb", type="string", example="Sydney"),
+     *             @OA\Property(property="state", type="string", example="NSW"),
+     *             @OA\Property(property="postcode", type="string", example="2000"),
+     *             @OA\Property(property="preferred_time_of_contact", type="string", example="Morning"),
+     *             @OA\Property(property="when_customer_wants_jobs_done", type="string", example="Next Week"),
+     *             @OA\Property(property="rejection_url", type="string", format="url", example="https://example.com/reject/lead123"),
+     *             @OA\Property(property="power_bill_url", type="string", format="url", example="https://example.com/uploads/powerbill123.jpg")
      *         )
      *     ),
      *     @OA\Response(
@@ -171,20 +180,46 @@ class UsersApiController extends Controller
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:leads,email',
+            'email' => 'required|email',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
             'lead_source' => 'nullable|string|max:100',
-            
+            'customer_type' => 'nullable|string|max:100',
+            'request_date' => 'nullable|date',
+            'suburb' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:100',
+            'postcode' => 'nullable|string|max:20',
+            'preferred_time_of_contact' => 'nullable|string|max:100',
+            'when_customer_wants_jobs_done' => 'nullable|string|max:255',
+            'rejection_url' => 'nullable|url|max:500',
+            'power_bill_url' => 'nullable|url|max:500',
         ]);
-
-        $lead = \App\Models\Lead::create($validated);
-
+    
+        # check if lead with same email or phone already exists
+        $exists = Lead::where('email', $validated['email'])
+            ->orWhere(function ($query) use ($validated) {
+                if (!empty($validated['phone'])) {
+                    $query->where('phone', $validated['phone']);
+                }
+            })
+            ->exists();
+    
+        if ($exists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lead already exists with the given email or phone.'
+            ], 409); # 409 Conflict
+        }
+    
+        $lead = Lead::create($validated);
+    
         return response()->json([
             'success' => true,
             'message' => 'Lead created successfully.',
             'data' => $lead
         ], 201);
     }
+    
+
 
 }

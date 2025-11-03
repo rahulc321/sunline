@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Lead;
 use Illuminate\Support\Facades\Http;
-
+use App\User;
 class SyncProjectStatus extends Command
 {
     protected $signature = 'projects:sync-status';
@@ -17,9 +17,10 @@ class SyncProjectStatus extends Command
         $leads = Lead::whereNotNull('project_id')->get();
 
         foreach ($leads as $lead) {
+            $user  = User::find($lead->assign_rep);
             $url = "https://api.opensolar.com/api/orgs/421/projects/{$lead->project_id}/";
 
-            $response = Http::withToken('s_RZLJ47XCC3UDXUPGCPXTA7OPT2YCEPBO')
+            $response = Http::withToken($user->opensolar_token)
                             ->get($url);
 
             if ($response->successful()) {
