@@ -182,7 +182,7 @@
                     <div class="navbar-collapse flex-lg-1 order-2 order-lg-1 collapse" id="navbar_search">
                         <div class="navbar-search flex-fill dropdown mt-2 mt-lg-0">
                             <div class="form-control-feedback form-control-feedback-start flex-grow-1">
-                                <h6 style="margin-bottom: calc(var(--spacer) * -0.25);">🌞 Solar CRM Dashboard</h6>
+                                <h6 style="margin-bottom: calc(var(--spacer) * -0.25);">🌞 Salses CRM</h6>
                                 <small>{{env('TAG_LINE')}}</small>
 
 

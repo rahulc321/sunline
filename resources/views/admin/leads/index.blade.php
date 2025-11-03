@@ -56,25 +56,49 @@ strong {
     </div>
     <?php $status = config('fri.lead_status'); ?>
     <section class="content">
-    <div class="d-flex flex-wrap gap-2">
-        @foreach($status as $value)
+        <div class="d-flex flex-wrap gap-2">
             @php
-                # generate random rgb color
-                $r = rand(0, 255);
-                $g = rand(0, 255);
-                $b = rand(0, 255);
-                $bgColor = "rgb($r, $g, $b)";
+            // brand palette (non-empty)
+            $brandColors = [
+            '#00AEEF', // bright blue
+            '#FDB813', // sun yellow
+            '#F36F21', // orange
+            '#0072BC', // darker blue
+            '#FF9D00', // light orange
+            ];
+            $paletteCount = count($brandColors);
             @endphp
 
-            <div class="rounded p-3 text-center text-white" style="background-color: {{ $bgColor }};">
+            @foreach($status as $value)
+            @php
+            // use blade's loop index (always integer)
+            $idx = $loop->index % $paletteCount;
+            $bgColor = $brandColors[$idx];
+
+            // convert hex to RGB
+            $hex = ltrim($bgColor, '#');
+            $r = hexdec(substr($hex, 0, 2));
+            $g = hexdec(substr($hex, 2, 2));
+            $b = hexdec(substr($hex, 4, 2));
+
+            // relative luminance / perceived brightness (simple formula)
+            $lum = ($r * 0.299) + ($g * 0.587) + ($b * 0.114);
+
+            // choose text color for contrast
+            $textColor = $lum > 186 ? '#000' : '#fff';
+            @endphp
+
+            <div class="rounded p-3 text-center shadow-sm"
+                style="background-color: {{ $bgColor }}; color: {{ $textColor }}; min-width: 120px;">
                 <div class="fw-bold fs-5">
                     {{ $leads->where('status', $value)->count() }}
                 </div>
                 <small>{{ $value }}</small>
             </div>
-        @endforeach
-    </div>
-</section>
+            @endforeach
+        </div>
+
+    </section>
 
 
     <!-- Main content -->

@@ -5,18 +5,97 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{Webhook,ApiLog, Lead, LeadProject};
+use App\User;
+use Auth;
 
 class ApiTesterController extends Controller
 {   
 
     protected $token;
 
+    // public function __construct(Request $request)
+    // {
+    //     # get token when controller is created
+    //     //$this->token = $this->generateToken($request);
+    //     $this->token = "s_RZLJ47XCC3UDXUPGCPXTA7OPT2YCEPBO";
+    // }
+
     public function __construct(Request $request)
     {
-        # get token when controller is created
-        //$this->token = $this->generateToken($request);
-        $this->token = "s_RZLJ47XCC3UDXUPGCPXTA7OPT2YCEPBO";
+        # wrap in middleware to access authenticated user
+        $this->middleware(function ($request, $next) {
+            $user = auth()->user();  // now this will not be null
+           // dd($user); // check user here
+    
+            if ($user && $this->isTokenValid($user)) {
+                # use existing token
+                $this->token = $user->opensolar_token;
+            } else {
+                # generate new token
+                $newToken = $this->generateTokenNew($request);
+                //$newToken =  "s_SZUTWSHUVB24XSXKDV2WS7MHWJDEAZ6I";
+               // dd($newToken); // this will now print user ID properly
+    
+                if ($newToken) {
+                    # save to database
+                    $userModel = User::find($user->id);
+                    $userModel->opensolar_token = $newToken;
+                    $userModel->opensolar_token_expires_at = now()->addDays(7);
+                    $userModel->save();
+
+                   // echo '<pre>';print_r($userModel);die;
+    
+                    $this->token = $newToken;
+                } else {
+                    throw new \Exception('Unable to generate OpenSolar token.');
+                }
+            }
+    
+            return $next($request);
+        });
     }
+    
+
+    protected function isTokenValid($user)
+    {
+        return $user->opensolar_token 
+            && $user->opensolar_token_expires_at 
+            && now()->lt($user->opensolar_token_expires_at);
+    }
+
+
+    protected function generateTokenNew(Request $request)
+    {
+        # get the currently logged-in user
+        $user = auth()->user();
+
+        # if user not logged in or credentials missing, skip API call
+        if (!$user || empty($user->email) || empty($user->open_solar_password)) {
+            return null;
+        }
+
+        # prepare request for OpenSolar token
+        $request['method'] = 'POST';
+        $request['url'] = 'https://api.opensolar.com/api-token-auth/';
+        $request['bearer_token'] = '';
+
+        $data = [
+            'username' => $user->email,
+            'password' => $user->open_solar_password,
+        ];
+
+        $request['body'] = json_encode($data);
+        $response = $this->send($request);
+
+        # decode API response
+        $decoded = json_decode($response->getContent(), true);
+
+        # return token if exists
+        return $decoded['token'] ?? null;
+    }
+
+
+
 
     # for generate token over open solar plateform
     public function generateToken(Request $request){
