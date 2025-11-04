@@ -310,6 +310,13 @@ strong {
         Follow-ups: <strong class="text-dark">${contract.follow_up_count ?? 0}</strong> &nbsp;|&nbsp;
         Storeys: <strong class="text-dark">${lead.storeys ?? ''}</strong> &nbsp;|&nbsp;
         Roof: <strong class="text-dark">${lead.roof_type ?? ''}</strong> &nbsp;|&nbsp;
+         Category: <strong class="text-dark">${lead.category ?? ''}</strong>
+                    ${(lead.category === 'Solar' || lead.category === 'Solar+Battery') && lead.solar_kw
+                        ? ` &nbsp;|&nbsp; Solar KW: <strong class="text-dark">${lead.solar_kw}</strong>` 
+                        : ''}
+                    ${(lead.category === 'Battery' || lead.category === 'Solar+Battery') && lead.battery_kw
+                        ? ` &nbsp;|&nbsp; Battery KW: <strong class="text-dark">${lead.battery_kw}</strong>` 
+                        : ''}  &nbsp;|&nbsp;
         Rebate: <strong class="text-dark">${lead.elogible_for_rebate ?? ''}</strong>
     </div>
 

@@ -121,6 +121,9 @@ class LeadInboxController extends Controller
 				'lead_source'           => 'nullable|string|max:255',
 				'roof_type'             => 'nullable|string|max:255',
 				'elogible_for_rebate'   => 'nullable|string|max:255',
+				'category'   => 'nullable|string|max:255',
+				'solar_kw'   => 'nullable|string|max:255',
+				'battery_kw'   => 'nullable|string|max:255',
 			]);
 
 			// Check manually if phone or email exists

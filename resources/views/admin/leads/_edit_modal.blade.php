@@ -90,6 +90,28 @@
                             </select>
                         </div>
 
+                        <div class="col-sm-3 mb-3">
+                            <label for="phone">Category</label>
+                            <select name="category" class="form-control category">
+                                <option value="">--Select--</option>
+                                <option value="Solar">Solar</option>
+                                <option value="Battery">Battery</option>
+                                <option value="Solar+Battery">Solar+Battery</option>
+                                <option value="Heat Pump">Heat Pump</option>
+                                <option value="AirCon">AirCon</option>
+                            </select>
+                        </div>
+
+                        <div class="col-sm-3 mb-3 hide solar_kw">
+                            <label for="phone">Solar KW</label>
+                            <input type="text" name="solar_kw" class="form-control" placeholder="Solar KW">
+                        </div>
+
+                        <div class="col-sm-3 mb-3 hide battery_kw">
+                            <label for="phone">Battery KW</label>
+                            <input type="text" name="battery_kw" class="form-control" placeholder="Battery KW">
+                        </div>
+
 
                     </div>
                 </div>
@@ -107,12 +129,12 @@
 $(document).on("click", ".edit_lead", function() {
     let lead = $(this).data("lead");
 
-    // if it's a string, parse it
+    // parse if JSON string
     if (typeof lead == "string") {
         lead = JSON.parse(lead);
     }
 
-    // text inputs
+    // fill inputs
     $("input[name='id']").val(lead.id || "");
     $("input[name='first_name']").val(lead.first_name || "");
     $("input[name='last_name']").val(lead.last_name || "");
@@ -120,11 +142,48 @@ $(document).on("click", ".edit_lead", function() {
     $("input[name='phone']").val(lead.phone || "");
     $("input[name='address']").val(lead.address || "");
 
-    // select inputs
+    // select values
     $("select[name='assign_rep']").val(lead.get_assign_user_name?.id || "").trigger("change");
     $("select[name='lead_source']").val(lead.lead_source?.id || "").trigger("change");
     $("select[name='roof_type']").val(lead.roof_type || "").trigger("change");
     $("select[name='elogible_for_rebate']").val(lead.elogible_for_rebate || "No").trigger("change");
-});
 
+    // category logic
+    let category = lead.category || "";
+    $("select[name='category']").val(category);
+
+    // wait for DOM update, then trigger change to show/hide solar_kw / battery_kw
+    setTimeout(() => {
+        $("select[name='category']").trigger("change");
+    }, 100);
+
+    // fill kw fields if present
+    $("input[name='solar_kw']").val(lead.solar_kw || "");
+    $("input[name='battery_kw']").val(lead.battery_kw || "");
+});
+</script>
+
+<style>
+.hide {
+    display: none !important;
+}
+</style>
+<script>
+$(document).on('change', '.category', function() {
+    const category = $(this).val();
+
+    // hide both by default
+    $('.solar_kw').addClass('hide');
+    $('.battery_kw').addClass('hide');
+
+    // show based on selection
+    if (category == 'Solar') {
+        $('.solar_kw').removeClass('hide');
+    } else if (category == 'Battery') {
+        $('.battery_kw').removeClass('hide');
+    } else if (category == 'Solar+Battery') {
+        $('.solar_kw').removeClass('hide');
+        $('.battery_kw').removeClass('hide');
+    }
+});
 </script>
