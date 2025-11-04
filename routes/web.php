@@ -136,4 +136,11 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('fetchNotification', [App\Http\Controllers\Admin\UsersController::class, 'fetchNotification'])
     ->name('fetchNotification');
 
+
+    # for tier functionality
+    Route::resource('tier', App\Http\Controllers\Admin\TierController::class);
+    Route::get('settings', [App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
+    Route::post('settings', [App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
+
+
 });

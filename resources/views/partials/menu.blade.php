@@ -157,6 +157,26 @@ div#jsGrid1_filter {
     /* icon color */
 
 }
+
+/* color all sidebar icons */
+.sidebar-content .nav-link i {
+    background: linear-gradient(135deg, hsl(214 84% 56%) 0%, hsl(142 76% 36%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    /* fallback for Firefox */
+    font-size: 18px;
+    margin-right: 6px;
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+/* slightly enlarge and brighten icon when active or hovered */
+.sidebar-content .nav-link:hover i,
+.sidebar-content .nav-link.active i {
+    transform: scale(1.1);
+    filter: brightness(1.2);
+}
 </style>
 <!-- Sidebar content -->
 <div class="sidebar-content">
@@ -175,7 +195,7 @@ div#jsGrid1_filter {
 
             <!-- For dashboard -->
             <li class="nav-item">
-                <a href="/admin"  class="nav-link {{ request()->is('admin') ? 'active' : '' }}">
+                <a href="/admin" class="nav-link {{ request()->is('admin') ? 'active' : '' }}">
                     <i class="ph-house"></i>
                     <span>
                         {{ trans('dashboard.dashboard') }}
@@ -248,7 +268,8 @@ div#jsGrid1_filter {
 
             @can('sale_access')
             <li class="nav-item">
-                <a href="{{ route('admin.sales') }}" class="nav-link {{ request()->is('admin/sales') ? 'active' : '' }}">
+                <a href="{{ route('admin.sales') }}"
+                    class="nav-link {{ request()->is('admin/sales') ? 'active' : '' }}">
                     <i class="ph-currency-dollar"></i><span>Sales</span>
                 </a>
             </li>
@@ -302,6 +323,52 @@ div#jsGrid1_filter {
                 <a href="{{route('admin.webhook')}}"
                     class="nav-link {{ request()->is('admin/webhook') ? 'active' : '' }}">
                     <i class="ph-arrows-clockwise"></i><span>Webhook</span>
+                </a>
+            </li>
+            @endif
+
+            <!-- <li class="nav-item">
+                <a href="{{route('admin.tier.index')}}"
+                    class="nav-link {{ request()->is('admin/tier') ? 'active' : '' }}">
+                    <i class="ph-trophy"></i><span>Tier</span>
+
+                </a>
+            </li> -->
+            @can('tier_access')
+            <li
+                class="nav-item nav-item-submenu {{ request()->is('admin/tier*') ? 'nav-item-expanded nav-item-open' : '' }}">
+                <a href="#" class="nav-link">
+                    <i class="ph-trophy"></i>
+                    <span>Tier</span>
+                </a>
+
+                <ul class="nav-group-sub collapse {{ request()->is('admin/tier*') ? 'show' : '' }}">
+
+                    <li class="nav-item">
+                        <a href="{{ route('admin.tier.index', ['type' => 'solar']) }}"
+                            class="nav-link {{ request()->get('type') == 'solar' ? 'active' : '' }}">
+                            <i class="ph-sun text-warning me-1"></i>
+                            Solar Tier
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ route('admin.tier.index', ['type' => 'battery']) }}"
+                            class="nav-link {{ request()->get('type') == 'battery' ? 'active' : '' }}">
+                            <i class="ph-battery-charging text-success me-1"></i>
+                            Battery Tier
+                        </a>
+                    </li>
+
+                </ul>
+            </li>
+            @endif
+            @can('settings')
+            <li class="nav-item">
+                <a href="{{route('admin.settings.index')}}"
+                    class="nav-link {{ request()->is('admin/settings') ? 'active' : '' }}">
+                    <i class="ph-gear"></i><span>Settings</span>
+
                 </a>
             </li>
             @endif
