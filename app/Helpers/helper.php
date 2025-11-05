@@ -1,6 +1,9 @@
 <?php
 use Illuminate\Support\Facades\Mail;
 use App\Models\Email;
+use App\Models\Lead;
+use Carbon\Carbon;
+use App\Models\Tier;
 
 
 if (! function_exists('testFunction')) {
@@ -70,5 +73,44 @@ if (! function_exists('isSalesRep')) {
 
         // assuming your role title is stored in 'title'
         return $user->roles->contains('title', 'Sales Rep') ? 1 : 0;
+    }
+}
+
+if (! function_exists('getCommision')) {
+    /**
+     * Check if the current authenticated user has the Sales Rep role
+     *
+     * @return int 1 if Sales Rep, 0 otherwise
+     */
+    function getCommision()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return 0;
+        }
+        $month = Carbon::now()->month;
+        $year  = Carbon::now()->year;
+
+        # get all sold leads of this month
+        $quantity = Lead::where('status', 'sold')
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->where('assign_rep', $user->id)
+            ->count();
+
+        $solarCommision = Tier::where('category', 'solar')
+        ->where('min_value', '<=', $quantity)
+        ->where('max_value', '>=', $quantity)
+        ->first();
+
+        $batteryCommision = Tier::where('category', 'battery')
+        ->where('min_value', '<=', $quantity)
+        ->where('max_value', '>=', $quantity)
+        ->first();
+
+        return [
+                'solarTier'=> @$solarCommision->commission,
+                'batteryCommision'=>@$batteryCommision->commission
+                ];
     }
 }

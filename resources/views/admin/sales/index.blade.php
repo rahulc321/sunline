@@ -348,6 +348,10 @@ strong {
         <div class="d-flex justify-content-between flex-wrap">
             <div class="mb-2">
                 <h5 class="fw-bold mb-1 lead">#${lead.id ?? ''} - ${lead.first_name ?? ''} ${lead.last_name ?? ''} </h5>
+                <div class="fw-bol1d text-success mb-2">
+                    Commission: ₹${(lead.commission ?? 0).toFixed(2)}
+                </div>
+
                 <div class="text-muted mb-1">
                     <i class="ph-phone me-1"></i> ${lead.phone ?? ''} &nbsp;
                     <i class="ph-envelope me-1"></i> ${lead.email ?? ''}

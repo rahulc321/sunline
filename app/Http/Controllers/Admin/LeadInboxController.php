@@ -28,6 +28,7 @@ class LeadInboxController extends Controller
 	*/	
     public function index(Request $request)
 	{	
+		 
 		// $user = User::find(1);
 		// $user->notify(new NewNotification("📝 New task created for you!", 'The task icon appears on the left (depends on browser)', route('admin.taskList')));
 
@@ -435,6 +436,38 @@ class LeadInboxController extends Controller
 		$hasMore = ($offset + $limit) < $totalRecords;
 
 		$totalFollowups = \DB::table('lead_follow_ups')->count();
+
+		$commissionTier = getCommision(); // this should return ['solarTier' => object, 'batteryTier' => object]
+
+		$solarRate = $commissionTier['solarTier'] ?? 0;
+		$batteryRate = $commissionTier['batteryCommision'] ?? 0;
+		
+		foreach ($leads as $lead) {
+			$leadCommission = 0;
+		
+			if ($lead->category == 'Solar') {
+				# solar only
+				$leadCommission = ($lead->solar_kw ?? 0) * $solarRate;
+			}
+		
+			if ($lead->category == 'Battery') {
+				# battery only
+				$leadCommission = ($lead->battery_kw ?? 0) * $batteryRate;
+			}
+		
+			if ($lead->category == 'Solar+Battery') {
+				# both solar and battery
+				$leadCommission =
+					(($lead->solar_kw ?? 0) * $solarRate) +
+					(($lead->battery_kw ?? 0) * $batteryRate);
+			}
+		
+			# assign commission to lead (without saving yet)
+			$lead->commission = round($leadCommission, 2);
+		}
+
+
+		//dd($totalCommission);
 
 		return response()->json([
 			'data' => $leads,
