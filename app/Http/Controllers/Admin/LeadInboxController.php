@@ -437,12 +437,15 @@ class LeadInboxController extends Controller
 
 		$totalFollowups = \DB::table('lead_follow_ups')->count();
 
-		$commissionTier = getCommision(); // this should return ['solarTier' => object, 'batteryTier' => object]
-
-		$solarRate = $commissionTier['solarTier'] ?? 0;
-		$batteryRate = $commissionTier['batteryCommision'] ?? 0;
 		
+		$totalCommision = 0;
 		foreach ($leads as $lead) {
+
+			$commissionTier = getCommision(@$lead->assign_rep); // this should return ['solarTier' => object, 'batteryTier' => object]
+
+			$solarRate = $commissionTier['solarTier'] ?? 0;
+			$batteryRate = $commissionTier['batteryCommision'] ?? 0;
+
 			$leadCommission = 0;
 		
 			if ($lead->category == 'Solar') {
@@ -464,6 +467,7 @@ class LeadInboxController extends Controller
 		
 			# assign commission to lead (without saving yet)
 			$lead->commission = round($leadCommission, 2);
+			$totalCommision += $lead->commission;
 		}
 
 
@@ -472,6 +476,7 @@ class LeadInboxController extends Controller
 		return response()->json([
 			'data' => $leads,
 			'hasMore' => $hasMore,
+			'totalCommision' => $totalCommision,
 			'followupCount' => $totalFollowups
 		]);
 	}
