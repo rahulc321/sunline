@@ -82,9 +82,17 @@ if (! function_exists('getCommision')) {
      *
      * @return int 1 if Sales Rep, 0 otherwise
      */
-    function getCommision()
-    {
+    function getCommision($userId)
+    {   
         $user = Auth::user();
+        $isSalesRep = $user->roles->contains('title', 'Sales Rep');
+
+        # if sales rep, use current user ID, otherwise use provided user ID
+        $finalUserId = $isSalesRep ? $user->id : $userId;
+
+        $user->id = $finalUserId;
+
+        
         if (!$user) {
             return 0;
         }

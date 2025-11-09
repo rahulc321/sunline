@@ -57,10 +57,24 @@ strong {
 
     <!-- Main content -->
     <section class="content">
-        
+        <div class="card2">
+            <div class="row text-center">
+
+                <!-- Due Today -->
+                <div class="col-md-3 col-6">
+                    <div class="border rounded p-3">
+                        <div class="fw-bold text-success fs-5">₹<span class="commision">0</span></div>
+                        <small class="text-muted">Total Commision</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content">
+
         <div class="card p-2 form_1 d-none">
 
-        
+
             <form class="d-flex align-items-center justify-content-between flex-wrap">
 
                 <!-- Left stats -->
@@ -330,20 +344,20 @@ strong {
 
 
     function leadCard(lead) {
-    const statusColors = {
-        "New": "primary",
-        "Send Intro Email": "info",
-        "1st Attempt": "warning",
-        "2nd Attempt": "warning",
-        "3rd Attempt": "warning",
-        "Under Construction": "secondary",
-        "Qualified": "success",
-        "Lost": "danger"
-    };
+        const statusColors = {
+            "New": "primary",
+            "Send Intro Email": "info",
+            "1st Attempt": "warning",
+            "2nd Attempt": "warning",
+            "3rd Attempt": "warning",
+            "Under Construction": "secondary",
+            "Qualified": "success",
+            "Lost": "danger"
+        };
 
-    let color = statusColors[lead.status] || "secondary"; // fallback
+        let color = statusColors[lead.status] || "secondary"; // fallback
 
-    return `
+        return `
     <div class="card shadow-sm rounded-3 p-4 mb-3 form_1" id="lead-${lead.id}">
         <div class="d-flex justify-content-between flex-wrap">
             <div class="mb-2">
@@ -413,7 +427,7 @@ strong {
             </div>
         </div>
     </div>`;
-}
+    }
 
 
 
@@ -474,6 +488,8 @@ strong {
                     showNoData();
                     return;
                 }
+
+                $('.commision').html(res.totalCommision);
 
                 let html = '';
                 leads.forEach(lead => {
