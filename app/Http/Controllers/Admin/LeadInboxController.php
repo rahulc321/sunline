@@ -430,6 +430,10 @@ class LeadInboxController extends Controller
 			$query->where('status', $request->status);
 		}
 
+		if ($request->from_date && $request->to_date) {
+			$query->whereBetween('created_at', [$request->from_date, $request->to_date]);
+		}
+
 		$leads = $query->skip($offset)->take($limit)->get();
 
 		$totalRecords = $query->count();

@@ -186,6 +186,19 @@ strong {
                     </select>
                 </div>
 
+                <!-- From date -->
+                <div class="col-md-3">
+                    <label>From Date</label>
+                    <input type="date" class="form-control" name="from_date">
+                </div>
+
+
+                <!-- To date -->
+                <div class="col-md-3">
+                    <label>To Date</label>
+                    <input type="date" class="form-control" name="to_date">
+                </div>
+
                 <div class="col-md-3 d-none">
                     <label>Status</label>
                     <?php $status = config('fri.lead_status'); ?>
@@ -478,6 +491,8 @@ strong {
                     limit,
                     lead_source: $('select[name="lead_source"]').val(),
                     assign_rep: $('select[name="assign_rep"]').val(),
+                    from_date: $('input[name="from_date"]').val(),
+                    to_date: $('input[name="to_date"]').val(),
                     status: $('select[name="status"]').val()
                 }
             })
