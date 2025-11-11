@@ -4,20 +4,31 @@
 <!-- Page header -->
 <div class="page-header">
     <div class="page-header-content d-lg-flex">
-        <div class="d-flex w-100">
+        <div class="d-flex justify-content-between align-items-center w-100 flex-wrap">
             <!-- Title + subtitle stacked -->
             <div class="d-flex flex-column">
-                <h4 class="page-title mb-0 crm_c" style="font-size: 1.875rem">Sales Dashboard</h4>
+                <h4 class="page-title mb-0 crm_c" style="font-size: 1.875rem;">Sales Dashboard</h4>
                 <p class="mb-0 txt_1">Track performance and monitor lead pipeline</p>
             </div>
 
-            <!-- Toggle button aligned to right -->
-            <a href="#page_header"
-                class="btn btn-light align-self-center collapsed d-lg-none border-transparent rounded-pill p-0 ms-auto"
-                data-bs-toggle="collapse">
-                <i class="ph-caret-down collapsible-indicator ph-sm m-1"></i>
-            </a>
+            <!-- Punch buttons aligned right -->
+            <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+                <form action="{{ route('admin.attendance.punchin') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-success px-4 py-2 rounded-pill shadow-sm">
+                        <i class="ph-arrow-circle-right me-1"></i> Punch In
+                    </button>
+                </form>
+
+                <form action="{{ route('admin.attendance.punchout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-danger px-4 py-2 rounded-pill shadow-sm">
+                        <i class="ph-arrow-circle-left me-1"></i> Punch Out
+                    </button>
+                </form>
+            </div>
         </div>
+
 
 
     </div>
