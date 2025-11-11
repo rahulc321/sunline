@@ -244,6 +244,16 @@ div#jsGrid1_filter {
                     </li>
                     @endcan
 
+                    <li class="nav-item">
+                        <a href="{{ route("admin.attendance.index") }}"
+                            class="nav-link {{ request()->is('admin/attendance') || request()->is('admin/attendance/*') ? 'active' : '' }}">
+                            <i class="fa-fw fas fa-user nav-icon">
+
+                            </i>
+                            Attendance
+                        </a>
+                    </li>
+
                 </ul>
             </li>
             @endcan

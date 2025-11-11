@@ -142,5 +142,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('settings', [App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
     Route::post('settings', [App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
 
+    Route::post('/attendance/punch-in', [App\Http\Controllers\Admin\AttendanceController::class, 'punchIn'])->name('attendance.punchin');
+    Route::post('/attendance/punch-out', [App\Http\Controllers\Admin\AttendanceController::class, 'punchOut'])->name('attendance.punchout');
+    Route::get('/attendance', [App\Http\Controllers\Admin\AttendanceController::class, 'userAttendance'])->name('attendance.index');
+    Route::get('/admin/attendance', [App\Http\Controllers\Admin\AttendanceController::class, 'adminIndex'])->name('admin.attendance.index');
+
 
 });
