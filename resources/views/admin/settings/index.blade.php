@@ -28,7 +28,14 @@
                             class="form-control" value="{{ $settings['aircon_commission'] }}" required>
                     </div>
 
+                    <div class="col-md-4">
+                        <label class="form-label">Office Ip Address</label>
+                        <input type="text"  name="office_ip_address"
+                            class="form-control" value="{{ @$settings['office_ip_address'] }}" >
+                    </div>
+
                     <div class="col-md-4 d-flex align-items-end">
+                        <br>
                         <button type="submit" class="btn btn-primary w-100">Update</button>
                     </div>
                 </div>
