@@ -316,7 +316,7 @@ class ApiTesterController extends Controller
                 [
                     "first_name" => @$lead->first_name,
                     "family_name" => @$lead->last_name,
-                    "email" =>  @$lead->email1,
+                    "email" =>  @$lead->email,
                     "phone" =>  @$lead->phone,
                     //"date_of_birth" => "1990-01-01",
                     "gender" => "2" # 0 = unset, 1 = female, 2 = male

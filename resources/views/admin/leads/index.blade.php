@@ -390,7 +390,11 @@ strong {
     <div class="card shadow-sm rounded-3 p-4 mb-3 form_1" id="lead-${lead.id}">
         <div class="d-flex justify-content-between flex-wrap">
             <div class="mb-2">
-                <h5 class="fw-bold mb-1 lead">#${lead.id ?? ''} - ${lead.first_name ?? ''} ${lead.last_name ?? ''} </h5>
+                <h5 class="fw-bold mb-1 lead">
+                    #${lead.id ?? ''} - ${lead.first_name ?? ''} ${lead.last_name ?? ''}
+                    ${lead.project_id ? `<small class="text-warning fst-italic ms-2">Quote created</small>` : ''}
+                </h5>
+                
                 <div class="text-muted mb-1">
                     <i class="ph-phone me-1"></i> ${lead.phone ?? ''} &nbsp;
                     <i class="ph-envelope me-1"></i> ${lead.email ?? ''}
