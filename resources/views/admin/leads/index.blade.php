@@ -49,6 +49,8 @@ strong {
                     style="float:right">
                     <i class="ph-plus"></i>&nbsp;&nbsp;Add Lead
                 </a>
+
+
                 @endcan
             </div>
 
@@ -96,6 +98,18 @@ strong {
                 <small>{{ $value }}</small>
             </div>
             @endforeach
+
+            <div class="rounded p-3 text-center shadow-sm"
+                style="background-color: {{ $bgColor }}; color: {{ $textColor }}; min-width: 120px; cursor:pointer;"
+                data-bs-toggle="modal" data-bs-target="#followUpModal">
+
+                <div class="fw-bold fs-5">
+                    {{ $upcoming->count()+$past->count() }}
+                </div>
+
+                <small>List Follow Up</small>
+            </div>
+
         </div>
 
     </section>
