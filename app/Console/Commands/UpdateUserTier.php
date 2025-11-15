@@ -21,7 +21,7 @@ class UpdateUserTier extends Command
         $users = User::whereHas('roles', function($q) {
             $q->where('title', 'Sales Rep');
         })
-          ->where('id',11)
+         // ->where('id',11)
         ->get();
         
        
