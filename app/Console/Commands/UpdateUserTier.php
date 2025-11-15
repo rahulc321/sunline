@@ -21,7 +21,7 @@ class UpdateUserTier extends Command
         $users = User::whereHas('roles', function($q) {
             $q->where('title', 'Sales Rep');
         })
-        // ->where('id',23)
+         // ->where('id',11)
         ->get();
         
        
@@ -49,6 +49,11 @@ class UpdateUserTier extends Command
             ->where('category','Solar+Battery')
             ->count();
 
+            if($sb > 0){
+                $solarQuantity += $sb;
+                $batteryQuantity  += $sb;
+            }
+
             
             # get solar tier
             $solarTier = Tier::where('category', 'solar')
@@ -62,26 +67,12 @@ class UpdateUserTier extends Command
                 ->where('max_value', '>=', $batteryQuantity)
                 ->first();
             
-            //dd($solarTier?->tier_name);
-            # update user tier in database
-
-
-            if($sb > 0){
-                $solarTier->tier_name += $sb;
-                $batteryTier->tier_name += $sb;
-            }
-
             $user1 = User::find($user->id);
             $user1->tier_solar = $solarTier->tier_name ?? 0;
             $user1->tier_battery = $batteryTier->tier_name ?? 0;
             $user1->save();
 
-            // if ($user1) {
-            //     $user1->update([
-            //         'tier_solar'   => $solarTier->tier_name ?? 0,
-            //         'tier_battery' => $batteryTier->tier_name ?? 0,
-            //     ]);
-            // }
+             
         }
 
         $this->info('User tiers updated successfully.');
