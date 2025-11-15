@@ -20,7 +20,9 @@ class UpdateUserTier extends Command
 
         $users = User::whereHas('roles', function($q) {
             $q->where('title', 'Sales Rep');
-        })->where('id',23)->get();
+        })
+        // ->where('id',23)
+        ->get();
         
        
         foreach ($users as $user) {
