@@ -488,11 +488,12 @@ class LeadInboxController extends Controller
 	public function zoomRecordings($id){
 		$getLead = Lead::find($id);
 		
+		$cleanPhone = ltrim($getLead->phone, '+61');
+
 		$logs = DB::table('zoom_phone_recordings')
-        ->where('caller_number', $getLead->phone)
-        ->orWhere('callee_number', $getLead->phone)
-       // ->orderBy('call_start_time', 'desc')
-        ->get();
+			->whereRaw("REPLACE(REPLACE(caller_number, '+61', ''), '+', '') = ?", [$cleanPhone])
+			->orWhereRaw("REPLACE(REPLACE(callee_number, '+61', ''), '+', '') = ?", [$cleanPhone])
+			->get();
 
 		if ($logs->isEmpty()) {
 			return response()->json([
