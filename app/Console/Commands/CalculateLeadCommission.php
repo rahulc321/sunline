@@ -15,7 +15,7 @@ class CalculateLeadCommission extends Command
      *
      * @var string
      */
-    protected $signature = 'app:calculate-lead-commission';
+    protected $signature = 'commission:calculate';
 
     /**
      * The console command description.
