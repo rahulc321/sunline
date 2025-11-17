@@ -121,6 +121,7 @@ class EmailTemplateController extends Controller
             'template_id' => 'nullable|integer'
         ]);
 
+        
         foreach ($request->emails as $email) {
 
             // Fetch Lead Row (if exists)
