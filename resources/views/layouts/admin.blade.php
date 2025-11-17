@@ -537,19 +537,28 @@
                                     <i class="ph-user-circle me-2"></i>
                                     My profile
                                 </a>
-                                <a href="#" class="dropdown-item d-none">
-                                    <i class="ph-currency-circle-dollar me-2"></i>
-                                    My subscription
+                                <div class="dropdown-divider"></div>
+
+                                <a href="#" class="dropdown-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="ph-sun me-2" style="color: #f7b500; font-size: 18px;"></i>
+                                        Solar Tier
+                                    </div>
+                                    <span
+                                        class="badge bg-primary rounded-pill">{{ auth()->user()->tier_solar ?? '0' }}</span>
                                 </a>
-                                <a href="#" class="dropdown-item d-none">
-                                    <i class="ph-shopping-cart me-2"></i>
-                                    My orders
+
+                                <a href="#" class="dropdown-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="ph-battery-charging me-2"
+                                            style="color: #28a745; font-size: 18px;"></i>
+                                        Battery Tier
+                                    </div>
+                                    <span
+                                        class="badge bg-success rounded-pill">{{ auth()->user()->tier_battery ?? '0' }}</span>
                                 </a>
-                                <a href="#" class="dropdown-item d-none">
-                                    <i class="ph-envelope-open me-2"></i>
-                                    My inbox
-                                    <span class="badge bg-primary rounded-pill ms-auto">26</span>
-                                </a>
+
+                                <div class="dropdown-divider"></div>
                                 <div class="dropdown-divider"></div>
                                 <a href="#" class="dropdown-item d-none">
                                     <i class="ph-gear me-2"></i>
@@ -633,7 +642,11 @@ session(['notif_shown' => true]);
 @endphp
 @endif
 <script>
-function sendNotification(count = {{auth()->user()-> unreadNotifications->count() }}) {
+function sendNotification(count = {
+    {
+        auth() - > user() - > unreadNotifications - > count()
+    }
+}) {
     if (Notification.permission !== "granted") {
         Notification.requestPermission();
     }

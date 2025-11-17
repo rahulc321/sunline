@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('attendances', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->date('date');
-            $table->time('punch_in')->nullable();
-            $table->time('punch_out')->nullable();
-            $table->timestamps();
+        // Schema::create('attendances', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->unsignedBigInteger('user_id');
+        //     $table->date('date');
+        //     $table->time('punch_in')->nullable();
+        //     $table->time('punch_out')->nullable();
+        //     $table->timestamps();
 
-            //$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-        });
+        //     //$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+        // });
     }
 
     /**

@@ -9,6 +9,7 @@ use Yajra\DataTables\DataTables;
 use App\Models\LeadStatus;
 use App\Models\CaseType;
 use App\Models\LeadFollowUp;
+use App\Models\LeadCommission;
 use App\User;
 use App\Models\{LeadSource, LeadContact, ContactFollowUp};
 use Carbon\Carbon;
@@ -445,33 +446,12 @@ class LeadInboxController extends Controller
 		$totalCommision = 0;
 		foreach ($leads as $lead) {
 
-			$commissionTier = getCommision(@$lead->assign_rep); // this should return ['solarTier' => object, 'batteryTier' => object]
-
-			$solarRate = $commissionTier['solarTier'] ?? 0;
-			$batteryRate = $commissionTier['batteryCommision'] ?? 0;
-
-			$leadCommission = 0;
-		
-			if ($lead->category == 'Solar') {
-				# solar only
-				$leadCommission = ($lead->solar_kw ?? 0) * $solarRate;
-			}
-		
-			if ($lead->category == 'Battery') {
-				# battery only
-				$leadCommission = ($lead->battery_kw ?? 0) * $batteryRate;
-			}
-		
-			if ($lead->category == 'Solar+Battery') {
-				# both solar and battery
-				$leadCommission =
-					(($lead->solar_kw ?? 0) * $solarRate) +
-					(($lead->battery_kw ?? 0) * $batteryRate);
-			}
+			$getComm = LeadCommission::where('lead_id',$lead->id)->first();
 		
 			# assign commission to lead (without saving yet)
-			$lead->commission = round($leadCommission, 2);
-			$totalCommision += $lead->commission;
+			$total = $getComm->solar_commission+$getComm->battery_commission;
+			$lead->commission = $total;
+			$totalCommision += $total;
 		}
 
 
