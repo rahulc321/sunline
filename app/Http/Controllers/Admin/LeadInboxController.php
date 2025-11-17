@@ -446,10 +446,14 @@ class LeadInboxController extends Controller
 		$totalCommision = 0;
 		foreach ($leads as $lead) {
 
-			$getComm = LeadCommission::where('lead_id',$lead->id)->first();
+			$getComm = LeadCommission::where('lead_id', $lead->id)->first();
 		
-			# assign commission to lead (without saving yet)
-			$total = $getComm->solar_commission+$getComm->battery_commission;
+			// if commission row not found → treat as 0
+			$solar = $getComm->solar_commission ?? 0;
+			$battery = $getComm->battery_commission ?? 0;
+		
+			$total = $solar + $battery;
+		
 			$lead->commission = $total;
 			$totalCommision += $total;
 		}
