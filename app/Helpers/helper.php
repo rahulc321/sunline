@@ -122,3 +122,34 @@ if (! function_exists('getCommision')) {
                 ];
     }
 }
+
+if (! function_exists('sendGlobalEmail1')) {
+    function sendGlobalEmail1($to, $subject, $body, $templateId = null, $category = null, $leadId = null,$type = null,$data=[])
+    {
+		//try {
+            # replace placeholders
+            foreach ($data as $key => $value) {
+                $body = str_replace('{'.$key.'}', $value, $body);
+                $subject = str_replace('{'.$key.'}', $value, $subject);
+            }
+
+            # render blade view into HTML
+            $htmlBody = view('admin.emails.custom-email', [
+                'subject' => $subject,
+                'body'    => $body,
+            ])->render();
+
+            # send email
+            Mail::html($htmlBody, function ($message) use ($to, $subject) {
+                $message->to($to)
+                        ->subject($subject);
+            });
+
+			 
+
+            return true;
+         
+    }
+
+    
+}

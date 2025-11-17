@@ -104,4 +104,47 @@ class EmailTemplateController extends Controller
         );
         return redirect()->back()->with('success', 'You have send email successfully!');
     }
+
+    public function bulkEmail(){
+        $this->data['leads'] =  Lead::where('status','New')->get();
+        $this->data['emailTemplates'] =  EmailTemplate::get();
+        
+        return view('admin.bulk_email.index',$this->data);
+    }
+
+    public function bulkEmailSend(Request $request)
+    {
+        $request->validate([
+            'emails'      => 'required|array',
+            'subject'     => 'required|string',
+            'body'        => 'required|string',
+            'template_id' => 'nullable|integer'
+        ]);
+
+        foreach ($request->emails as $email) {
+
+            // Fetch Lead Row (if exists)
+            $leadData = Lead::where('email', $email)->first();
+
+            // Prepare dynamic variables
+            $variables = [
+                'name'  => $leadData?->first_name . ' ' . $leadData?->last_name ?? 'User',
+                'email' => $email,
+            ];
+
+            sendGlobalEmail1(
+                $email,
+                $request->subject,
+                $request->body,
+                $request->template_id,
+                null,
+                $leadData?->id ?? null,   // Safe lead id
+                'lead',
+                $variables
+            );
+        }
+
+        return back()->with('success', 'Bulk email sent successfully!');
+    }
+
 }
