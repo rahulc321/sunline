@@ -67,6 +67,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 	Route::resource('emailTemplate', App\Http\Controllers\Admin\EmailTemplateController::class);
     Route::any('emailTemplateUpdate', [App\Http\Controllers\Admin\EmailTemplateController::class, 'emailTemplateUpdate'])->name('emailTemplateUpdate');
     Route::any('sendEmail', [App\Http\Controllers\Admin\EmailTemplateController::class, 'sendEmail'])->name('sendEmail');
+
+    Route::any('bulkEmail', [App\Http\Controllers\Admin\EmailTemplateController::class, 'bulkEmail'])->name('bulkEmail');
+    Route::any('bulkEmailSend', [App\Http\Controllers\Admin\EmailTemplateController::class, 'bulkEmailSend'])->name('bulkEmailSend');
     
 
     # for task related routes

@@ -383,6 +383,15 @@ div#jsGrid1_filter {
             </li>
             @endif
 
+            <li class="nav-item">
+                <a href="{{route('admin.bulkEmail')}}"
+                    class="nav-link {{ request()->is('admin/bulkEmail') ? 'active' : '' }}">
+                    <i class="ph-paper-plane-tilt"></i><span>Bulk Email</span>
+
+
+                </a>
+            </li>
+
         </ul>
     </div>
     <!-- /main navigation -->
