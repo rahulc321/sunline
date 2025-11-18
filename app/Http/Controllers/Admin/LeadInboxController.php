@@ -415,7 +415,7 @@ class LeadInboxController extends Controller
 		$query = Lead::with('getAssignUserName','leadSource','leadFollowUp')
 			->withCount('leadFollowUp')
 			->orderBy('id', 'desc')
-			->whereIn('status', ['Sold']);
+			->whereIn('status', ['Sold'])
 			->forCurrentUser();
 
 		# filters
