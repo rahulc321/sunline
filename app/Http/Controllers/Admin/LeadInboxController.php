@@ -403,6 +403,11 @@ class LeadInboxController extends Controller
 		$this->data['emailTemplates'] = EmailTemplate::get();
 		$this->data['leads'] = Lead::forCurrentUser()->get();
 
+		$userRole = auth()->user()->roles[0]->title;
+		$this->data['role'] = $userRole;
+		//dd($userRole);
+		$this->data['leads'] = Lead::forCurrentUser()->get();
+
 		return view('admin.sales.index',$this->data);
 	}
 
@@ -444,18 +449,30 @@ class LeadInboxController extends Controller
 
 		
 		$totalCommision = 0;
+		$totalPayout = 0;
+
 		foreach ($leads as $lead) {
 
-			$getComm = LeadCommission::where('lead_id', $lead->id)->first();
-		
-			// if commission row not found → treat as 0
-			$solar = $getComm->solar_commission ?? 0;
-			$battery = $getComm->battery_commission ?? 0;
-		
-			$total = $solar + $battery;
-		
-			$lead->commission = $total;
-			$totalCommision += $total;
+				$getComm = LeadCommission::where('lead_id', $lead->id)
+				->whereMonth('created_at', date('m'))
+				->whereYear('created_at', date('Y'))
+				->first();
+			
+				// if commission row not found → treat as 0
+				$solar = $getComm->solar_commission ?? 0;
+				$battery = $getComm->battery_commission ?? 0;
+			
+				$total = $solar + $battery;
+			
+				$lead->commission = $total;
+				if($lead->sale_status != 'Cancelled'){
+					$totalCommision += $total ?? 0;
+				}
+
+				if ($lead->sale_status == 'Installed') {
+					$totalPayout += $total;
+				}
+			
 		}
 
 
@@ -465,6 +482,7 @@ class LeadInboxController extends Controller
 			'data' => $leads,
 			'hasMore' => $hasMore,
 			'totalCommision' => $totalCommision,
+			'totalPayout' => $totalPayout,
 			'followupCount' => $totalFollowups
 		]);
 	}
@@ -572,6 +590,29 @@ class LeadInboxController extends Controller
 
 		return response()->json(['url' => $publicUrl]);
 	}
+
+	public function updateSalesStatus(Request $request)
+	{
+		$request->validate([
+			'lead_id' => 'required',
+			'status'  => 'nullable|string',
+		]);
+		
+		$lead = Lead::find($request->lead_id);
+
+		if(!$lead){
+			return back()->with('error', 'Lead not found');
+		}
+
+		$lead->sale_status = $request->status;
+		$lead->installed_date = now();
+		$lead->save();
+
+		//dd($lead);
+
+		return back()->with('success', 'Sale status updated');
+	}
+
 
 
 
