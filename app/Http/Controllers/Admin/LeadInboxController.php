@@ -416,7 +416,7 @@ class LeadInboxController extends Controller
 			->withCount('leadFollowUp')
 			->orderBy('id', 'desc')
 			->whereIn('status', ['Sold']);
-			//->forCurrentUser();
+			->forCurrentUser();
 
 		# filters
 		if ($request->lead_source) {
