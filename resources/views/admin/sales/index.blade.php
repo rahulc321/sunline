@@ -67,6 +67,13 @@ strong {
                         <small class="text-muted">Total Commision</small>
                     </div>
                 </div>
+
+                <div class="col-md-3 col-6">
+                    <div class="border rounded p-3">
+                        <div class="fw-bold text-success fs-5">₹<span class="payout">0</span></div>
+                        <small class="text-muted">Total Payout</small>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -374,7 +381,16 @@ strong {
     <div class="card shadow-sm rounded-3 p-4 mb-3 form_1" id="lead-${lead.id}">
         <div class="d-flex justify-content-between flex-wrap">
             <div class="mb-2">
-                <h5 class="fw-bold mb-1 lead">#${lead.id ?? ''} - ${lead.first_name ?? ''} ${lead.last_name ?? ''} </h5>
+               <h5 class="fw-bold mb-1 lead">
+                #${lead.id ?? ''} - ${lead.first_name ?? ''} ${lead.last_name ?? ''}
+
+                ${lead.sale_status == 'Installed' 
+                    ? `<span class="ms-2">🟢 Installed</span>` 
+                    : lead.sale_status == 'Cancelled'
+                    ? `<span class="ms-2">🔴 Cancelled</span>`
+                    : ''
+                }
+            </h5>
                 <div class="fw-bol1d text-success mb-2">
                     Commission: ₹${(lead.commission ?? 0).toFixed(2)}
                 </div>
@@ -404,6 +420,26 @@ strong {
             </div>
 
             <div class="text-end">
+                @if ($role != 'Sales Rep')
+                <!-- 🔥 Status Dropdown at Top Right -->
+                <div class="mb-3">
+                   <form method="POST" action="/admin/updateSalesStatus" id="statusForm-${lead.id}">
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="lead_id" value="${lead.id}">
+                        <input type="hidden" name="status" id="lead-status-${lead.id}">
+
+                        <select class="form-select form-select-sm"
+                            onchange="document.getElementById('lead-status-${lead.id}').value=this.value; document.getElementById('statusForm-${lead.id}').submit();">
+
+                            <option value="">Select Status</option>
+                            <option value="Installed" ${lead.sale_status == 'Installed' ? 'selected' : ''}>Installed</option>
+                            <option value="Cancelled" ${lead.sale_status == 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </form>
+                </div>
+                @endif
+                <!-- /Dropdown -->
+
                 <div class="d-flex align-items-center justify-content-end flex-wrap mb-2 gap-2 d-none">
                     <span class="badge text-${color} border border-${color} rounded-pill px-2 py-1">
                         ${lead.status ?? ''}
@@ -505,6 +541,7 @@ strong {
                 }
 
                 $('.commision').html(res.totalCommision);
+                $('.payout').html(res.totalPayout);
 
                 let html = '';
                 leads.forEach(lead => {
