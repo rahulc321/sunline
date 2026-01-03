@@ -69,8 +69,134 @@ class LeadInboxController extends Controller
 		 
 		return view('admin.leads.index',$this->data);
 	}
-
+	
 	public function listLeads(Request $request)
+	{
+		$query = Lead::with(['leadSource'])
+			->whereNotIn('status', ['Qualified', 'Sold'])
+			->forCurrentUser();
+
+		# filters
+		if ($request->lead_source) {
+			$query->where('lead_source', $request->lead_source);
+		}
+
+		if ($request->assign_rep) {
+			$query->where('assign_rep', $request->assign_rep);
+		}
+
+		if ($request->status) {
+			$query->where('status', $request->status);
+		}
+
+		return DataTables::of($query)
+			->addIndexColumn()
+			->addColumn('lead_source', function ($lead) {
+				return $lead->leadSource->source ?? '-';
+			})
+
+			->addColumn('name', function ($lead) {
+				return $lead->first_name .' '.$lead->last_name;
+			})
+
+			->addColumn('status', function ($lead) {
+
+				$status = $lead->status ?? '';
+			
+				// status → color mapping (same as JS)
+				$statusColors = [
+					'New'               => 'primary',
+					'Send Intro Email'  => 'info',
+					'1st Attempt'       => 'warning',
+					'2nd Attempt'       => 'warning',
+					'3rd Attempt'       => 'warning',
+					'Under Construction'=> 'secondary',
+					'Qualified'         => 'success',
+					'Lost'              => 'danger',
+				];
+			
+				$color = $statusColors[$status] ?? 'secondary';
+			
+				return '
+					<div class="d-flex align-items-center justify-content-end flex-wrap mb-2 gap-2">
+						<span class="badge text-'.$color.' border border-'.$color.' rounded-pill px-2 py-1">
+							'.$status.'
+						</span>
+					</div>
+				';
+			})
+
+			->addColumn('category', function ($lead) {
+
+				$html = 'Category: <strong class="text-dark">'.($lead->category ?? '').'</strong>';
+			
+				// Solar KW condition
+				if (
+					in_array($lead->category, ['Solar', 'Solar+Battery']) &&
+					!empty($lead->solar_kw)
+				) {
+					$html .= ' &nbsp;|&nbsp; Solar KW: 
+						<strong class="text-dark">'.$lead->solar_kw.'</strong>';
+				}
+			
+				// Battery KW condition
+				if (
+					in_array($lead->category, ['Battery', 'Solar+Battery']) &&
+					!empty($lead->battery_kw)
+				) {
+					$html .= ' &nbsp;|&nbsp; Battery KW: 
+						<strong class="text-dark">'.$lead->battery_kw.'</strong>';
+				}
+			
+				return $html;
+			})
+			->addColumn('action', function ($lead) {
+
+				$leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
+				$buttons = '<div class="">';
+	
+				// permission: lead_email_access
+				if (auth()->user()->can('lead_email_access')) {
+					$buttons .= '
+						<button class="btn btn-sm btn-warning custom-btn send_email"
+							data-lead="'.$leadJson.'"
+							data-bs-toggle="modal"
+							data-bs-target="#emailModel">
+							<i class="ph-envelope-simple"></i>
+						</button>';
+				}
+	
+				// view button (always visible)
+				$buttons .= '
+					<button class="btn btn-sm btn-primary view-lead"
+						data-lead="'.$leadJson.'"
+						data-bs-toggle="modal"
+						data-bs-target="#leadDetailsModal">
+						<i class="ph-eye"></i>
+					</button>';
+	
+				// permission: lead_edit
+				if (auth()->user()->can('lead_edit')) {
+					$buttons .= '
+						<button class="btn btn-sm btn-outline-secondary edit_lead"
+							data-lead="'.$leadJson.'"
+							data-bs-toggle="modal"
+							data-bs-target="#editlead">
+							<i class="ph-pencil-line"></i>
+						</button>';
+				}
+	
+				$buttons .= '</div>';
+	
+				return $buttons;
+			})
+			->rawColumns(['status','category','action'])
+			->make(true);
+	}
+
+	 
+
+	public function listLeads_old(Request $request)
 	{
 		$limit = $request->limit ?? 10;
 		$offset = $request->offset ?? 0;

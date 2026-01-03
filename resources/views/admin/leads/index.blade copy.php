@@ -32,11 +32,6 @@ strong {
     border-radius: 10px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
-.badge {
-    min-width: calc(var(--badge-padding-y) * 2 + var(--badge-font-size));
-    /* box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px; */
-    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
-}
 </style>
 <!-- Page header -->
 <div class="page-header">
@@ -299,63 +294,10 @@ strong {
         </div>
 
 
-        <div id="leads-container1"></div>
+        <div id="leads-container"></div>
 
-        <!-- <div class="text-center mt-3">
+        <div class="text-center mt-3">
             <button id="load-more" class="btn btn-primary px-4 bg_s">Load More</button>
-        </div> -->
-
-        <div class="content pt-0">
-
-            <!-- Dashboard content -->
-            <div class="row">
-                <div class="col-xl-12">
-
-                    <div class="card">
-
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table
-                                    class=" table table-bordered table-striped table-hover datatable datatable-Role text-wrap"
-                                    id="leadList">
-                                    <thead>
-                                        <tr>
-
-                                            <th>
-                                                #
-                                            </th>
-                                            <th>
-                                                Lead Name
-                                            </th>
-                                            <th>
-                                                Phone
-                                            </th>
-                                            <th>
-                                                Email
-                                            </th>
-                                            <th>
-                                                Address
-                                            </th>
-                                            <th>Status</th>
-                                            <th>
-                                                Lead Sourse
-                                            </th>
-                                            <th>Category</th>
-                                            <th>
-                                                Action
-                                            </th>
-                                        </tr>
-                                    </thead>
-
-                                </table>
-                                <div id="no-data-container"></div>
-                            </div>
-
-
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
 
@@ -363,19 +305,8 @@ strong {
 
     </section>
 
-    <style>
-    #leadList th,
-    #leadList td {
-        white-space: nowrap;
-    }
 
-    /* enable bottom horizontal scroll for DataTable */
-    .dataTables_wrapper {
-        width: 100%;
-    }
 
-     
-    </style>
 
     <!--Models -->
     <!-- Add Lead Modal -->
@@ -407,80 +338,6 @@ strong {
 
 
     <script>
-    $(function() {
-
-        let table = $('#leadList').DataTable({
-            processing: true,
-            serverSide: true,
-            // scrollY: '100vh',        // vertical scroll (adjust height)
-            // scrollX: true,          // horizontal scroll
-            // scrollCollapse: true,
-            responsive:false,
-            pageLength: 10,
-            order: [
-                [0, 'desc']
-            ],
-
-            ajax: {
-                url: "{{ route('admin.listLeads') }}",
-                data: function(d) {
-                    d.lead_source = $('#lead_source').val();
-                    d.assign_rep = $('#assign_rep').val();
-                    d.status = $('#status').val();
-                }
-            },
-
-            columns: [{
-                    data: 'DT_RowIndex',
-                    name: 'DT_RowIndex',
-                    orderable: false,
-                    searchable: false
-                },
-                {
-                    data: 'name',
-                    name: 'name'
-                },
-                {
-                    data: 'phone',
-                    name: 'phone'
-                },
-                {
-                    data: 'email',
-                    name: 'email'
-                },
-                {
-                    data: 'address',
-                    name: 'address'
-                },
-                {
-                    data: 'status',
-                    name: 'status'
-                },
-                {
-                    data: 'lead_source',
-                    name: 'lead_source'
-                },
-                {
-                    data: 'category',
-                    name: 'category'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                }
-            ]
-        });
-
-        // reload on filter change
-        $('.filter').on('change', function() {
-            table.ajax.reload();
-        });
-
-    });
-
-
     $(document).on('click', '.follow_up', function() {
         let leadId = $(this).data('id'); // get lead id from button
         let leadName = $(this).data('name');
@@ -643,7 +500,7 @@ strong {
     let isLoading = false;
     let hasMore = true;
 
-    function loadLeads_old(reset = false) {
+    function loadLeads(reset = false) {
         if (reset) {
             offset = 0;
             hasMore = true;
@@ -697,56 +554,6 @@ strong {
                 if (hasMore) $('#load-more').prop('disabled', false).text('Load More');
             });
     }
-
-    function loadLeads1(limit = 10, offset = 0) {
-
-        $.ajax({
-            url: "{{ route('admin.listLeads') }}", // 🔴 change to your route
-            type: "GET",
-            data: {
-                limit: limit,
-                offset: offset,
-                lead_source: $('#lead_source').val() ?? '',
-                assign_rep: $('#assign_rep').val() ?? '',
-                status: $('#status').val() ?? ''
-            },
-            success: function(response) {
-
-                let leads = response.data;
-                let tbody = '';
-                $('#no-data-container').html('');
-
-                if (!leads || leads.length === 0) {
-                    showNoData();
-                    return;
-                }
-
-                $.each(leads, function(index, lead) {
-
-                    tbody += `
-                <tr>
-                    <td>${offset + index + 1}</td>
-                    <td>${lead.name ?? '-'}</td>
-                    <td>${lead.phone ?? '-'}</td>
-                    <td>${lead.email ?? '-'}</td>
-                    <td>${lead.address ?? '-'}</td>
-                    <td>${lead.lead_source?.name ?? '-'}</td>
-                    <td>
-                        <a href="/leads/${lead.id}" class="btn btn-sm btn-info">View</a>
-                        <a href="/leads/${lead.id}/edit" class="btn btn-sm btn-primary">Edit</a>
-                    </td>
-                </tr>
-            `;
-                });
-
-                $('#jsGrid1 tbody').html(tbody);
-            },
-            error: function() {
-                showNoData();
-            }
-        });
-    }
-
 
     function showNoData() {
         $('#leads-container').html(`

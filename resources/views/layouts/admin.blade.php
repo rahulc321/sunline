@@ -642,11 +642,7 @@ session(['notif_shown' => true]);
 @endphp
 @endif
 <script>
-function sendNotification(count = {
-    {
-        auth() - > user() - > unreadNotifications - > count()
-    }
-}) {
+function sendNotification(count = {{ auth()->user()-> unreadNotifications-> count()}}) {
     if (Notification.permission !== "granted") {
         Notification.requestPermission();
     }
