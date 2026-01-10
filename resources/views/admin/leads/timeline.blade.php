@@ -55,18 +55,21 @@
                     <div class="row g-3">
                         <!-- GMAIL CARD -->
                         <div class="col-12 col-md-4">
-                            <a href="{{route('admin.gmailConnect',[$lead->id])}}"   class="provider-card selected w-100 p-3 text-start">
-                                <div class="d-flex align-items-center">
-                                    <img src="https://www.gstatic.com/images/branding/product/2x/gmail_48dp.png" alt="Gmail" height="36" class="me-3">
-                                    <div>
-                                        <div class="fw-bold">Gmail</div>
-                                        <small class="text-muted">
-                                             
-                                            We recommend this provider.
-                                        </small>
+                            <a href="{{route('admin.gmailConnect',[$lead->id])}}"><button
+                                    class="provider-card selected w-100 p-3 text-start">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://www.gstatic.com/images/branding/product/2x/gmail_48dp.png"
+                                            alt="Gmail" height="36" class="me-3">
+                                        <div>
+                                            <div class="fw-bold">Gmail</div>
+                                            <small class="text-muted">
+
+                                                We recommend this provider.
+                                            </small>
+                                        </div>
                                     </div>
-                                </div>
-</a>
+                                </button>
+                            </a>
                         </div>
                     </div>
 
@@ -95,22 +98,25 @@
 
 <!-- INLINE STYLES (ALL IN SAME FILE) -->
 <style>
-.provider-card{
-    border:1px solid #e9eef6;
-    border-radius:8px;
-    background:#fff;
-    cursor:pointer;
-    transition:.2s ease;
+.provider-card {
+    border: 1px solid #e9eef6;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    transition: .2s ease;
 }
-.provider-card:hover{
-    box-shadow:0 6px 18px rgba(16,24,40,.08);
+
+.provider-card:hover {
+    box-shadow: 0 6px 18px rgba(16, 24, 40, .08);
 }
-.provider-card.selected{
-    border-color:#1f6feb;
-    box-shadow:0 6px 18px rgba(31,111,235,.15);
+
+.provider-card.selected {
+    border-color: #1f6feb;
+    box-shadow: 0 6px 18px rgba(31, 111, 235, .15);
 }
-.nav-tabs .nav-link{
-    color:#3b4a6b;
+
+.nav-tabs .nav-link {
+    color: #3b4a6b;
 }
 </style>
 @endsection

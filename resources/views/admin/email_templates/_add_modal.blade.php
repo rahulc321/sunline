@@ -15,6 +15,12 @@
                 <div class="modal-body">
 
                     <div class="mb-3">
+                        <label>Template Name</label>
+                        <input type="text" name="template_name" class="form-control" placeholder="Enter Template Name"
+                            required>
+                    </div>
+
+                    <div class="mb-3">
                         <label>Title</label>
                         <input type="text" name="subject" class="form-control" placeholder="Enter subject" required>
                     </div>
@@ -32,6 +38,8 @@
                                 data-tag="{link}">Link</button>
                             <button type="button" class="btn btn-sm btn-outline-primary insert-tag"
                                 data-tag="{address}">Address</button>
+                            <button type="button" class="btn btn-sm btn-outline-primary insert-tag"
+                                data-tag="{owner}">Owner</button>
                         </div>
                         <textarea name="body" id="editorBody" class="form-control editorBody" rows="5"
                             placeholder="Enter description"></textarea>
@@ -66,6 +74,16 @@
                                 <option value="">Select</option>
                                 @foreach($status as $value)
                                 <option value="{{ $value }}">{{ $value }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-sm-6 mb-3">
+                            <label for="phone">Lead Source</label>
+                            <select name="lead_source" class="form-control">
+                                <option value="">Select</option>
+                                @foreach($leadSource as $data)
+                                <option value="{{@$data->id}}">{{@$data['source']}}</option>
                                 @endforeach
                             </select>
                         </div>
