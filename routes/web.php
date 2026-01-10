@@ -6,6 +6,9 @@ Route::redirect('/', '/login');
 Route::redirect('/home', '/admin');
 Auth::routes();
 
+Route::get('/google/callback', [App\Http\Controllers\Admin\GmailController::class, 'gmailCallback'])
+->name('gmailCallback');
+
 Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'middleware' => ['auth']], function () {
     Route::get('/', 'HomeController@index')->name('home');
 
@@ -58,6 +61,17 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('friUpdate', [App\Http\Controllers\Admin\FriController::class, 'friUpdate'])->name('friUpdate');
     Route::any('followupComplete', [App\Http\Controllers\Admin\LeadInboxController::class, 'followupComplete'])->name('followupComplete');
     Route::any('friImages', [App\Http\Controllers\Admin\FriController::class, 'fri_images'])->name('friImages');
+
+    # timeline
+    Route::get('timeline/{leadId}', [App\Http\Controllers\Admin\LeadInboxController::class, 'timeline'])->name('timeline');
+
+    Route::get('/gmailConnect/{lead}', [App\Http\Controllers\Admin\GmailController::class, 'gmailConnect'])
+        ->name('gmailConnect');
+
+   
+
+    Route::post('/gmailSync/{lead}', [App\Http\Controllers\Admin\GmailController::class, 'gmailSync'])
+        ->name('gmailSync');
 
     #sales 
     Route::get('sales', [App\Http\Controllers\Admin\LeadInboxController::class, 'sales'])->name('sales');

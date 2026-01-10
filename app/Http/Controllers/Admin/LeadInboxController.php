@@ -173,7 +173,12 @@ class LeadInboxController extends Controller
 						data-bs-toggle="modal"
 						data-bs-target="#leadDetailsModal">
 						<i class="ph-eye"></i>
-					</button>';
+					</button>
+					 <a class="btn btn-sm btn-primary view-lead" href="'.route('admin.timeline', [$lead->id]).'"
+							 >
+							<i class="ph-arrows-clockwise"></i>
+						</a>
+					';
 	
 				// permission: lead_edit
 				if (auth()->user()->can('lead_edit')) {
@@ -183,7 +188,7 @@ class LeadInboxController extends Controller
 							data-bs-toggle="modal"
 							data-bs-target="#editlead">
 							<i class="ph-pencil-line"></i>
-						</button>';
+						</button> ';
 				}
 	
 				$buttons .= '</div>';
@@ -737,6 +742,17 @@ class LeadInboxController extends Controller
 		//dd($lead);
 
 		return back()->with('success', 'Sale status updated');
+	}
+
+	public function timeline($id){
+		error_reporting(0);
+		$this->data['lead'] = Lead::find($id);
+
+		if(!$this->data['lead']){
+			return back()->with('error', 'Lead not found');
+		}
+
+		return view('admin.leads.timeline',$this->data);
 	}
 
 

@@ -13,6 +13,7 @@
         "beyondcode/laravel-websockets": "^1.14",
         "darkaonline/l5-swagger": "^8.6",
         "doctrine/dbal": "^3.0",
+        "google/apiclient": "^2.19",
         "guzzlehttp/guzzle": "^7.9",
         "laravel/framework": "^10.0",
         "laravel/passport": "^11.0",
