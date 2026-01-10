@@ -106,8 +106,14 @@
                 <div class="col-md-4 mb-4">
                     <div class="card shadow-sm rounded-3 h-100 border">
                         <div class="card-body d-flex flex-column">
+
+                            <h6 class="text-muted small mb-2">
+                                <span>{{ $template->template_name }}</span>
+                            </h6>
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h6 class="fw-bold mb-0">{{ $template->subject }}</h6>
+
+                                <p class="mb-0">{{ $template->subject }}</p>
+
                                 <span
                                     class="badge rounded-pill {{ $template->status == 'Active' ? 'bg-success' : 'bg-secondary' }}">
                                     {{ $template->status }}
@@ -135,9 +141,9 @@
                             </div>
 
                             <div class="d-flex justify-content-between gap-1">
-                                <button class="btn btn-sm btn-outline-secondary flex-fill">
+                                <!-- <button class="btn btn-sm btn-outline-secondary flex-fill">
                                     <i class="ph-eye"></i> Preview
-                                </button>
+                                </button> -->
                                 @can('automation_edit')
                                 <a href="#" class="btn btn-sm btn-outline-primary flex-fill editTemplate"
                                     data-templete="{{ json_encode($template) }}" data-bs-toggle="modal"
