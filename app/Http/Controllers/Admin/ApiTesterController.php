@@ -47,7 +47,7 @@ class ApiTesterController extends Controller
     
                     $this->token = $newToken;
                 } else {
-                    throw new \Exception('Unable to generate OpenSolar token.');
+                    //throw new \Exception('Unable to generate OpenSolar token.');
                 }
             }
     
