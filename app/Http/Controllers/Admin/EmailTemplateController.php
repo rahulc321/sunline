@@ -91,8 +91,9 @@ class EmailTemplateController extends Controller
 
     # Send lead email
     public function sendEmail(Request $request){
-        $leadData = Lead::find($request->lead_id);
-       // dd($request->all());
+        $leadData = Lead::with(['getAssignUserName'])->where('id',$request->lead_id)->first();
+        $owner = $leadData->getAssignUserName->name ?? '-';
+        //echo '<pre>';print_r($owner);die;
         sendGlobalEmail(
             $request->email,
             $request->subject,
@@ -101,7 +102,7 @@ class EmailTemplateController extends Controller
             $request->category,
             $request->lead_id,
             'lead',
-            ['name' => $leadData->first_name.' '.$leadData->last_name]
+            ['name' => $leadData->first_name.' '.$leadData->last_name,'email'=>$request->email,'address'=>$leadData->address,'owner'=>$owner]
         );
         return redirect()->back()->with('success', 'You have send email successfully!');
     }

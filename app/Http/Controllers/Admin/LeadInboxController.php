@@ -72,7 +72,7 @@ class LeadInboxController extends Controller
 	
 	public function listLeads(Request $request)
 	{
-		$query = Lead::with(['leadSource'])
+		$query = Lead::with('getAssignUserName','leadSource','leadFollowUp')
 			->whereNotIn('status', ['Qualified', 'Sold'])
 			->forCurrentUser();
 
