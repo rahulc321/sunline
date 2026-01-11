@@ -83,8 +83,15 @@ class GmailController extends Controller
             return redirect()->back()->with('error', $token['error_description'] ?? 'Google auth failed');
         }
 
+        $client->setAccessToken($token);
+        $gmail = new Gmail($client);
+
+        // get connected email
+        $profile = $gmail->users->getProfile('me');
+
         $lead->update([
             'email_provider'       => 'gmail',
+            'connected_email'      => $profile->getEmailAddress(),
             'google_access_token'  => $token['access_token'],
             'google_refresh_token' => $token['refresh_token'] ?? $lead->google_refresh_token,
             'is_email_connected'   => true,
@@ -92,7 +99,7 @@ class GmailController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.leads.show', $lead->id)
+            ->route('admin.timeline', $lead->id)
             ->with('success', 'Gmail connected successfully');
     }
 
@@ -173,5 +180,19 @@ class GmailController extends Controller
         }
 
         return null;
+    }
+
+    public function gmailDisconnect(Lead $lead)
+    {
+        $lead->update([
+            'google_access_token'  => null,
+            'google_refresh_token' => null,
+            'email_provider'       => null,
+            'connected_email'      => null,
+            'is_email_connected'   => false,
+            'email_connected_at'   => null,
+        ]);
+
+        return back()->with('success', 'Gmail disconnected successfully');
     }
 }
