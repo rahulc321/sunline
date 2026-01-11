@@ -68,6 +68,11 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('/gmailConnect/{lead}', [App\Http\Controllers\Admin\GmailController::class, 'gmailConnect'])
         ->name('gmailConnect');
 
+        Route::any('/gmailDisconnect/{lead}', [App\Http\Controllers\Admin\GmailController::class, 'gmailDisconnect'])
+        ->name('gmailDisconnect');
+
+        
+
    
 
     Route::post('/gmailSync/{lead}', [App\Http\Controllers\Admin\GmailController::class, 'gmailSync'])

@@ -53,23 +53,63 @@
                     <h6 class="mb-3">Select your email provider:</h6>
 
                     <div class="row g-3">
-                        <!-- GMAIL CARD -->
-                        <div class="col-12 col-md-4">
-                            <a href="{{route('admin.gmailConnect',[$lead->id])}}"><button
-                                    class="provider-card selected w-100 p-3 text-start">
+                        <div class="col-12 col-md-6">
+
+                            @if($lead->is_email_connected && $lead->email_provider === 'gmail')
+
+                            <!-- CONNECTED STATE -->
+                            <div class="provider-card selected w-100 p-3 text-start">
+                                <div class="d-flex align-items-center justify-content-between">
                                     <div class="d-flex align-items-center">
                                         <img src="https://www.gstatic.com/images/branding/product/2x/gmail_48dp.png"
                                             alt="Gmail" height="36" class="me-3">
+
                                         <div>
                                             <div class="fw-bold">Gmail</div>
                                             <small class="text-muted">
+                                                {{ $lead->connected_email }}
+                                            </small>
+                                        </div>
+                                    </div>
 
+                                    <span class="badge bg-success d-flex align-items-center">
+                                        <span class="pulse-dot me-2"></span>
+                                        Connected
+                                    </span>
+                                </div>
+
+                                <div class="mt-3 text-end">
+
+
+                                    <a href="{{ route('admin.gmailDisconnect', $lead->id) }}"
+                                        class="btn btn-outline-danger btn-sm"
+                                        onclick="return confirm('Are you sure you want to disconnect this Gmail account?');">
+                                        Disconnect
+                                    </a>
+                                </div>
+                            </div>
+
+                            @else
+
+                            <!-- NOT CONNECTED STATE -->
+                            <a href="{{ route('admin.gmailConnect', [$lead->id]) }}" class="text-decoration-none">
+                                <div class="provider-card w-100 p-3 text-start">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://www.gstatic.com/images/branding/product/2x/gmail_48dp.png"
+                                            alt="Gmail" height="36" class="me-3">
+
+                                        <div>
+                                            <div class="fw-bold">Gmail</div>
+                                            <small class="text-muted">
                                                 We recommend this provider.
                                             </small>
                                         </div>
                                     </div>
-                                </button>
+                                </div>
                             </a>
+
+                            @endif
+
                         </div>
                     </div>
 
@@ -96,7 +136,7 @@
     </div>
 </div>
 
-<!-- INLINE STYLES (ALL IN SAME FILE) -->
+<!-- INLINE STYLES -->
 <style>
 .provider-card {
     border: 1px solid #e9eef6;
@@ -117,6 +157,47 @@
 
 .nav-tabs .nav-link {
     color: #3b4a6b;
+}
+
+/* CONNECTED ANIMATION */
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #ffffff;
+    border-radius: 50%;
+    animation: pulse 1.4s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    70% {
+        transform: scale(2);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+.provider-card.selected {
+    border-color: #00a06a !important;
+    /* box-shadow: 0 6px 18px rgba(31, 111, 235, .15); */
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+}
+
+.provider-card {
+    border: 1px solid #df0d0d;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    transition: .2s ease;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
 }
 </style>
 @endsection
