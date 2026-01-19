@@ -103,13 +103,14 @@
                                         @endcan
 
                                         @can('role_delete')
+                                         
                                         <form action="{{ route('admin.roles.destroy', $role->id) }}" method="POST"
                                             onsubmit="return confirm('{{ trans('global.areYouSure') }}');"
                                             style="display:inline-block;">
                                             @csrf
                                             @method('DELETE')
 
-                                            @if($role->title !== env('SUPERADMIN'))
+                                            @if($role->title !== env('SUPERADMIN') && $role->users_count == 0)
                                             <button type="submit" class="btn btn-sm btn-outline-danger p-1">
                                                 <i class="ph-trash"></i>
                                             </button>

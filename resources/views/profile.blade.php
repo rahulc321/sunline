@@ -69,7 +69,7 @@
                             </div>
 
                             <!-- password -->
-                            <div class="col-sm-6 d-none">
+                            <div class="col-sm-6">
                                 <div class="form-group {{ $errors->has('password') ? 'has-error' : '' }}">
                                     <label for="password">{{ trans('cruds.user.fields.password') }}</label>
                                     <input type="password" id="password" name="password" class="form-control" required>
@@ -81,6 +81,22 @@
                                     <p class="helper-block">
                                         {{ trans('cruds.user.fields.password_helper') }}
                                     </p>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="form-group {{ $errors->has('link') ? 'has-error' : '' }}">
+                                    <label for="link">Zoom Ext.</label>
+                                    <input type="text" id="zoom_ext" name="zoom_ext" class="form-control" placeholder=""
+                                        value="{{ old('zoom_ext', isset($user) ? $user->zoom_ext : '') }}">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="form-group {{ $errors->has('link') ? 'has-error' : '' }}">
+                                    <label for="link">Open Solar Password</label>
+                                    <input type="text" id="open_solar_password" name="open_solar_password" class="form-control" placeholder="Open Solar Password"
+                                        value="{{ old('open_solar_password', isset($user) ? $user->open_solar_password : '') }}">
                                 </div>
                             </div>
 

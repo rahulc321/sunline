@@ -133,7 +133,7 @@
                        ->where('user_id', auth()->id())
                        ->whereIn('thread_id', $threadIds)
                        ->orderBy('thread_id')
-                       ->orderBy('created_at', 'asc')
+                       ->orderBy('created_at', 'desc')
                        ->get()
                        ->groupBy('thread_id');
                     ?>
@@ -154,7 +154,7 @@
                                 </p>
 
                                 <div class="border p-2">
-                                    {!! nl2br(e($mail->body)) !!}
+                                {!! str_replace('"', ' &quot;', $mail->body) !!}
                                 </div>
 
                                 <small class="text-muted">
