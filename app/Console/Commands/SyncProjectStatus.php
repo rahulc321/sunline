@@ -14,7 +14,7 @@ class SyncProjectStatus extends Command
     public function handle()
     {
         # Example: Fetch all leads that have a project_id
-        $leads = Lead::whereNotNull('project_id')->get();
+        $leads = Lead::whereNotNull('project_id')->where('status', '!=', 'Sold')->get();
 
         foreach ($leads as $lead) {
             $user  = User::find($lead->assign_rep);
