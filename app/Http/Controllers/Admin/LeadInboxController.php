@@ -174,10 +174,8 @@ class LeadInboxController extends Controller
 						data-bs-target="#leadDetailsModal">
 						<i class="ph-eye"></i>
 					</button>
-					 <a class="btn btn-sm btn-primary view-lead" href="'.route('admin.timeline', [$lead->id]).'"
-							 >
-							<i class="ph-arrows-clockwise"></i>
-						</a>
+					<a href="'.route('admin.timeline',[$lead->id]).'">Activity</a>
+					 
 					';
 	
 				// permission: lead_edit
@@ -746,13 +744,28 @@ class LeadInboxController extends Controller
 
 	public function timeline($id){
 		error_reporting(0);
-		$this->data['lead'] = Lead::find($id);
+
+		//dd(\Hash::make('password'));
+		$this->data['lead'] = User::find(Auth::Id());
 
 		if(!$this->data['lead']){
 			return back()->with('error', 'Lead not found');
 		}
 
 		return view('admin.leads.timeline',$this->data);
+	}
+
+	// connectGmail
+
+	public function connectGmail(){
+		error_reporting(0);
+		$this->data['lead'] = User::find(Auth::Id());
+
+		if(!$this->data['lead']){
+			return back()->with('error', 'Lead not found');
+		}
+
+		return view('admin.users.timeline',$this->data);
 	}
 
 

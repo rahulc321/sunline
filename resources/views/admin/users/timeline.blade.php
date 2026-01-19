@@ -12,7 +12,7 @@
                         Connect email
                     </a>
                 </li>
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="tab" href="#sync-contacts" role="tab">
                         Sync contacts
                     </a>
@@ -26,7 +26,7 @@
                     <a class="nav-link" data-bs-toggle="tab" href="#email" role="tab">
                         Email
                     </a>
-                </li>
+                </li> -->
             </ul>
 
             <!-- TAB CONTENT -->
@@ -117,60 +117,7 @@
 
                 <!-- SYNC CONTACTS TAB -->
                 <div class="tab-pane fade" id="sync-contacts" role="tabpanel">
-                    <?php
-                   $email = 'rahulidcsoftwares@gmail.com';
-
-                   $threadIds = \DB::table('gmails')
-                       ->where('user_id', auth()->id())
-                       ->where(function ($q) use ($email) {
-                           $q->where('from', 'like', "%$email%")
-                             ->orWhere('to', 'like', "%$email%");
-                       })
-                       ->pluck('thread_id')
-                       ->unique();
-
-                    $conversations = \DB::table('gmails')
-                       ->where('user_id', auth()->id())
-                       ->whereIn('thread_id', $threadIds)
-                       ->orderBy('thread_id')
-                       ->orderBy('created_at', 'asc')
-                       ->get()
-                       ->groupBy('thread_id');
-                    ?>
-
-
-                    @foreach($conversations as $threadId => $messages)
-                    <div class="card mb-3">
-                        <div class="card-header">
-                            <strong>Conversation</strong> (Thread: {{ $threadId }})
-                        </div>
-
-                        <div class="card-body">
-                            @foreach($messages as $mail)
-                            <div class="mb-3 p-2 {{ $mail->folder === 'sent' ? 'text-end bg-light' : '' }}">
-                                <p class="mb-1">
-                                    <strong>From:</strong> {{ $mail->from }} <br>
-                                    <strong>To:</strong> {{ $mail->to }}
-                                </p>
-
-                                <div class="border p-2">
-                                    {!! nl2br(e($mail->body)) !!}
-                                </div>
-
-                                <small class="text-muted">
-                                    {{ \Carbon\Carbon::parse($mail->created_at)->format('d M Y, h:i A') }}
-                                </small>
-                            </div>
-                            @endforeach
-
-                            <!-- Reply button -->
-                            <a href="#" class="btn btn-sm btn-primary">
-                                Reply
-                            </a>
-                        </div>
-                    </div>
-                    @endforeach
-
+                    <p class="text-muted">Contacts sync settings will appear here.</p>
                 </div>
 
                 <!-- CALENDAR TAB -->

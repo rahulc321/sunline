@@ -539,6 +539,16 @@
                                 </a>
                                 <div class="dropdown-divider"></div>
 
+                                <a href="{{route('admin.connectGmail')}}" class="dropdown-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="ph-link-simple me-2" style="color:#0d6efd; font-size:18px;"></i>
+                                        Connect with Gmail
+                                    </div>
+                                    @if(auth()->user()->is_email_connected && auth()->user()->email_provider === 'gmail')
+                                    <span class="badge bg-success rounded-pill">Connected</span>
+                                    @endif
+                                </a>
+
                                 <a href="#" class="dropdown-item d-flex justify-content-between align-items-center">
                                     <div>
                                         <i class="ph-sun me-2" style="color: #f7b500; font-size: 18px;"></i>
@@ -642,7 +652,11 @@ session(['notif_shown' => true]);
 @endphp
 @endif
 <script>
-function sendNotification(count = {{ auth()->user()-> unreadNotifications-> count()}}) {
+function sendNotification(count = {
+    {
+        auth() - > user() - > unreadNotifications - > count()
+    }
+}) {
     if (Notification.permission !== "granted") {
         Notification.requestPermission();
     }

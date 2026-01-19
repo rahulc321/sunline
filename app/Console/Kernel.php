@@ -30,6 +30,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('zoom:fetch-today-recordings')->everyMinute();
         $schedule->command('tier:update')->everyMinute();
         $schedule->command('commission:calculate')->everyMinute();
+        $schedule->command('gmail:sync')->everyMinute();
     }
 
     /**
