@@ -5,26 +5,13 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\User;
 use Google\Service\Gmail;
+use Illuminate\Support\Facades\DB;
 
 class SyncGmailEmails extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'gmail:sync';
+    protected $description = 'Sync Gmail emails (read, unread, sent)';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
-
-    /**
-     * Execute the console command.
-     */
     public function handle()
     {
         User::where('is_email_connected', true)
@@ -45,56 +32,60 @@ class SyncGmailEmails extends Command
 
         $gmail = new Gmail($client);
 
-        // INBOX + SENT
-        $labels = ['INBOX', 'SENT'];
+        $folders = [
+            'unread' => [
+                'labelIds' => ['INBOX'],
+                'q' => 'newer_than:1d is:unread',
+            ],
+            'read' => [
+                'labelIds' => ['INBOX'],
+                'q' => 'newer_than:1d is:read',
+            ],
+            'sent' => [
+                'labelIds' => ['SENT'],
+                'q' => 'newer_than:1d',
+            ],
+        ];
 
-        foreach ($labels as $label) {
-            $messages = $gmail->users_messages->listUsersMessages('me', [
-                'labelIds' => [$label],
-                'maxResults' => 20,
-            ]);
-
-            if (!$messages->getMessages()) {
-                continue;
-            }
-
-            foreach ($messages->getMessages() as $message) {
-                $this->storeMessage($gmail, $user, $message->getId(), $label);
-            }
+        foreach ($folders as $folder => $params) {
+            $this->syncFolder($gmail, $user, $folder, $params);
         }
     }
 
-    private function storeMessage(Gmail $gmail, User $user, $messageId, $label)
+    private function syncFolder(Gmail $gmail, User $user, string $folder, array $params)
     {
-        // prevent duplicates
-        if (\DB::table('gmails')->where('message_id', $messageId)->exists()) {
+        $options = array_merge([
+            'maxResults' => 10,
+        ], $params);
+
+        $messages = $gmail->users_messages->listUsersMessages('me', $options);
+
+        if (!$messages->getMessages()) {
+            return;
+        }
+
+        foreach ($messages->getMessages() as $message) {
+            $this->storeMessage($gmail, $user, $message->getId(), $folder);
+        }
+    }
+
+    private function storeMessage(Gmail $gmail, User $user, $messageId, $folder)
+    {
+        if (DB::table('gmails')->where('message_id', $messageId)->exists()) {
             return;
         }
 
         $message = $gmail->users_messages->get('me', $messageId, [
-            'format' => 'full'
+            'format' => 'full',
         ]);
-
-
-
-        $rawBody = $message->getPayload()->getBody()->getData();
-
-        $rawBody = str_replace(['-', '_'], ['+', '/'], $rawBody);
-
-        // fix missing padding
-        $padding = strlen($rawBody) % 4;
-        if ($padding) {
-            $rawBody .= str_repeat('=', 4 - $padding);
-        }
-
-        $body = base64_decode($rawBody);
-
-        //echo '<pre>';print_r($body);die;
 
         $headers = collect($message->getPayload()->getHeaders())
             ->pluck('value', 'name');
 
-        \DB::table('gmails')->insert([
+        $rawBody = $this->getMessageBody($message->getPayload());
+        $body    = $this->cleanEmailBody($rawBody);
+
+        DB::table('gmails')->insert([
             'user_id'    => $user->id,
             'message_id' => $messageId,
             'thread_id'  => $message->getThreadId(),
@@ -102,8 +93,113 @@ class SyncGmailEmails extends Command
             'to'         => $headers['To'] ?? null,
             'subject'    => $headers['Subject'] ?? null,
             'body'       => $body,
-            'folder'     => strtolower($label),
+            'folder'     => $folder,
             'created_at' => now(),
         ]);
+    }
+
+    /**
+     * Extract full email body (HTML preferred, text fallback)
+     */
+    private function getMessageBody($payload)
+    {
+        if ($payload->getBody() && $payload->getBody()->getData()) {
+            return $this->decodeBody($payload->getBody()->getData());
+        }
+
+        if ($payload->getParts()) {
+            foreach ($payload->getParts() as $part) {
+
+                if ($part->getMimeType() === 'text/html' && $part->getBody()->getData()) {
+                    return $this->decodeBody($part->getBody()->getData());
+                }
+
+                if ($part->getMimeType() === 'text/plain' && $part->getBody()->getData()) {
+                    return nl2br(e($this->decodeBody($part->getBody()->getData())));
+                }
+
+                if ($part->getParts()) {
+                    $nested = $this->getMessageBody($part);
+                    if ($nested) {
+                        return $nested;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Decode Gmail base64url
+     */
+    private function decodeBody($data)
+    {
+        $data = str_replace(['-', '_'], ['+', '/'], $data);
+        return base64_decode($data);
+    }
+
+    /**
+     * Clean email HTML and keep only readable content
+     */
+    private function cleanEmailBody(?string $html)
+    {
+        if (!$html) {
+            return null;
+        }
+
+        libxml_use_internal_errors(true);
+
+        $dom = new \DOMDocument();
+        $dom->loadHTML('<?xml encoding="utf-8" ?>' . $html);
+
+        $xpath = new \DOMXPath($dom);
+
+        // remove junk
+        $remove = [
+            '//head',
+            '//style',
+            '//script',
+            '//meta',
+            '//link',
+            '//img',
+            '//footer',
+            '//header',
+        ];
+
+        foreach ($remove as $query) {
+            foreach ($xpath->query($query) as $node) {
+                $node->parentNode->removeChild($node);
+            }
+        }
+
+        // prefer common content containers
+        $selectors = [
+            '//*[@id="message"]',
+            '//*[@class="email-body"]',
+            '//*[@class="content"]',
+            '//body',
+        ];
+
+        foreach ($selectors as $selector) {
+            $nodes = $xpath->query($selector);
+            if ($nodes->length > 0) {
+                return trim($this->innerHTML($nodes->item(0)));
+            }
+        }
+
+        return trim(strip_tags(
+            $dom->saveHTML(),
+            '<p><br><b><strong><a><ul><ol><li>'
+        ));
+    }
+
+    private function innerHTML(\DOMNode $node)
+    {
+        $html = '';
+        foreach ($node->childNodes as $child) {
+            $html .= $node->ownerDocument->saveHTML($child);
+        }
+        return $html;
     }
 }

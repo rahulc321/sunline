@@ -164,6 +164,9 @@ class UsersController extends Controller
             'name'    => 'required|string|max:255',
             'phone'   => 'required|string|max:20',
             'address' => 'nullable|string|max:500',
+            'zoom_ext' => 'nullable|string|max:500',
+            'open_solar_password' => 'nullable|string|max:500',
+            'password' => 'nullable|string|max:500',
             
         ]);
 
@@ -175,8 +178,11 @@ class UsersController extends Controller
 
         # update password only if provided
         if ($request->filled('password')) {
-           // $user->password = Hash::make($validated['password']);
+            $user->password = \Hash::make($validated['password']);
         }
+
+        $user->zoom_ext    = $validated['zoom_ext'] ?? null;
+        $user->open_solar_password    = $validated['open_solar_password'] ?? null;
 
         $user->save();
 

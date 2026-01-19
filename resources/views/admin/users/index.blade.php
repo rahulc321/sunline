@@ -124,13 +124,19 @@
                                             style="display:inline-block;">
                                             @csrf
                                             @method('DELETE')
-                                                @foreach($user->roles as $key => $item)
-                                                @if(!in_array($item->title, ['Admin', env('SUPERADMIN')]))
-                                                <button type="submit" class="btn btn-sm btn-outline-danger p-1">
-                                                    <i class="ph-trash"></i>
-                                                </button>
-                                                @endif
-                                                @endforeach
+                                            @foreach($user->roles as $key => $item)
+                                            @if(
+                                            !in_array($item->title, ['Admin', env('SUPERADMIN')]) )
+                                            <button type="submit" class="btn btn-sm btn-outline-danger p-1">
+                                                <i class="ph-trash"></i>
+                                            </button>
+                                            @elseif(auth()->user()->roles->contains('title', 'Director'))
+                                            <button type="submit" class="btn btn-sm btn-outline-danger p-1">
+                                                <i class="ph-trash"></i>
+                                            </button>
+                                            @endif
+
+                                            @endforeach
 
                                         </form>
                                         @endcan
