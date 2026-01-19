@@ -17,6 +17,11 @@ class Lead extends Model
 
     protected $guarded = [];
 
+    public function images()
+    {
+        return $this->hasMany(LeadImages::class);
+    }
+
     public function getAssignUserName(){
         return $this->hasOne(User::class,'id','assign_rep');
     }

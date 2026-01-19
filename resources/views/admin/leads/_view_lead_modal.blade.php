@@ -15,6 +15,9 @@
                 <div class="mb-0 position-relative">
                     <!-- Contact Info -->
                     <div class="pe-5">
+                    <div id="uploadMessage" style="display:none;">
+                            File uploaded successfully!
+                        </div>
                         <!-- padding-right so text doesn't clash with dropdown -->
                         <!-- Name -->
                         <div class="d-flex align-items-center mb-1 epf" id="leadFullName" style="gap:4px;">
@@ -173,17 +176,32 @@
                     </div>
                 </div>
 
+                <div class="border rounded p-3 mt-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong>Attachments (<span id="fileCount"
+                                class="fileCount">{{ count($attachments ?? []) }}</span>)</strong>
+                        <button id="addFileBtn" class="btn btn-sm btn-outline-primary">+ Add Files</button>
+                        <input type="file" id="fileInput" hidden>
+                    </div>
+
+                    <ul id="fileList" class="list-unstyled mt-2 mb-0 fileList"></ul>
+                </div>
+
                 <!-- Notes -->
                 <div class="mt-3">
                     <label class="fw-bold">Notes</label>
-                    <textarea class="form-control" placeholder="Add notes about this lead..."></textarea>
+                    <textarea class="form-control lead_notes"
+                        placeholder="Add notes about this lead..."
+                        rows="4"></textarea>
+
+                    <small class="text-muted notes-status d-none">Saving...</small>
                 </div>
 
                 <!-- AI Summary -->
-                <div class="mt-3 p-2 border rounded bg-light">
+                <!-- <div class="mt-3 p-2 border rounded bg-light">
                     <strong>AI Summary</strong>
                     <p class="text-muted">AI summary will be generated based on interactions and actions...</p>
-                </div>
+                </div> -->
             </div>
 
             <!-- Footer -->
@@ -502,4 +520,94 @@ function playRecording(fullUrl, recording_id, button) {
     });
 }
 
+
+$(document).on('blur', '.lead_notes', function () {
+    let leadId = $('.lead_id').val();
+    let notes  = $(this).val();
+
+    if (!leadId) return;
+
+    $('.notes-status').removeClass('d-none').text('Saving...');
+
+    $.ajax({
+        url: "{{ route('admin.updateLeadNotes') }}",
+        type: "POST",
+        data: {
+            _token: "{{ csrf_token() }}",
+            lead_id: leadId,
+            notes: notes
+        },
+        success: function (res) {
+            $('.notes-status').text('Saved').fadeOut(1500);
+        },
+        error: function () {
+            $('.notes-status').text('Failed to save').addClass('text-danger');
+        }
+    });
+});
+
+
+</script>
+
+<style>
+    #uploadMessage {
+    background-color: #d4edda;      /* light green background */
+    color: #155724;                 /* dark green text */
+    border: 2px solid #28a745;      /* green border */
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+</style>
+<script>
+
+function showUploadMessage() {
+    $('#uploadMessage')
+        .stop(true, true)
+        .fadeIn(500)      // fade in 0.5 sec
+        .delay(3000)      // visible for 3 sec
+        .fadeOut(500);    // fade out 0.5 sec
+}
+
+$(function() {
+    $('#addFileBtn').on('click', function() {
+        $('#fileInput').click();
+    });
+
+    $('#fileInput').on('change', function() {
+        let leadId = $('.lead_id').val();
+        let file = this.files[0];
+        let formData = new FormData();
+        formData.append('file', file);
+        formData.append('lead_id', leadId);
+        formData.append('_token', '{{ csrf_token() }}');
+
+        $.ajax({
+            url: '{{ route("admin.leadImages") }}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(res) {
+                showUploadMessage();
+                $('#fileList').append(
+                    `<li><a href="${res.file_url}" target="_blank">${res.file_name}</a></li>`
+                );
+                $('#fileCount').text($('#fileList li').length);
+                $('#fileInput').val('');
+            },
+            error: function(err) {
+                alert('Upload failed!');
+            }
+        });
+    });
+});
 </script>

@@ -354,6 +354,8 @@ strong {
                 return;
             }
 
+            console.log('>>>>>>>>>>>>>>',lead.notes);
+
             // Fill modal fields with fallbacks
             $('.lead_id').val(lead?.id ?? '');
             $('.follow_up').attr('data-id', lead?.id ?? '');
@@ -369,7 +371,7 @@ strong {
             $('.lead_phone').text(lead.phone ?? 'N/A');
             $('.lead_address').text(lead.address ?? 'N/A');
             $('.lead_status').val(lead.status ?? 'N/A');
-
+            $('.lead_notes').text(lead.notes ?? 'N/A');
             // Handle nested objects safely
             $('.lead_source').text(lead.lead_source?.source ?? 'N/A');
             $('.lead_roof_type').text(lead.roof_type ?? 'N/A');

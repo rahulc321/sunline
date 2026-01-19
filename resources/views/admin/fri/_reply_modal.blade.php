@@ -34,7 +34,7 @@
                             <!-- you can use ph-image if you prefer image icon -->
                         </label>
                         <input type="file" name="attachment" id="reply_attachment" class="d-none" accept="image/*">
-
+                        <small id="file_preview" class="text-muted d-block mt-1"></small>
                         <!-- Textarea -->
                         <textarea id="reply_message" name="message" class="form-control form-control-sm flex-grow-1"
                             rows="2" placeholder="Type your reply..." required></textarea>
@@ -159,11 +159,48 @@ $(document).on('click', '.reply', function() {
     }, 2000);
 });
 
-// clear the interval when modal closes
-$('#replyModel').on('hidden.bs.modal', function () {
-    if (replyInterval) clearInterval(replyInterval);
-});
+    // clear the interval when modal closes
+    $('#replyModel').on('hidden.bs.modal', function () {
+        if (replyInterval) clearInterval(replyInterval);
+    });
 
+
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+
+    $('#attachBtn').on('click', function () {
+        $('#reply_attachment').click();
+    });
+
+    $('#reply_attachment').on('change', function () {
+        const file = this.files[0];
+        const preview = $('#file_preview');
+
+        if (!file) {
+            preview.text('');
+            return;
+        }
+
+        // file size validation
+        if (file.size > MAX_FILE_SIZE) {
+            alert('File size must be less than 2MB');
+            $(this).val('');
+            preview.text('');
+            return;
+        }
+
+        // show file name
+        preview.html(`
+            Selected: <strong>${file.name}</strong>
+            <a href="#" id="removeFile" class="text-danger ms-2">Remove</a>
+        `);
+    });
+
+    // remove file
+    $(document).on('click', '#removeFile', function (e) {
+        e.preventDefault();
+        $('#reply_attachment').val('');
+        $('#file_preview').text('');
+    });
 
 // submit reply
 $('#replyForm').on('submit', function(e) {
@@ -181,6 +218,8 @@ $('#replyForm').on('submit', function(e) {
         success: function(res) {
             $('#reply_message').val(''); // clear textarea
             $('#reply_attachment').val(''); // clear file input
+            $('#reply_attachment').val('');
+            $('#file_preview').text('');
             loadReplies(ticketId); // reload replies
         },
         error: function(err) {
