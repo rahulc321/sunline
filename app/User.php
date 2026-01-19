@@ -45,6 +45,12 @@ class User extends Authenticatable
         'deleted_at',
         'remember_token',
         'email_verified_at',
+        'is_email_connected',
+        'email_provider',
+        'connected_email',
+        'google_access_token',
+        'google_refresh_token',
+        'email_connected_at'
     ];
 
     public function __construct(array $attributes = [])

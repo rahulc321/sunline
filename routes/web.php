@@ -63,6 +63,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('friImages', [App\Http\Controllers\Admin\FriController::class, 'fri_images'])->name('friImages');
 
     # timeline
+    Route::get('connectGmail', [App\Http\Controllers\Admin\LeadInboxController::class, 'connectGmail'])->name('connectGmail');
     Route::get('timeline/{leadId}', [App\Http\Controllers\Admin\LeadInboxController::class, 'timeline'])->name('timeline');
 
     Route::get('/gmailConnect/{lead}', [App\Http\Controllers\Admin\GmailController::class, 'gmailConnect'])

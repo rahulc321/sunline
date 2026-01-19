@@ -6,15 +6,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Lead;
 use App\Models\Email;
+use App\User;
 use Google\Client;
 use Google\Service\Gmail;
+use Auth;
 
 class GmailController extends Controller
 {
     /**
      * create google client using env directly
      */
-    private function googleClient(Lead $lead)
+    public function googleClient(User $user)
     {
         $clientId     = env('GOOGLE_CLIENT_ID');
         $clientSecret = env('GOOGLE_CLIENT_SECRET');
@@ -33,19 +35,19 @@ class GmailController extends Controller
         $client->setAccessType('offline');
         $client->setPrompt('consent');
         $client->setScopes([
-            'https://www.googleapis.com/auth/gmail.readonly'
+            'https://www.googleapis.com/auth/gmail.modify'
         ]);
 
         // set token if exists
-        if ($lead->google_access_token) {
-            $client->setAccessToken($lead->google_access_token);
+        if ($user->google_access_token) {
+            $client->setAccessToken($user->google_access_token);
 
-            if ($client->isAccessTokenExpired() && $lead->google_refresh_token) {
+            if ($client->isAccessTokenExpired() && $user->google_refresh_token) {
                 $newToken = $client->fetchAccessTokenWithRefreshToken(
-                    $lead->google_refresh_token
+                    $user->google_refresh_token
                 );
 
-                $lead->update([
+                $user->update([
                     'google_access_token' => $newToken['access_token']
                 ]);
             }
@@ -54,10 +56,11 @@ class GmailController extends Controller
         return $client;
     }
 
+
     /**
      * redirect lead to google oauth
      */
-    public function gmailConnect(Lead $lead)
+    public function gmailConnect(User $lead)
     {
         session(['gmail_lead_id' => $lead->id]);
 
@@ -71,35 +74,36 @@ class GmailController extends Controller
      */
     public function gmailCallback(Request $request)
     {
-        $leadId = session('gmail_lead_id');
-        abort_if(!$leadId, 403);
-
-        $lead = Lead::findOrFail($leadId);
-
-        $client = $this->googleClient($lead);
+        abort_if(!$request->code, 403);
+    
+        $user = Auth::user(); // current logged-in user
+        abort_if(!$user, 403);
+    
+        $client = $this->googleClient($user);
         $token  = $client->fetchAccessTokenWithAuthCode($request->code);
-
+    
         if (isset($token['error'])) {
-            return redirect()->back()->with('error', $token['error_description'] ?? 'Google auth failed');
+            return redirect()->back()
+                ->with('error', $token['error_description'] ?? 'Google auth failed');
         }
-
+    
         $client->setAccessToken($token);
-        $gmail = new Gmail($client);
-
-        // get connected email
+        $gmail = new \Google\Service\Gmail($client);
+    
+        // get connected gmail address
         $profile = $gmail->users->getProfile('me');
-
-        $lead->update([
+    
+        $user->update([
             'email_provider'       => 'gmail',
             'connected_email'      => $profile->getEmailAddress(),
             'google_access_token'  => $token['access_token'],
-            'google_refresh_token' => $token['refresh_token'] ?? $lead->google_refresh_token,
+            'google_refresh_token' => $token['refresh_token'] ?? $user->google_refresh_token,
             'is_email_connected'   => true,
             'email_connected_at'   => now(),
         ]);
-
+    
         return redirect()
-            ->route('admin.timeline', $lead->id)
+            ->route('admin.connectGmail')
             ->with('success', 'Gmail connected successfully');
     }
 
@@ -182,7 +186,7 @@ class GmailController extends Controller
         return null;
     }
 
-    public function gmailDisconnect(Lead $lead)
+    public function gmailDisconnect(User $lead)
     {
         $lead->update([
             'google_access_token'  => null,

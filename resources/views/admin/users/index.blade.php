@@ -93,9 +93,9 @@
                                     </td>
 
                                     <td>
-                                       
+
                                         @foreach($user->roles as $key => $item)
-                                         
+
                                         <span class="badge badge-info bg_s">{{ $item->title }}</span>
                                         @endforeach
                                     </td>
@@ -125,13 +125,13 @@
                                             @csrf
                                             @method('DELETE')
                                                 @foreach($user->roles as $key => $item)
-                                                    @if($item->title !== env('SUPERADMIN'))
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger p-1">
-                                                        <i class="ph-trash"></i>
-                                                    </button>
-                                                    @endif
+                                                @if(!in_array($item->title, ['Admin', env('SUPERADMIN')]))
+                                                <button type="submit" class="btn btn-sm btn-outline-danger p-1">
+                                                    <i class="ph-trash"></i>
+                                                </button>
+                                                @endif
                                                 @endforeach
-                                            
+
                                         </form>
                                         @endcan
 
