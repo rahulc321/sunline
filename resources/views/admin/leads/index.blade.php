@@ -512,6 +512,7 @@ strong {
             $('.lead_phone').text(lead.phone ?? 'N/A');
             $('.lead_address').text(lead.address ?? 'N/A');
             $('.lead_status').val(lead.status ?? 'N/A');
+            $('.lead_notes').text(lead.notes ?? '');
 
             // Handle nested objects safely
             $('.lead_source').text(lead.lead_source?.source ?? 'N/A');
@@ -521,6 +522,20 @@ strong {
 
             // Assign user name safely
             $('.lead_assign_rep').text(lead.get_assign_user_name?.name ?? 'Unassigned');
+
+
+            // attachments
+            $('.fileCount').text('');
+            $(".fileList").html('');
+            let attachHtml = '';
+            if (lead.images && lead.images.length) {
+                lead.images.forEach(file => {
+                    let fileUrl = file.image_path.replace(/^admin\//, '');
+                    attachHtml += `<li><a href="/${fileUrl}" target="_blank">${file.image_path}</a></li>`;
+                });
+            }
+            $('.fileCount').text(lead.images ? lead.images.length : 0);
+            $(".fileList").html(attachHtml);
 
         } catch (error) {
             console.error("Error filling modal data:", error);

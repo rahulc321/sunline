@@ -62,6 +62,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('followupComplete', [App\Http\Controllers\Admin\LeadInboxController::class, 'followupComplete'])->name('followupComplete');
     Route::any('friImages', [App\Http\Controllers\Admin\FriController::class, 'fri_images'])->name('friImages');
 
+    Route::any('updateLeadNotes', [App\Http\Controllers\Admin\LeadInboxController::class, 'updateLeadNotes'])->name('updateLeadNotes');
+
     # timeline
     Route::get('connectGmail', [App\Http\Controllers\Admin\LeadInboxController::class, 'connectGmail'])->name('connectGmail');
     Route::get('timeline/{leadId}', [App\Http\Controllers\Admin\LeadInboxController::class, 'timeline'])->name('timeline');
@@ -69,8 +71,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('/gmailConnect/{lead}', [App\Http\Controllers\Admin\GmailController::class, 'gmailConnect'])
         ->name('gmailConnect');
 
-        Route::any('/gmailDisconnect/{lead}', [App\Http\Controllers\Admin\GmailController::class, 'gmailDisconnect'])
+    Route::any('/gmailDisconnect/{lead}', [App\Http\Controllers\Admin\GmailController::class, 'gmailDisconnect'])
         ->name('gmailDisconnect');
+
+    Route::any('leadImages', [App\Http\Controllers\Admin\LeadInboxController::class, 'leadImages'])->name('leadImages');
 
         
 

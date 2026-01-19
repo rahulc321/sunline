@@ -11,7 +11,7 @@ use App\Models\CaseType;
 use App\Models\LeadFollowUp;
 use App\Models\LeadCommission;
 use App\User;
-use App\Models\{LeadSource, LeadContact, ContactFollowUp};
+use App\Models\{LeadSource, LeadContact, ContactFollowUp, LeadImages};
 use Carbon\Carbon;
 use Gate;
 use App\Models\Lead;
@@ -72,7 +72,7 @@ class LeadInboxController extends Controller
 	
 	public function listLeads(Request $request)
 	{
-		$query = Lead::with('getAssignUserName','leadSource','leadFollowUp')
+		$query = Lead::with('getAssignUserName','leadSource','leadFollowUp','images')
 			->whereNotIn('status', ['Qualified', 'Sold'])
 			->forCurrentUser();
 
@@ -767,6 +767,44 @@ class LeadInboxController extends Controller
 
 		return view('admin.users.timeline',$this->data);
 	}
+
+	// Update lead note
+
+	public function updateLeadNotes(Request $request)
+	{
+		$lead = Lead::findOrFail($request->lead_id);
+		$lead->notes = $request->notes;
+		$lead->save();
+
+		return response()->json(['success' => true]);
+	}
+
+
+	public function leadImages(Request $request)
+    {
+        $request->validate([
+            'lead_id' => 'required|integer',
+            'file'   => 'required|file|max:2048'
+        ]);
+
+        # get original file name
+        $originalName = $request->file('file')->getClientOriginalName();
+
+        # move file to public/fri_images
+        $file = $request->file('file');
+        $file->move(public_path('lead'), $originalName);
+
+        # store in db
+        $image = LeadImages::create([
+            'lead_id'    => $request->lead_id,
+            'image_path' => 'lead/' . $originalName
+        ]);
+
+        return response()->json([
+            'file_name' => $originalName,
+            'file_url'  => asset('lead/'.$originalName)
+        ]);
+    }
 
 
 
