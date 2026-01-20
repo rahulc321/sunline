@@ -46,7 +46,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('listContact', [App\Http\Controllers\Admin\LeadInboxController::class, 'listContact'])->name('listContact');	
     Route::any('updateContact', [App\Http\Controllers\Admin\LeadInboxController::class, 'updateContact'])->name('updateContact');
     Route::any('contactFollowUp/{id}', [App\Http\Controllers\Admin\LeadInboxController::class, 'contactFollowUp'])->name('contactFollowUp');		
-
+    Route::any('deleteImages', [App\Http\Controllers\Admin\LeadInboxController::class, 'deleteImages'])->name('deleteImages');
     # zoom recordings
     
     Route::any('/zoomRecordings/{id}', [App\Http\Controllers\Admin\LeadInboxController::class, 'zoomRecordings']);	

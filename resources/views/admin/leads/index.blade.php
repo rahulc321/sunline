@@ -32,6 +32,7 @@ strong {
     border-radius: 10px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
+
 .badge {
     min-width: calc(var(--badge-padding-y) * 2 + var(--badge-font-size));
     /* box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px; */
@@ -373,8 +374,6 @@ strong {
     .dataTables_wrapper {
         width: 100%;
     }
-
-     
     </style>
 
     <!--Models -->
@@ -415,7 +414,7 @@ strong {
             // scrollY: '100vh',        // vertical scroll (adjust height)
             // scrollX: true,          // horizontal scroll
             // scrollCollapse: true,
-            responsive:false,
+            responsive: false,
             pageLength: 10,
             order: [
                 [0, 'desc']
@@ -514,6 +513,14 @@ strong {
             $('.lead_status').val(lead.status ?? 'N/A');
             $('.lead_notes').text(lead.notes ?? '');
 
+            $('.rejection_url').html(
+                lead.rejection_url ?
+                `<a href="${lead.rejection_url}" target="_blank" rel="noopener noreferrer">
+                        ${lead.rejection_url}
+                    </a>` :
+                ' '
+            );
+
             // Handle nested objects safely
             $('.lead_source').text(lead.lead_source?.source ?? 'N/A');
             $('.lead_roof_type').text(lead.roof_type ?? 'N/A');
@@ -531,7 +538,15 @@ strong {
             if (lead.images && lead.images.length) {
                 lead.images.forEach(file => {
                     let fileUrl = file.image_path.replace(/^admin\//, '');
-                    attachHtml += `<li><a href="/${fileUrl}" target="_blank">${file.image_path}</a></li>`;
+                    attachHtml += `<li><a href="/${fileUrl}" target="_blank">${file.image_path}</a>
+                         <a href="javascript:void(0)"
+                   class="text-danger delete-lead-image"
+                   data-id="${file.id}"
+                   data-tble="lead_images"
+                   title="Delete">
+                    <i class="fa fa-trash">Delete</i>
+                </a>
+                    </li>`;
                 });
             }
             $('.fileCount').text(lead.images ? lead.images.length : 0);

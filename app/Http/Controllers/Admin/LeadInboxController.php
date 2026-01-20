@@ -806,6 +806,19 @@ class LeadInboxController extends Controller
         ]);
     }
 
+	public function deleteImages(Request $request)
+	{
+		DB::table($request->tble)
+        ->where('id', $request->id)
+        ->delete();
+
+		return response()->json([
+			'status' => true,
+			'message' => 'Deleted successfully'
+		]);
+	}
+
+
 
 
 
