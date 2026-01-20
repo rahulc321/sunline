@@ -202,6 +202,14 @@ strong {
             $('.lead_address').text(lead.address ?? 'N/A');
             $('.lead_status').val(lead.status ?? 'N/A');
 
+            $('.rejection_url').html(
+                lead.rejection_url
+                    ? `<a href="${lead.rejection_url}" target="_blank" rel="noopener noreferrer">
+                        ${lead.rejection_url}
+                    </a>`
+                    : ''
+            );
+
             // Handle nested objects safely
             $('.lead_source').text(lead.lead_source?.source ?? 'N/A');
             $('.lead_roof_type').text(lead.roof_type ?? 'N/A');

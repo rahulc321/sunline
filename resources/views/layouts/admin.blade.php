@@ -703,6 +703,39 @@ setInterval(fetchNotifications, 10000);
 
 // initial load
 fetchNotifications();
+
+
+$(document).on('click', '.delete-lead-image', function () {
+
+    const imageId = $(this).data('id');
+    const li = $(this).closest('li');
+    const tble = $(this).data('tble');
+
+    if (!confirm('Are you sure you want to delete this image?')) {
+        return;
+    }
+
+    $.ajax({
+        url: "{{route('admin.deleteImages')}}",
+        type: "POST",
+        data: {
+            _token: "{{ csrf_token() }}",
+            id: imageId,
+            tble:tble
+        },
+        success: function (res) {
+            if (res.status) {
+                li.remove(); // remove from UI
+            } else {
+                alert(res.message || 'Failed to delete image');
+            }
+        },
+        error: function () {
+            alert('Something went wrong');
+        }
+    });
+});
+
 </script>
 
 

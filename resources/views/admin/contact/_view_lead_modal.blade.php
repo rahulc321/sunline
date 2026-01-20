@@ -169,8 +169,8 @@
 
                 <!-- AI Summary -->
                 <div class="mt-3 p-2 border rounded bg-light">
-                    <strong>AI Summary</strong>
-                    <p class="text-muted">AI summary will be generated based on interactions and actions...</p>
+                    <strong>Rejection Url</strong>
+                    <p class="text-muted rejection_url"></p>
                 </div>
             </div>
 

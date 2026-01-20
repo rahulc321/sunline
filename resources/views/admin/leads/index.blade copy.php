@@ -372,6 +372,8 @@ strong {
             $('.lead_address').text(lead.address ?? 'N/A');
             $('.lead_status').val(lead.status ?? 'N/A');
             $('.lead_notes').text(lead.notes ?? 'N/A');
+            alert(lead.rejection_url);
+            $('.rejection_url').text(lead.rejection_url ?? 'N/A');
             // Handle nested objects safely
             $('.lead_source').text(lead.lead_source?.source ?? 'N/A');
             $('.lead_roof_type').text(lead.roof_type ?? 'N/A');
