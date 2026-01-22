@@ -402,6 +402,11 @@ strong {
                 <div class="text-muted mb-2">
                     <i class="ph-map-pin me-1"></i> ${lead.address ?? ''}
                 </div>
+
+                 <div class="text-muted mb-2">
+                Created At :
+                 ${lead.created_at ?? ''}
+                </div>
                 <div class="text-muted">
                     Source: <strong class="text-dark">${lead.lead_source?.source ?? ''}</strong> &nbsp;|&nbsp;
                     Follow-ups: <strong class="text-dark">${lead.lead_follow_up_count ?? 0}</strong> &nbsp;|&nbsp;

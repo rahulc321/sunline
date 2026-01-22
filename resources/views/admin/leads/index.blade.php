@@ -342,6 +342,7 @@ strong {
                                                 Lead Sourse
                                             </th>
                                             <th>Category</th>
+                                            <th>Created At</th>
                                             <th>
                                                 Action
                                             </th>
@@ -462,6 +463,10 @@ strong {
                 {
                     data: 'category',
                     name: 'category'
+                },
+                {
+                    data: 'created_at',
+                    name: 'created_at'
                 },
                 {
                     data: 'action',

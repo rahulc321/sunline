@@ -262,6 +262,11 @@ strong {
             <div class="text-muted mb-2">
                 <i class="ph-map-pin me-1"></i> ${lead.address ?? ''}
             </div>
+
+            <div class="text-muted mb-2">
+                Created At :
+                 ${lead.created_at ?? ''}
+            </div>
         </div>
         <div class="d-flex flex-column align-items-end">
             <div class="d-flex align-items-center mb-2">

@@ -99,6 +99,12 @@ class LeadInboxController extends Controller
 				return $lead->first_name .' '.$lead->last_name;
 			})
 
+			->addColumn('created_at', function ($lead) {
+				return $lead->created_at
+					? $lead->created_at->format('m-d-Y')
+					: '';
+			})
+
 			->addColumn('status', function ($lead) {
 
 				$status = $lead->status ?? '';

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\User;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Auth;
+use Carbon\Carbon;
 
 class Lead extends Model
 {
@@ -44,5 +45,10 @@ class Lead extends Model
 
         # if Admin or Director → no restriction
         return $query;
+    }
+
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->format('d-m-Y');
     }
 }
