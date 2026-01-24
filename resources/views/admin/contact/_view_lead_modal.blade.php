@@ -10,6 +10,7 @@
             <input type="hidden" name="lead_id" class="lead_id">
             <input type="hidden" name="send_email_view" class="send_email_view">
             <!-- Body -->
+             
             <div class="modal-body">
                 <!-- Contact Info -->
                 <div class="mb-0 position-relative">
@@ -122,40 +123,7 @@
                     <div class="col-md-6">
                         <div class="border p-3 rounded">
                             <h6 class="fw-bold">Call Logs</h6>
-                            <ul class="list-unstyled">
-                                <li class="log-item">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <span class="me-2 text-success">📞</span>
-                                            <strong>02 Aug 2025</strong> • 3:12 min
-                                            <div class="text-muted small">Contacted</div>
-                                        </div>
-                                        <button class="btn btn-sm btn-outline-primary">🎵 Recording</button>
-                                    </div>
-                                </li>
-
-                                <li class="log-item">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <span class="me-2 text-warning">📞</span>
-                                            <strong>04 Aug 2025</strong> • 2:05 min
-                                            <div class="text-muted small">Voicemail</div>
-                                        </div>
-                                        <button class="btn btn-sm btn-outline-primary">🎵 Recording</button>
-                                    </div>
-                                </li>
-
-                                <li class="log-item">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <span class="me-2 text-danger">📞</span>
-                                            <strong>06 Aug 2025</strong> • 0:08 min
-                                            <div class="text-muted small">Rejected</div>
-                                        </div>
-                                        <button class="btn btn-sm btn-outline-secondary">No Recording</button>
-                                    </div>
-                                </li>
-                            </ul>
+                            <div class="call-logs"></div>
 
                         </div>
                     </div>

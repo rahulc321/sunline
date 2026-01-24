@@ -736,6 +736,151 @@ $(document).on('click', '.delete-lead-image', function () {
     });
 });
 
+
+// when the modal is shown
+$('#leadDetailsModal').on('shown.bs.modal', function() {
+    let leadId = $('.lead_id').val(); // get lead ID from hidden input
+    //alert(leadId);
+
+    // show loading message
+    $(".call-logs").html('<li class="text-info">Loading call logs...</li>');
+
+    $.ajax({
+        url: '/admin/zoomRecordings/' + leadId,
+        type: 'GET',
+        success: function(response) {
+            if (response.success) {
+                renderCallLogs(response.logs);
+            } else {
+                $(".call-logs").html('<li class="text-danger">No call logs found.</li>');
+            }
+        },
+        error: function() {
+            $(".call-logs").html('<li class="text-danger">Error fetching logs.</li>');
+        }
+    });
+});
+
+
+// Render logs into the <ul>
+function renderCallLogs(logs) {
+    if (logs.length === 0) {
+        $(".call-logs").html('<li class="text-muted">No call logs available</li>');
+        return;
+    }
+    // alert(logs.length);
+    let html = '';
+    logs.forEach(log => {
+        // status color based on call duration or type
+        let statusClass = 'text-muted';
+        if (log.duration > 0) statusClass = 'text-success'; // example: contacted
+        else statusClass = 'text-warning';
+
+        // direction: already provided by API
+        let direction = log.direction.charAt(0).toUpperCase() + log.direction.slice(1); // Inbound/Outbound
+
+        // show other party number
+        let phoneNumber = direction === 'Inbound' ? log.caller_number : log.callee_number;
+
+        // convert duration from seconds to minutes:seconds
+        let minutes = Math.floor(log.duration / 60);
+        let seconds = log.duration % 60;
+        let durationFormatted = `${minutes}:${seconds.toString().padStart(2,'0')} min`;
+
+        // recording button
+        let btn = log.download_url ?
+        `<div class="audio-item">
+            <button class="btn btn-sm btn-outline-primary play-btn"
+                    onclick="playRecording('${log.download_url}', '${log.recording_id}', this)">
+                🎵 Play
+            </button>
+            <audio class="zoom-player" controls style="display:none;"></audio>
+        </div>` :
+        `<div class="audio-item">
+            <button class="btn btn-sm btn-outline-secondary" disabled>
+                No Recording
+            </button>
+            <audio class="zoom-player" controls style="display:none;"></audio>
+        </div>`;
+        
+        html += `
+        <li class="log-item" style="list-style: none;">
+            <div class="d-flex justify-content-between align-items-center">
+               <div class="small">
+                    <span class="me-2 ${statusClass}">📞</span>
+                    <strong>${new Date(log.start_time).toLocaleString()}</strong> ${durationFormatted}
+                    <div class="text-info">${direction} • ${phoneNumber}</div>
+                </div>
+                ${btn}
+            </div>
+        </li>
+    `;
+    });
+
+
+    $(".call-logs").html(html);
+}
+
+// create the audio player only once
+if (!document.getElementById('zoom-player')) {
+    const audio = document.createElement('audio');
+    audio.id = 'zoom-player';
+    audio.controls = true;
+    audio.style.display = 'none';
+    audio.style.marginTop = '10px';
+    document.body.appendChild(audio);
+}
+
+// function to play recording
+function playRecording(fullUrl, recording_id, button) {
+    const btn = $(button); // the clicked button
+    const container = btn.closest('.audio-item'); // wrapper div for this audio
+    const player = container.find('.zoom-player')[0];
+
+    // show loading state
+    const originalText = btn.text();
+    btn.text('Loading...');
+    btn.prop('disabled', true);
+
+    // pause all other players
+    $('.zoom-player').each(function() {
+        if (this !== player) {
+            this.pause();
+            $(this).hide();
+            $(this).closest('.audio-item').find('.play-btn').show().text('🎵 Play').prop('disabled', false);
+        }
+    });
+
+    $.ajax({
+        url: "{{route('admin.audioUrl')}}",
+        type: 'POST',
+        data: {
+            full_url: fullUrl,
+            recording_id: recording_id
+        },
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            btn.prop('disabled', false);
+            if (response.url) {
+                btn.hide();
+                player.src = response.url;
+                player.style.display = 'inline-block';
+                player.play().catch(err => console.error("Playback error:", err));
+            } else {
+                alert('Recording not available');
+                btn.text(originalText);
+            }
+        },
+        error: function() {
+            alert('Failed to fetch recording.');
+            btn.text(originalText);
+            btn.prop('disabled', false);
+        }
+    });
+}
+
 </script>
 
 
