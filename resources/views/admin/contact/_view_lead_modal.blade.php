@@ -10,6 +10,7 @@
             <input type="hidden" name="lead_id" class="lead_id">
             <input type="hidden" name="send_email_view" class="send_email_view">
             <!-- Body -->
+             
             <div class="modal-body">
                 <!-- Contact Info -->
                 <div class="mb-0 position-relative">
