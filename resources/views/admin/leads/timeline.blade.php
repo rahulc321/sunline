@@ -5,252 +5,157 @@
     <div class="card">
         <div class="card-body">
 
-            <!-- TOP TABS -->
-            <ul class="nav nav-tabs mb-4" role="tablist">
+            <ul class="nav nav-tabs mb-4">
                 <li class="nav-item">
-                    <a class="nav-link active" data-bs-toggle="tab" href="#connect-email" role="tab">
-                        Connect email
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#sync-contacts" role="tab">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#sync-contacts">
                         Sync contacts
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#calendar" role="tab">
-                        Calendar and Conferencing
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-bs-toggle="tab" href="#email" role="tab">
-                        Email
                     </a>
                 </li>
             </ul>
 
-            <!-- TAB CONTENT -->
             <div class="tab-content">
 
-                <!-- CONNECT EMAIL TAB -->
-                <div class="tab-pane fade show active" id="connect-email" role="tabpanel">
+                <div class="tab-pane fade show active" id="sync-contacts">
 
-                    <div class="mb-3 text-muted">
-                        Once you connect your email to the CRM, you can
-                    </div>
+@php
+$syncedEmail = 'rahulidcsoftwares@gmail.com';
+$leadEmail   = 'arvinditc007@gmail.com';
 
-                    <ul class="list-unstyled mb-4">
-                        <li>
-                            <i class="ph-check-circle text-success me-2"></i>
-                            Send and receive emails
-                        </li>
-                        <li>
-                            <i class="ph-check-circle text-success me-2"></i>
-                            Track your emails live for opens and clicks
-                        </li>
-                    </ul>
+$threadIds = DB::table('gmails')
+    ->where('user_id', auth()->id())
+    ->where(function ($q) use ($syncedEmail, $leadEmail) {
+        $q->where(function ($qq) use ($syncedEmail, $leadEmail) {
+            $qq->where('from', 'like', "%$syncedEmail%")
+               ->where('to', 'like', "%$leadEmail%");
+        })
+        ->orWhere(function ($qq) use ($syncedEmail, $leadEmail) {
+            $qq->where('from', 'like', "%$leadEmail%")
+               ->where('to', 'like', "%$syncedEmail%");
+        });
+    })
+    ->pluck('thread_id')
+    ->unique();
 
-                    <h6 class="mb-3">Select your email provider:</h6>
+$conversations = DB::table('gmails')
+    ->where('user_id', auth()->id())
+    ->whereIn('thread_id', $threadIds)
+    ->orderBy('created_at')
+    ->get()
+    ->groupBy('thread_id');
+@endphp
 
-                    <div class="row g-3">
-                        <div class="col-12 col-md-6">
+@forelse($conversations as $threadId => $messages)
+@php $firstMail = $messages->first(); @endphp
 
-                            @if($lead->is_email_connected && $lead->email_provider === 'gmail')
+<div class="chat-card mb-4">
 
-                            <!-- CONNECTED STATE -->
-                            <div class="provider-card selected w-100 p-3 text-start">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-center">
-                                        <img src="https://www.gstatic.com/images/branding/product/2x/gmail_48dp.png"
-                                            alt="Gmail" height="36" class="me-3">
+    <div class="chat-header">
+        <strong>{{ $firstMail->subject ?? '(No Subject)' }}</strong>
+    </div>
 
-                                        <div>
-                                            <div class="fw-bold">Gmail</div>
-                                            <small class="text-muted">
-                                                {{ $lead->connected_email }}
-                                            </small>
-                                        </div>
-                                    </div>
+    <div class="chat-body">
+        @foreach($messages as $mail)
+        @php $isSent = $mail->folder === 'sent'; @endphp
 
-                                    <span class="badge bg-success d-flex align-items-center">
-                                        <span class="pulse-dot me-2"></span>
-                                        Connected
-                                    </span>
-                                </div>
-
-                                <div class="mt-3 text-end">
-
-
-                                    <a href="{{ route('admin.gmailDisconnect', $lead->id) }}"
-                                        class="btn btn-outline-danger btn-sm"
-                                        onclick="return confirm('Are you sure you want to disconnect this Gmail account?');">
-                                        Disconnect
-                                    </a>
-                                </div>
-                            </div>
-
-                            @else
-
-                            <!-- NOT CONNECTED STATE -->
-                            <a href="{{ route('admin.gmailConnect', [$lead->id]) }}" class="text-decoration-none">
-                                <div class="provider-card w-100 p-3 text-start">
-                                    <div class="d-flex align-items-center">
-                                        <img src="https://www.gstatic.com/images/branding/product/2x/gmail_48dp.png"
-                                            alt="Gmail" height="36" class="me-3">
-
-                                        <div>
-                                            <div class="fw-bold">Gmail</div>
-                                            <small class="text-muted">
-                                                We recommend this provider.
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-
-                            @endif
-
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- SYNC CONTACTS TAB -->
-                <div class="tab-pane fade" id="sync-contacts" role="tabpanel">
-                    <?php
-                   $email = 'rahulidcsoftwares@gmail.com';
-
-                   $threadIds = \DB::table('gmails')
-                       ->where('user_id', auth()->id())
-                       ->where(function ($q) use ($email) {
-                           $q->where('from', 'like', "%$email%")
-                             ->orWhere('to', 'like', "%$email%");
-                       })
-                       ->pluck('thread_id')
-                       ->unique();
-
-                    $conversations = \DB::table('gmails')
-                       ->where('user_id', auth()->id())
-                       ->whereIn('thread_id', $threadIds)
-                       ->orderBy('thread_id')
-                       ->orderBy('created_at', 'desc')
-                       ->get()
-                       ->groupBy('thread_id');
-                    ?>
-
-
-                    @foreach($conversations as $threadId => $messages)
-                    <div class="card mb-3">
-                        <div class="card-header">
-                            <strong>Conversation</strong> (Thread: {{ $threadId }})
-                        </div>
-
-                        <div class="card-body">
-                            @foreach($messages as $mail)
-                            <div class="mb-3 p-2 {{ $mail->folder === 'sent' ? 'text-end bg-light' : '' }}">
-                                <p class="mb-1">
-                                    <strong>From:</strong> {{ $mail->from }} <br>
-                                    <strong>To:</strong> {{ $mail->to }}
-                                </p>
-
-                                <div class="border p-2">
-                                {!! str_replace('"', ' &quot;', $mail->body) !!}
-                                </div>
-
-                                <small class="text-muted">
-                                    {{ \Carbon\Carbon::parse($mail->created_at)->format('d M Y, h:i A') }}
-                                </small>
-                            </div>
-                            @endforeach
-
-                            <!-- Reply button -->
-                            <a href="#" class="btn btn-sm btn-primary">
-                                Reply
-                            </a>
-                        </div>
-                    </div>
-                    @endforeach
-
-                </div>
-
-                <!-- CALENDAR TAB -->
-                <div class="tab-pane fade" id="calendar" role="tabpanel">
-                    <p class="text-muted">Calendar integration settings will appear here.</p>
-                </div>
-
-                <!-- EMAIL TAB -->
-                <div class="tab-pane fade" id="email" role="tabpanel">
-                    <p class="text-muted">Email preferences will appear here.</p>
-                </div>
-
+        <div class="chat-message {{ $isSent ? 'sent' : '' }}">
+            <div class="chat-avatar">
+                {{ strtoupper(substr($isSent ? 'You' : $mail->from, 0, 1)) }}
             </div>
 
+            <div class="chat-bubble">
+                <div class="chat-meta">
+                    <strong>{{ $isSent ? 'You' : $mail->from }}</strong>
+                    <span>{{ \Carbon\Carbon::parse($mail->created_at)->format('d M Y h:i A') }}</span>
+                </div>
+                <div class="chat-text">{!! nl2br(e($mail->body)) !!}</div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+
+    <div class="chat-footer">
+        <button class="btn btn-sm btn-primary reply-btn" data-thread="{{ $threadId }}">
+            Reply
+        </button>
+    </div>
+
+    <div class="reply-box d-none" id="reply-box-{{ $threadId }}">
+        <textarea class="form-control mb-2" rows="3"
+                  id="reply-text-{{ $threadId }}"
+                  placeholder="Type your reply..."></textarea>
+
+        <div class="text-end">
+            <button class="btn btn-success btn-sm send-reply"
+                    data-thread="{{ $threadId }}">
+                Send
+            </button>
+        </div>
+    </div>
+
+</div>
+@empty
+<p class="text-muted text-center">No conversations found</p>
+@endforelse
+
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- INLINE STYLES -->
 <style>
-.provider-card {
-    border: 1px solid #e9eef6;
-    border-radius: 8px;
-    background: #fff;
-    cursor: pointer;
-    transition: .2s ease;
-}
-
-.provider-card:hover {
-    box-shadow: 0 6px 18px rgba(16, 24, 40, .08);
-}
-
-.provider-card.selected {
-    border-color: #1f6feb;
-    box-shadow: 0 6px 18px rgba(31, 111, 235, .15);
-}
-
-.nav-tabs .nav-link {
-    color: #3b4a6b;
-}
-
-/* CONNECTED ANIMATION */
-.pulse-dot {
-    width: 8px;
-    height: 8px;
-    background: #ffffff;
-    border-radius: 50%;
-    animation: pulse 1.4s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-
-    70% {
-        transform: scale(2);
-        opacity: 0;
-    }
-
-    100% {
-        transform: scale(1);
-        opacity: 0;
-    }
-}
-
-.provider-card.selected {
-    border-color: #00a06a !important;
-    /* box-shadow: 0 6px 18px rgba(31, 111, 235, .15); */
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
-}
-
-.provider-card {
-    border: 1px solid #df0d0d;
-    border-radius: 8px;
-    background: #fff;
-    cursor: pointer;
-    transition: .2s ease;
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
-}
+.chat-card{border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}
+.chat-header{padding:12px;background:#f9fafb;border-bottom:1px solid #e5e7eb}
+.chat-body{padding:15px;max-height:350px;overflow-y:auto}
+.chat-message{display:flex;margin-bottom:15px}
+.chat-message.sent{flex-direction:row-reverse}
+.chat-avatar{width:36px;height:36px;background:#1f6feb;color:#fff;
+border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;margin:0 10px}
+.chat-message.sent .chat-avatar{background:#00a06a}
+.chat-bubble{background:#f1f5f9;border-radius:10px;padding:10px;max-width:70%}
+.chat-message.sent .chat-bubble{background:#dcfce7}
+.chat-meta{font-size:12px;color:#6b7280;margin-bottom:4px;display:flex;justify-content:space-between}
+.chat-footer{padding:10px;border-top:1px solid #e5e7eb;text-align:right}
+.reply-box{padding:12px;border-top:1px solid #e5e7eb;background:#fafafa}
 </style>
+
+<script>
+document.addEventListener('click', function (e) {
+
+    if (e.target.classList.contains('reply-btn')) {
+        const id = e.target.dataset.thread;
+        document.getElementById('reply-box-' + id).classList.toggle('d-none');
+    }
+
+    if (e.target.classList.contains('send-reply')) {
+        const id = e.target.dataset.thread;
+        const text = document.getElementById('reply-text-' + id).value;
+
+        if (!text.trim()) {
+            alert('Message is empty');
+            return;
+        }
+
+        fetch("{{ route('admin.gmailReply') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({
+                thread_id: id,
+                message: text
+            })
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (res.status) {
+                location.reload();
+            } else {
+                alert(res.message);
+            }
+        });
+    }
+});
+</script>
 @endsection

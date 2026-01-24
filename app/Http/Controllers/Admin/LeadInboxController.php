@@ -622,16 +622,19 @@ class LeadInboxController extends Controller
 		]);
 	}
 
-	public function zoomRecordings($id){
+	public function zoomRecordings($id)
+	{
 		$getLead = Lead::find($id);
-		
-		$cleanPhone = ltrim($getLead->phone, '+61');
-
+	
+		// keep only digits and take last 9
+		$phoneDigits = preg_replace('/\D/', '', $getLead->phone);
+		$last9 = substr($phoneDigits, -9);
+	
 		$logs = DB::table('zoom_phone_recordings')
-			->whereRaw("REPLACE(REPLACE(caller_number, '+61', ''), '+', '') = ?", [$cleanPhone])
-			->orWhereRaw("REPLACE(REPLACE(callee_number, '+61', ''), '+', '') = ?", [$cleanPhone])
+			->whereRaw("RIGHT(REGEXP_REPLACE(caller_number, '[^0-9]', ''), 9) = ?", [$last9])
+			->orWhereRaw("RIGHT(REGEXP_REPLACE(callee_number, '[^0-9]', ''), 9) = ?", [$last9])
 			->get();
-
+	
 		if ($logs->isEmpty()) {
 			return response()->json([
 				'success' => false,
@@ -639,7 +642,7 @@ class LeadInboxController extends Controller
 				'message' => 'No recordings found'
 			]);
 		}
-
+	
 		return response()->json([
 			'success' => true,
 			'logs' => $logs

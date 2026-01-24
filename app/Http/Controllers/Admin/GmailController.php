@@ -6,10 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Lead;
 use App\Models\Email;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
 use App\User;
 use Google\Client;
 use Google\Service\Gmail;
+use Google\Service\Gmail\Message;
 use Auth;
+use DB;
 
 class GmailController extends Controller
 {
@@ -199,4 +203,61 @@ class GmailController extends Controller
 
         return back()->with('success', 'Gmail disconnected successfully');
     }
+
+    public function gmailReply(Request $request)
+    {
+
+       
+        $request->validate([
+            'thread_id'  => 'required',
+            'message'    => 'required|string',
+            //'message_id' => 'required' // original gmail message_id
+        ]);
+
+        $user = auth()->user();
+        //dd(1);
+        /* 1️⃣ Setup Google Client */
+        $client = new Client();
+        $client->setClientId(env('GOOGLE_CLIENT_ID'));
+        $client->setClientSecret(env('GOOGLE_CLIENT_SECRET'));
+        $client->setAccessToken([
+            'access_token'  => $user->google_access_token,
+            'refresh_token' => $user->google_refresh_token,
+        ]);
+
+        /* 2️⃣ Refresh token if expired */
+        // if ($client->isAccessTokenExpired()) {
+        //     $token = $client->fetchAccessTokenWithRefreshToken($user->google_refresh_token);
+        //     $user->update([
+        //         'google_access_token' => $token['access_token']
+        //     ]);
+        // }
+
+        /* 3️⃣ Gmail service */
+        $service = new Gmail($client);
+
+        /* 4️⃣ Build RAW email (RFC 2822) */
+        $rawMessage  = "From: {$user->connected_email}\r\n";
+        $rawMessage .= "To: arvinditc007@gmail.com\r\n";
+        $rawMessage .= "Subject: Re: Conversation\r\n";
+        $rawMessage .= "In-Reply-To: {$request->message_id}\r\n";
+        $rawMessage .= "References: {$request->message_id}\r\n\r\n";
+        $rawMessage .= $request->message;
+
+        /* 5️⃣ Encode message */
+        $mime = rtrim(strtr(base64_encode($rawMessage), '+/', '-_'), '=');
+
+        $msg = new Message();
+        $msg->setRaw($mime);
+        $msg->setThreadId($request->thread_id);
+
+        /* 6️⃣ Send email */
+        $service->users_messages->send('me', $msg);
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Email sent via connected Gmail'
+        ]);
+    }
+
 }

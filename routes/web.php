@@ -74,6 +74,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('/gmailDisconnect/{lead}', [App\Http\Controllers\Admin\GmailController::class, 'gmailDisconnect'])
         ->name('gmailDisconnect');
 
+    Route::any('/gmailReply', [App\Http\Controllers\Admin\GmailController::class, 'gmailReply'])
+        ->name('gmailReply');
+
     Route::any('leadImages', [App\Http\Controllers\Admin\LeadInboxController::class, 'leadImages'])->name('leadImages');
 
         
