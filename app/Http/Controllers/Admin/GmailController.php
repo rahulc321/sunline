@@ -260,4 +260,9 @@ class GmailController extends Controller
         ]);
     }
 
+    public function gmailReplyPage($threadId){
+        $this->data['threadId'] = $threadId;
+        return view('admin.leads.reply',$this->data);
+    }
+
 }

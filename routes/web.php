@@ -79,6 +79,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 
     Route::any('leadImages', [App\Http\Controllers\Admin\LeadInboxController::class, 'leadImages'])->name('leadImages');
 
+    // 
+    Route::any('/gmailReplyPage/{threadId}', [App\Http\Controllers\Admin\GmailController::class, 'gmailReplyPage'])
+        ->name('gmailReplyPage');
+
         
 
    

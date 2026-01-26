@@ -4,6 +4,9 @@ use App\Models\Email;
 use App\Models\Lead;
 use Carbon\Carbon;
 use App\Models\Tier;
+use Google\Client;
+use Google\Service\Gmail;
+use Google\Service\Gmail\Message;
 
 
 if (! function_exists('testFunction')) {
@@ -15,7 +18,138 @@ if (! function_exists('testFunction')) {
 
 
 if (! function_exists('sendGlobalEmail')) {
-    function sendGlobalEmail($to, $subject, $body, $templateId = null, $category = null, $leadId = null,$type = null,$data=[])
+
+  
+
+    function sendGlobalEmail(
+        $to,
+        $subject,
+        $body,
+        $templateId = null,
+        $category = null,
+        $leadId = null,
+        $type = null,
+        $data = [],
+        $threadId = null,     // optional
+        $messageId = null     // optional (for reply)
+    ) {
+        //try {
+
+            /* ===============================
+            | 1️⃣ Replace placeholders
+            =============================== */
+            foreach ($data as $key => $value) {
+                $body    = str_replace('{'.$key.'}', $value, $body);
+                $subject = str_replace('{'.$key.'}', $value, $subject);
+            }
+
+            /* ===============================
+            | 2️⃣ Render Blade template
+            =============================== */
+            $htmlBody = view('admin.emails.custom-email', [
+                'subject' => $subject,
+                'body'    => $body,
+            ])->render();
+
+            /* ===============================
+            | 3️⃣ Gmail OAuth Client
+            =============================== */
+            $user = auth()->user(); // connected gmail user
+
+            $client = new Client();
+            $client->setClientId(env('GOOGLE_CLIENT_ID'));
+            $client->setClientSecret(env('GOOGLE_CLIENT_SECRET'));
+            $client->setAccessType('offline');
+
+            $client->setAccessToken([
+                'access_token'  => $user->google_access_token,
+                'refresh_token' => $user->google_refresh_token,
+            ]);
+
+            if ($client->isAccessTokenExpired()) {
+                $token = $client->fetchAccessTokenWithRefreshToken(
+                    $user->google_refresh_token
+                );
+
+                $user->update([
+                    'google_access_token' => $token['access_token']
+                ]);
+
+                $client->setAccessToken($token);
+            }
+
+            /* ===============================
+            | 4️⃣ Gmail Service
+            =============================== */
+            $service = new Gmail($client);
+
+            /* ===============================
+            | 5️⃣ Build RAW HTML Email
+            =============================== */
+            $boundary = uniqid();
+
+            $raw =
+                "From: {$user->connected_email}\r\n" .
+                "To: {$to}\r\n" .
+                "Subject: {$subject}\r\n" .
+                "MIME-Version: 1.0\r\n" .
+                "Content-Type: multipart/alternative; boundary=\"$boundary\"\r\n";
+
+            // threading headers (optional)
+            if ($messageId) {
+                $raw .=
+                    "In-Reply-To: {$messageId}\r\n" .
+                    "References: {$messageId}\r\n";
+            }
+
+            $raw .= "\r\n" .
+                "--$boundary\r\n" .
+                "Content-Type: text/html; charset=UTF-8\r\n\r\n" .
+                $htmlBody . "\r\n\r\n" .
+                "--$boundary--";
+
+            $encoded = rtrim(
+                strtr(base64_encode($raw), '+/', '-_'),
+                '='
+            );
+
+            $gmailMessage = new Message();
+            $gmailMessage->setRaw($encoded);
+
+            if ($threadId) {
+                $gmailMessage->setThreadId($threadId);
+            }
+
+            /* ===============================
+            | 6️⃣ Send Email
+            =============================== */
+            $service->users_messages->send('me', $gmailMessage);
+
+            /* ===============================
+            | 7️⃣ Save to DB (unchanged)
+            =============================== */
+            Email::create([
+                'template_id'     => $templateId,
+                'category'        => $category,
+                'subject'         => $subject,
+                'body'            => $body,
+                'type'            => $type,
+                'recipient_email' => $to,
+                'lead_id'         => $leadId,
+            ]);
+
+            return true;
+
+        // } catch (\Exception $e) {
+        //     \Log::error('Gmail send failed: '.$e->getMessage());
+        //     return false;
+        // }
+    }
+
+
+
+
+    function sendGlobalEmail_old($to, $subject, $body, $templateId = null, $category = null, $leadId = null,$type = null,$data=[])
     {
 		//try {
             # replace placeholders
