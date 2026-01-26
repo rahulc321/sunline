@@ -14,7 +14,6 @@
             </ul>
 
             <div class="tab-content">
-
                 <div class="tab-pane fade show active" id="sync-contacts">
 
                     @php
@@ -73,24 +72,17 @@
                             @endforeach
                         </div>
 
-                        <div class="chat-footer">
-                            <!-- <button class="btn btn-sm btn-primary reply-btn" data-thread="{{ $threadId }}">
-                                Reply
-                            </button> -->
+                        {{-- Reply Box --}}
+                        <div class="reply-box">
+                            <form class="reply-form" data-thread="{{ $threadId }}">
+                                <textarea class="form-control ck-editor" id="editor-{{ $threadId }}"
+                                    placeholder="Type your reply..."></textarea>
 
-                            <a href="{{route('admin.gmailReplyPage',[$threadId])}}">Reply</a>
+                                <div class="text-end mt-2">
+                                    <button class="btn btn-sm btn-primary">Send Reply</button>
+                                </div>
+                            </form>
                         </div>
-
-                        <!-- <div class="reply-box d-none" id="reply-box-{{ $threadId }}">
-                            <textarea class="form-control mb-2" rows="3" id="reply-text-{{ $threadId }}"
-                                placeholder="Type your reply..."></textarea>
-
-                            <div class="text-end">
-                                <button class="btn btn-success btn-sm send-reply" data-thread="{{ $threadId }}">
-                                    Send
-                                </button>
-                            </div>
-                        </div> -->
 
                     </div>
                     @empty
@@ -103,32 +95,84 @@
     </div>
 </div>
 
+{{-- CKEditor --}}
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+
+<script>
+let editors = {};
+
+// init ckeditor for each reply box
+document.querySelectorAll('.ck-editor').forEach(el => {
+    ClassicEditor.create(el)
+        .then(editor => {
+            editors[el.id] = editor;
+        })
+        .catch(err => console.error(err));
+});
+
+// submit reply
+document.addEventListener('submit', function(e) {
+
+    if (!e.target.classList.contains('reply-form')) return;
+    e.preventDefault();
+
+    const threadId = e.target.dataset.thread;
+    const editor = editors['editor-' + threadId];
+    const message = editor.getData();
+
+    if (!message.trim()) {
+        alert('Message is empty');
+        return;
+    }
+
+    fetch("{{ route('admin.gmailReply') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({
+                thread_id: threadId,
+                message: message
+            })
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (res.status) {
+                location.reload();
+            } else {
+                alert(res.message || 'Failed');
+            }
+        });
+});
+</script>
+
 <style>
 .chat-card {
     border: 1px solid #e5e7eb;
     border-radius: 10px;
-    overflow: hidden
+    overflow: hidden;
 }
 
 .chat-header {
     padding: 12px;
     background: #f9fafb;
-    border-bottom: 1px solid #e5e7eb
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .chat-body {
     padding: 15px;
     max-height: 350px;
-    overflow-y: auto
+    overflow-y: auto;
 }
 
 .chat-message {
     display: flex;
-    margin-bottom: 15px
+    margin-bottom: 15px;
 }
 
 .chat-message.sent {
-    flex-direction: row-reverse
+    flex-direction: row-reverse;
 }
 
 .chat-avatar {
@@ -141,22 +185,22 @@
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    margin: 0 10px
+    margin: 0 10px;
 }
 
 .chat-message.sent .chat-avatar {
-    background: #00a06a
+    background: #00a06a;
 }
 
 .chat-bubble {
     background: #f1f5f9;
     border-radius: 10px;
     padding: 10px;
-    max-width: 70%
+    max-width: 70%;
 }
 
 .chat-message.sent .chat-bubble {
-    background: #dcfce7
+    background: #dcfce7;
 }
 
 .chat-meta {
@@ -164,59 +208,17 @@
     color: #6b7280;
     margin-bottom: 4px;
     display: flex;
-    justify-content: space-between
-}
-
-.chat-footer {
-    padding: 10px;
-    border-top: 1px solid #e5e7eb;
-    text-align: right
+    justify-content: space-between;
 }
 
 .reply-box {
     padding: 12px;
     border-top: 1px solid #e5e7eb;
-    background: #fafafa
+    background: #fafafa;
+}
+
+.reply-box .ck-editor__editable {
+    min-height: 120px;
 }
 </style>
-
-<script>
-document.addEventListener('click', function(e) {
-
-    if (e.target.classList.contains('reply-btn')) {
-        const id = e.target.dataset.thread;
-        document.getElementById('reply-box-' + id).classList.toggle('d-none');
-    }
-
-    if (e.target.classList.contains('send-reply')) {
-        const id = e.target.dataset.thread;
-        const text = document.getElementById('reply-text-' + id).value;
-
-        if (!text.trim()) {
-            alert('Message is empty');
-            return;
-        }
-
-        fetch("{{ route('admin.gmailReply') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({
-                    thread_id: id,
-                    message: text
-                })
-            })
-            .then(res => res.json())
-            .then(res => {
-                if (res.status) {
-                    location.reload();
-                } else {
-                    alert(res.message);
-                }
-            });
-    }
-});
-</script>
 @endsection
