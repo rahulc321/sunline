@@ -132,6 +132,14 @@ class LeadInboxController extends Controller
 				';
 			})
 
+			->addColumn('address', function ($lead) {
+				return trim(implode(', ', array_filter([
+					$lead->address,
+					$lead->suburb,
+					$lead->state ? $lead->state . ' ' . $lead->postcode : $lead->postcode,
+				])));
+			})
+
 			->addColumn('category', function ($lead) {
 
 				$html = 'Category: <strong class="text-dark">'.($lead->category ?? '').'</strong>';
