@@ -764,6 +764,7 @@ class LeadInboxController extends Controller
 
 		//dd(\Hash::make('password'));
 		$this->data['lead'] = User::find(Auth::Id());
+		$this->data['lData'] = Lead::find($id);
 
 		if(!$this->data['lead']){
 			return back()->with('error', 'Lead not found');
