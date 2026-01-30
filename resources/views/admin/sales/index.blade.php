@@ -400,7 +400,7 @@ strong {
                     <i class="ph-envelope me-1"></i> ${lead.email ?? ''}
                 </div>
                 <div class="text-muted mb-2">
-                    <i class="ph-map-pin me-1"></i> ${lead.address ?? ''}
+                    <i class="ph-map-pin me-1"></i>${[lead.address, lead.suburb, [lead.state, lead.postcode].filter(Boolean).join(' ')].filter(Boolean).join(', ')}
                 </div>
 
                  <div class="text-muted mb-2">
