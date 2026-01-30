@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', "Sales Pipeline")
+@section('title', "Leads")
 
 @section('content')
 <style>
@@ -39,53 +39,89 @@ strong {
         <div class="d-flex w-100">
             <!-- Title + subtitle stacked -->
             <div class="d-flex flex-column">
-                <h4 class="page-title mb-0 crm_c" style="font-size: 1.875rem">Sales Pipeline</h4>
-                <p class="mb-0 txt_1">Track closed deals and sales performance</p>
+                <h4 class="page-title mb-0 crm_c" style="font-size: 1.875rem">Lead Management</h4>
+                <p class="mb-0 txt_1">Assign and track incoming leads</p>
             </div>
 
-            <div class="col-md-3 ms-auto d-none">
+            <div class="col-md-3 ms-auto">
                 @can('lead_add')
                 <a class="btn btn-primary bg_s mt-5" data-bs-toggle="modal" data-bs-target="#addLeadModal"
                     style="float:right">
                     <i class="ph-plus"></i>&nbsp;&nbsp;Add Lead
                 </a>
+
+
                 @endcan
             </div>
 
         </div>
     </div>
+    <?php $status = config('fri.lead_status'); ?>
+    <section class="content">
+        <div class="d-flex flex-wrap gap-2">
+            @php
+            // brand palette (non-empty)
+            $brandColors = [
+            '#00AEEF', // bright blue
+            '#FDB813', // sun yellow
+            '#F36F21', // orange
+            '#0072BC', // darker blue
+            '#FF9D00', // light orange
+            ];
+            $paletteCount = count($brandColors);
+            @endphp
+
+            @foreach($status as $value)
+            @php
+            // use blade's loop index (always integer)
+            $idx = $loop->index % $paletteCount;
+            $bgColor = $brandColors[$idx];
+
+            // convert hex to RGB
+            $hex = ltrim($bgColor, '#');
+            $r = hexdec(substr($hex, 0, 2));
+            $g = hexdec(substr($hex, 2, 2));
+            $b = hexdec(substr($hex, 4, 2));
+
+            // relative luminance / perceived brightness (simple formula)
+            $lum = ($r * 0.299) + ($g * 0.587) + ($b * 0.114);
+
+            // choose text color for contrast
+            $textColor = $lum > 186 ? '#000' : '#fff';
+            @endphp
+
+            <div class="rounded p-3 text-center shadow-sm"
+                style="background-color: {{ $bgColor }}; color: {{ $textColor }}; min-width: 120px;">
+                <div class="fw-bold fs-5">
+                    {{ $leads->where('status', $value)->count() }}
+                </div>
+                <small>{{ $value }}</small>
+            </div>
+            @endforeach
+
+            <div class="rounded p-3 text-center shadow-sm"
+                style="background-color: {{ $bgColor }}; color: {{ $textColor }}; min-width: 120px; cursor:pointer;"
+                data-bs-toggle="modal" data-bs-target="#followUpModal">
+
+                <div class="fw-bold fs-5">
+                    {{ $upcoming->count()+$past->count() }}
+                </div>
+
+                <small>List Follow Up</small>
+            </div>
+
+        </div>
+
+    </section>
+
 
     <!-- Main content -->
     <section class="content">
-        <div class="card2">
-            <div class="row text-center">
-
-                <!-- Due Today -->
-                <div class="col-md-3 col-6">
-                    <div class="border rounded p-3">
-                        <div class="fw-bold text-success fs-5">₹<span class="commision">0</span></div>
-                        <small class="text-muted">Total Commision</small>
-                    </div>
-                </div>
-
-                <div class="col-md-3 col-6">
-                    <div class="border rounded p-3">
-                        <div class="fw-bold text-success fs-5">₹<span class="payout">0</span></div>
-                        <small class="text-muted">Total Payout</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="content">
-
         <div class="card p-2 form_1 d-none">
-
-
             <form class="d-flex align-items-center justify-content-between flex-wrap">
 
                 <!-- Left stats -->
-                <div class="d-flex gap-4 flex-wrap ">
+                <div class="d-flex gap-4 flex-wrap">
 
                     <!-- New Leads -->
                     <div class="d-flex align-items-center">
@@ -193,22 +229,9 @@ strong {
                     </select>
                 </div>
 
-                <!-- From date -->
                 <div class="col-md-3">
-                    <label>From Date</label>
-                    <input type="date" class="form-control" name="from_date">
-                </div>
-
-
-                <!-- To date -->
-                <div class="col-md-3">
-                    <label>To Date</label>
-                    <input type="date" class="form-control" name="to_date">
-                </div>
-
-                <div class="col-md-3 d-none">
                     <label>Status</label>
-                    <?php $status = config('fri.lead_status'); ?>
+
                     <select class="form-select form-select-sm" style="min-width: 180px;" name="status">
                         <option value="">Select All</option>
                         @foreach($status as $value)
@@ -331,6 +354,8 @@ strong {
                 return;
             }
 
+            console.log('>>>>>>>>>>>>>>',lead.notes);
+
             // Fill modal fields with fallbacks
             $('.lead_id').val(lead?.id ?? '');
             $('.follow_up').attr('data-id', lead?.id ?? '');
@@ -346,7 +371,9 @@ strong {
             $('.lead_phone').text(lead.phone ?? 'N/A');
             $('.lead_address').text(lead.address ?? 'N/A');
             $('.lead_status').val(lead.status ?? 'N/A');
-
+            $('.lead_notes').text(lead.notes ?? 'N/A');
+            alert(lead.rejection_url);
+            $('.rejection_url').text(lead.rejection_url ?? 'N/A');
             // Handle nested objects safely
             $('.lead_source').text(lead.lead_source?.source ?? 'N/A');
             $('.lead_roof_type').text(lead.roof_type ?? 'N/A');
@@ -381,31 +408,17 @@ strong {
     <div class="card shadow-sm rounded-3 p-4 mb-3 form_1" id="lead-${lead.id}">
         <div class="d-flex justify-content-between flex-wrap">
             <div class="mb-2">
-               <h5 class="fw-bold mb-1 lead">
-                #${lead.id ?? ''} - ${lead.first_name ?? ''} ${lead.last_name ?? ''}
-
-                ${lead.sale_status == 'Installed' 
-                    ? `<span class="ms-2">🟢 Installed</span>` 
-                    : lead.sale_status == 'Cancelled'
-                    ? `<span class="ms-2">🔴 Cancelled</span>`
-                    : ''
-                }
-            </h5>
-                <div class="fw-bol1d text-success mb-2">
-                    Commission: ₹${(lead.commission ?? 0).toFixed(2)}
-                </div>
-
+                <h5 class="fw-bold mb-1 lead">
+                    #${lead.id ?? ''} - ${lead.first_name ?? ''} ${lead.last_name ?? ''}
+                    ${lead.project_id ? `<small class="text-warning fst-italic ms-2">Quote created</small>` : ''}
+                </h5>
+                
                 <div class="text-muted mb-1">
                     <i class="ph-phone me-1"></i> ${lead.phone ?? ''} &nbsp;
                     <i class="ph-envelope me-1"></i> ${lead.email ?? ''}
                 </div>
                 <div class="text-muted mb-2">
-                    <i class="ph-map-pin me-1"></i>${[lead.address, lead.suburb, [lead.state, lead.postcode].filter(Boolean).join(' ')].filter(Boolean).join(', ')}
-                </div>
-
-                 <div class="text-muted mb-2">
-                Created At :
-                 ${lead.created_at ?? ''}
+                    <i class="ph-map-pin me-1"></i> ${lead.address ?? ''}
                 </div>
                 <div class="text-muted">
                     Source: <strong class="text-dark">${lead.lead_source?.source ?? ''}</strong> &nbsp;|&nbsp;
@@ -413,46 +426,26 @@ strong {
                     Storeys: <strong class="text-dark">${lead.storeys ?? ''}</strong> &nbsp;|&nbsp;
                     Roof: <strong class="text-dark">${lead.roof_type ?? ''}</strong> &nbsp;|&nbsp;
                     Rebate: <strong class="text-dark">${lead.elogible_for_rebate ?? ''}</strong> &nbsp;|&nbsp;
-                     Category: <strong class="text-dark">${lead.category ?? ''}</strong>
+                    Category: <strong class="text-dark">${lead.category ?? ''}</strong>
                     ${(lead.category === 'Solar' || lead.category === 'Solar+Battery') && lead.solar_kw
                         ? ` &nbsp;|&nbsp; Solar KW: <strong class="text-dark">${lead.solar_kw}</strong>` 
                         : ''}
                     ${(lead.category === 'Battery' || lead.category === 'Solar+Battery') && lead.battery_kw
                         ? ` &nbsp;|&nbsp; Battery KW: <strong class="text-dark">${lead.battery_kw}</strong>` 
-                        : ''} &nbsp;|&nbsp;
+                        : ''}  &nbsp;|&nbsp;
                     Assign To: <strong class="text-dark">${lead.get_assign_user_name?.name ?? ''}</strong>
                 </div>
             </div>
 
             <div class="text-end">
-                @if ($role != 'Sales Rep')
-                <!-- 🔥 Status Dropdown at Top Right -->
-                <div class="mb-3">
-                   <form method="POST" action="/admin/updateSalesStatus" id="statusForm-${lead.id}">
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                        <input type="hidden" name="lead_id" value="${lead.id}">
-                        <input type="hidden" name="status" id="lead-status-${lead.id}">
-
-                        <select class="form-select form-select-sm"
-                            onchange="document.getElementById('lead-status-${lead.id}').value=this.value; document.getElementById('statusForm-${lead.id}').submit();">
-
-                            <option value="">Select Status</option>
-                            <option value="Installed" ${lead.sale_status == 'Installed' ? 'selected' : ''}>Installed</option>
-                            <option value="Cancelled" ${lead.sale_status == 'Cancelled' ? 'selected' : ''}>Cancelled</option>
-                        </select>
-                    </form>
-                </div>
-                @endif
-                <!-- /Dropdown -->
-
-                <div class="d-flex align-items-center justify-content-end flex-wrap mb-2 gap-2 d-none">
+                <div class="d-flex align-items-center justify-content-end flex-wrap mb-2 gap-2">
                     <span class="badge text-${color} border border-${color} rounded-pill px-2 py-1">
                         ${lead.status ?? ''}
                     </span>
                      
                 </div>
 
-                <div class="d-flex flex-wrap justify-content-end gap-2 d-none">
+                <div class="d-flex flex-wrap justify-content-end gap-2">
                     @can('lead_email_access')
                         <button class="btn btn-sm btn-warning custom-btn send_email"
                             data-lead='${JSON.stringify(lead)}' 
@@ -525,15 +518,13 @@ strong {
         $('#load-more').prop('disabled', true).text('Loading...');
 
         $.ajax({
-                url: "{{ route('admin.getSale') }}",
+                url: "{{ route('admin.listLeads') }}",
                 method: 'GET',
                 data: {
                     offset,
                     limit,
                     lead_source: $('select[name="lead_source"]').val(),
                     assign_rep: $('select[name="assign_rep"]').val(),
-                    from_date: $('input[name="from_date"]').val(),
-                    to_date: $('input[name="to_date"]').val(),
                     status: $('select[name="status"]').val()
                 }
             })
@@ -544,9 +535,6 @@ strong {
                     showNoData();
                     return;
                 }
-
-                $('.commision').html(res.totalCommision);
-                $('.payout').html(res.totalPayout);
 
                 let html = '';
                 leads.forEach(lead => {
