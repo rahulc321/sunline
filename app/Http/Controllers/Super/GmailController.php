@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Super;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -24,8 +24,8 @@ class GmailController extends Controller
     {
         $clientId     = env('GOOGLE_CLIENT_ID');
         $clientSecret = env('GOOGLE_CLIENT_SECRET');
-        $redirectUri  = env('GOOGLE_REDIRECT_URI');
-
+        $redirectUri  = env('GOOGLE_REDIRECT_URI_SUPERADMIN');
+        //dd($redirectUri);
         abort_if(
             !$clientId || !$clientSecret || !$redirectUri,
             500,
@@ -80,7 +80,7 @@ class GmailController extends Controller
     {
         abort_if(!$request->code, 403);
     
-        $user = Auth::user(); // current logged-in user
+        $user = auth('superadmin')->user(); // current logged-in user
         abort_if(!$user, 403);
     
         $client = $this->googleClient($user);
@@ -107,7 +107,7 @@ class GmailController extends Controller
         ]);
     
         return redirect()
-            ->route('admin.connectGmail')
+            ->route('superadmin.connectGmail')
             ->with('success', 'Gmail connected successfully');
     }
 

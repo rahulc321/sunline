@@ -460,7 +460,7 @@
                                 data-bs-toggle="dropdown" data-bs-auto-close="outside">
                                 <i class="ph-bell"></i>
                                 <span
-                                    class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1 notification">{{ auth()->user()->unreadNotifications->count() }}</span>
+                                    class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1 notification">{{ auth('superadmin')->user()->unreadNotifications->count() }}</span>
                             </a>
 
                             <div class="dropdown-menu wmin-lg-400 p-0">
@@ -502,7 +502,7 @@
                                     background-color: var(--navbar-active-bg);
                                 }
                                 </style>
-                                <?php $notifications = auth()->user()->unreadNotifications()->latest()->get(); ?>
+                                <?php $notifications = auth('superadmin')->user()->unreadNotifications()->latest()->get(); ?>
                                 <div class="dropdown-menu-scrollable pb-2" id="notificationsList">
                                     @include('partials.notifications_list', ['notifications' => $notifications])
                                 </div>
@@ -525,11 +525,14 @@
                                 data-bs-toggle="dropdown">
                                 <div class="media me-2 media-danger">
                                     @php
-                                    $firstLetter = strtoupper(substr(\Auth::user()->name, 0, 1));
+                                    $name = optional(auth('superadmin')->user())->name;
+                                    $firstLetter = $name ? strtoupper(substr($name, 0, 1)) : '';
                                     @endphp
-                                    {{$firstLetter}}
+
+                                    {{ $firstLetter }}
                                 </div>
-                                <span class="d-none d-lg-inline-block">Hi, <span>{{@\Auth::user()->name}} </span></span>
+                                <span class="d-none d-lg-inline-block">Hi, <span>{{@$name}}
+                                    </span></span>
                             </a>
 
                             <div class="dropdown-menu dropdown-menu-end">
@@ -539,26 +542,28 @@
                                 </a>
                                 <div class="dropdown-divider"></div>
 
-                                <a href="{{route('admin.connectGmail')}}" class="dropdown-item d-flex justify-content-between align-items-center">
+                                <a href="{{route('superadmin.connectGmail')}}"
+                                    class="dropdown-item d-flex justify-content-between align-items-center">
                                     <div>
                                         <i class="ph-link-simple me-2" style="color:#0d6efd; font-size:18px;"></i>
                                         Connect with Gmail
                                     </div>
-                                    @if(auth()->user()->is_email_connected && auth()->user()->email_provider === 'gmail')
+                                    @if(auth('superadmin')->user()->is_email_connected && auth('superadmin')->user()->email_provider ===
+                                    'gmail')
                                     <span class="badge bg-success rounded-pill">Connected</span>
                                     @endif
                                 </a>
 
-                                <a href="#" class="dropdown-item d-flex justify-content-between align-items-center">
+                                <!-- <a href="#" class="dropdown-item d-flex justify-content-between align-items-center">
                                     <div>
                                         <i class="ph-sun me-2" style="color: #f7b500; font-size: 18px;"></i>
                                         Solar Tier
                                     </div>
                                     <span
                                         class="badge bg-primary rounded-pill">{{ auth()->user()->tier_solar ?? '0' }}</span>
-                                </a>
+                                </a> -->
 
-                                <a href="#" class="dropdown-item d-flex justify-content-between align-items-center">
+                                <!-- <a href="#" class="dropdown-item d-flex justify-content-between align-items-center">
                                     <div>
                                         <i class="ph-battery-charging me-2"
                                             style="color: #28a745; font-size: 18px;"></i>
@@ -566,7 +571,7 @@
                                     </div>
                                     <span
                                         class="badge bg-success rounded-pill">{{ auth()->user()->tier_battery ?? '0' }}</span>
-                                </a>
+                                </a> -->
 
                                 <div class="dropdown-divider"></div>
                                 <div class="dropdown-divider"></div>
@@ -705,7 +710,7 @@ setInterval(fetchNotifications, 10000);
 fetchNotifications();
 
 
-$(document).on('click', '.delete-lead-image', function () {
+$(document).on('click', '.delete-lead-image', function() {
 
     const imageId = $(this).data('id');
     const li = $(this).closest('li');
@@ -721,16 +726,16 @@ $(document).on('click', '.delete-lead-image', function () {
         data: {
             _token: "{{ csrf_token() }}",
             id: imageId,
-            tble:tble
+            tble: tble
         },
-        success: function (res) {
+        success: function(res) {
             if (res.status) {
                 li.remove(); // remove from UI
             } else {
                 alert(res.message || 'Failed to delete image');
             }
         },
-        error: function () {
+        error: function() {
             alert('Something went wrong');
         }
     });
@@ -789,20 +794,20 @@ function renderCallLogs(logs) {
 
         // recording button
         let btn = log.download_url ?
-        `<div class="audio-item">
+            `<div class="audio-item">
             <button class="btn btn-sm btn-outline-primary play-btn"
                     onclick="playRecording('${log.download_url}', '${log.recording_id}', this)">
                 🎵 Play
             </button>
             <audio class="zoom-player" controls style="display:none;"></audio>
         </div>` :
-        `<div class="audio-item">
+            `<div class="audio-item">
             <button class="btn btn-sm btn-outline-secondary" disabled>
                 No Recording
             </button>
             <audio class="zoom-player" controls style="display:none;"></audio>
         </div>`;
-        
+
         html += `
         <li class="log-item" style="list-style: none;">
             <div class="d-flex justify-content-between align-items-center">
@@ -880,7 +885,6 @@ function playRecording(fullUrl, recording_id, button) {
         }
     });
 }
-
 </script>
 
 

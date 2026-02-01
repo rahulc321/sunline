@@ -37,6 +37,11 @@ class Lead extends Model
 
     public function scopeForCurrentUser(Builder $query): Builder
     {
+        // superadmin logged in → no restriction
+        if (Auth::guard('superadmin')->check()) {
+            return $query;
+        }
+
         $user = Auth::user();
 
         if ($user->roles->contains('title', env('ROLE'))) {

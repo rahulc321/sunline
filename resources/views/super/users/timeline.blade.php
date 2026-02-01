@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.super')
 
 @section('content')
 <div class="container py-4">
@@ -81,7 +81,7 @@
                                 <div class="mt-3 text-end">
 
 
-                                    <a href="{{ route('admin.gmailDisconnect', $lead->id) }}"
+                                    <a href="{{ route('superadmin.gmailDisconnect', $lead->id) }}"
                                         class="btn btn-outline-danger btn-sm"
                                         onclick="return confirm('Are you sure you want to disconnect this Gmail account?');">
                                         Disconnect
@@ -92,7 +92,7 @@
                             @else
 
                             <!-- NOT CONNECTED STATE -->
-                            <a href="{{ route('admin.gmailConnect', [$lead->id]) }}" class="text-decoration-none">
+                            <a href="{{ route('superadmin.gmailConnect', [$lead->id]) }}" class="text-decoration-none">
                                 <div class="provider-card w-100 p-3 text-start">
                                     <div class="d-flex align-items-center">
                                         <img src="https://www.gstatic.com/images/branding/product/2x/gmail_48dp.png"

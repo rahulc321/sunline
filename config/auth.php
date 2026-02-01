@@ -46,6 +46,10 @@ return [
             'provider' => 'users',
             'hash'     => false,
         ],
+        'superadmin' => [
+            'driver' => 'session',
+            'provider' => 'users', // SAME TABLE
+         ],
     ],
 
     /*

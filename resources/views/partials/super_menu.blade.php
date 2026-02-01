@@ -205,8 +205,8 @@ div#jsGrid1_filter {
 
 
             <li class="nav-item">
-                <a href="{{ route('admin.sales') }}"
-                    class="nav-link {{ request()->is('admin/sales') ? 'active' : '' }}">
+                <a href="{{ route('superadmin.sales') }}"
+                    class="nav-link {{ request()->is('superadmin/sales') ? 'active' : '' }}">
                     <i class="ph-trend-up"></i><span>Sales Pipeline</span>
                 </a>
             </li>
