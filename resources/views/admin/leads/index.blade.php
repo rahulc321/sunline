@@ -116,6 +116,20 @@ strong {
                 <small>List Follow Up</small>
             </div>
 
+            <!-- Total Unassinged lead -->
+            <div class="rounded p-3 text-center shadow-sm"
+                style="background-color: {{ $bgColor }}; color: {{ $textColor }}; min-width: 120px; cursor:pointer;">
+
+                <div class="fw-bold fs-5">
+                    <?php $unassigned = $leads->whereNull('assign_rep')
+                            ->whereNotIn('status', ['Qualified', 'Sold'])
+                            ->count(); ?>
+                    {{ $unassigned }}
+                </div>
+
+                <small>Unassigned Lead</small>
+            </div>
+
         </div>
 
     </section>
@@ -208,18 +222,15 @@ strong {
         </div>
 
         <div class="card p-3 form_1">
-            <form class="row align-items-end">
-
-                <!-- Title -->
-
+            <form class="row align-items-end" id="leadFilterForm">
 
                 <!-- Lead Source -->
                 <div class="col-md-3">
                     <label>Lead Source</label>
-                    <select name="lead_source" class="form-control">
+                    <select name="lead_source" id="lead_source" class="form-control">
                         <option value="">Select All</option>
                         @foreach($leadSource as $data)
-                        <option value="{{@$data->id}}">{{@$data['source']}}</option>
+                        <option value="{{ $data->id }}">{{ $data->source }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -227,18 +238,19 @@ strong {
                 <!-- Sales Rep -->
                 <div class="col-md-3">
                     <label>Sales Rep</label>
-                    <select name="assign_rep" class="form-control ">
+                    <select name="assign_rep" id="assign_rep" class="form-control">
                         <option value="">Select All</option>
+                        <option value="unassigned">Unassigned</option>
                         @foreach($users as $data)
-                        <option value="{{@$data->id}}">{{@$data['name']}}</option>
+                        <option value="{{ $data->id }}">{{ $data->name }}</option>
                         @endforeach
                     </select>
                 </div>
 
+                <!-- Status -->
                 <div class="col-md-3">
                     <label>Status</label>
-
-                    <select class="form-select form-select-sm" style="min-width: 180px;" name="status">
+                    <select name="status" id="status" class="form-select form-select-sm">
                         <option value="">Select All</option>
                         @foreach($status as $value)
                         <option value="{{ $value }}">{{ $value }}</option>
@@ -249,10 +261,11 @@ strong {
                 <!-- Buttons -->
                 <div class="col-md-2 d-flex gap-2">
                     <button type="button" class="btn btn-primary bg_s apply">Apply</button>
-                    <button type="reset" class="btn btn-outline-secondary">Reset</button>
+                    <button type="reset" class="btn btn-outline-secondary reset">Reset</button>
                 </div>
 
             </form>
+
         </div>
 
         <!-- List leads -->
@@ -341,6 +354,7 @@ strong {
                                             <th>
                                                 Lead Sourse
                                             </th>
+                                            <th>Sales Rep</th>
                                             <th>Category</th>
                                             <th>Created At</th>
                                             <th>
@@ -461,6 +475,10 @@ strong {
                     name: 'lead_source'
                 },
                 {
+                    data: 'salesRep',
+                    name: 'salesRep'
+                },
+                {
                     data: 'category',
                     name: 'category'
                 },
@@ -477,10 +495,27 @@ strong {
             ]
         });
 
-        // reload on filter change
-        $('.filter').on('change', function() {
+        /* Apply filter */
+        let applyBtn = $('.apply');
+
+        $('.apply').on('click', function() {
+            applyBtn.text('Applying...');
             table.ajax.reload();
         });
+
+        /* Reset filter */
+        $('.reset').on('click', function() {
+            applyBtn.text('Applying...');
+            $('#leadFilterForm')[0].reset();
+            table.ajax.reload();
+        });
+
+        /* Restore button text after request */
+        table.on('xhr.dt', function() {
+            applyBtn.text('Apply');
+        });
+
+
 
     });
 

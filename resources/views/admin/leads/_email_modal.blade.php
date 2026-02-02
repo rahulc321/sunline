@@ -25,7 +25,7 @@
                         <option value="">-- Select Template --</option>
                         @foreach($emailTemplates as $template)
                         <option value="{{ $template->id }}" data-email='@json($template)'>
-                            {{ $template->category }}
+                            {{ $template->template_name }}
                         </option>
                         @endforeach
                     </select>

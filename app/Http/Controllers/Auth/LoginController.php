@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\{User};
 
 class LoginController extends Controller
 {
@@ -48,32 +49,31 @@ class LoginController extends Controller
 
     public function loginSubmit(Request $request)
     {
-        $request->validate([
+        $credentials = $request->validate([
             'email'    => 'required|email',
             'password' => 'required',
         ]);
-
-        if (Auth::attempt([
-            'email'    => $request->email,
-            'password' => $request->password,
-        ])) {
-
-            $user = Auth::user();
-
-            // check role
-
-            if ($user->roles->contains('title', 'Director')) {
-                return redirect()->route('superadmin.dashboard');
-            }
-
-            // logged in but not director
-            Auth::logout();
-
+    
+        // fetch user first
+        $user = User::where('email', $credentials['email'])->first();
+       
+        // user not found OR not director
+        if (!$user || !$user->roles->contains('title', 'Director')) {
             return back()->withErrors([
                 'email' => 'Unauthorized access',
             ]);
         }
+       
+        // attempt login with SUPERADMIN guard
+        if (Auth::guard('superadmin')->attempt($credentials)) {
+           
+            $request->session()->regenerate();
+    
+            return redirect()->route('superadmin.dashboard');
+        }
 
+        dd(1);
+    
         return back()->withErrors([
             'email' => 'Invalid credentials',
         ]);

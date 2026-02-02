@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Super;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -533,7 +533,7 @@ class LeadInboxController extends Controller
 		})->get();
 
 		$followups = LeadFollowUp::whereHas('lead', function ($q) {
-			$q->whereNull('deleted_at')->forCurrentUser();
+			$q->whereNull('deleted_at');
 		})
 		->with('lead')
         ->orderBy('date', 'desc')
@@ -546,12 +546,12 @@ class LeadInboxController extends Controller
 		$this->data['emailTemplates'] = EmailTemplate::get();
 		$this->data['leads'] = Lead::forCurrentUser()->get();
 
-		$userRole = auth()->user()->roles[0]->title;
+		$userRole = auth('superadmin')->user()->roles[0]->title;
 		$this->data['role'] = $userRole;
 		//dd($userRole);
 		$this->data['leads'] = Lead::forCurrentUser()->get();
 
-		return view('admin.sales.index',$this->data);
+		return view('super.sales.index',$this->data);
 	}
 
 	# get sale where status is sold
@@ -777,13 +777,13 @@ class LeadInboxController extends Controller
 
 	public function connectGmail(){
 		error_reporting(0);
-		$this->data['lead'] = User::find(Auth::Id());
+		$this->data['lead'] = User::find(auth('superadmin')->id());
 
 		if(!$this->data['lead']){
 			return back()->with('error', 'Lead not found');
 		}
 
-		return view('admin.users.timeline',$this->data);
+		return view('super.users.timeline',$this->data);
 	}
 
 	// Update lead note
