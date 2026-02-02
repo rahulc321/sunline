@@ -74,6 +74,7 @@ class LeadInboxController extends Controller
 	{
 		$query = Lead::with('getAssignUserName','leadSource','leadFollowUp','images')
 			->whereNotIn('status', ['Qualified', 'Sold'])
+			->orderBy('id','DESC')
 			->forCurrentUser();
 
 		# filters
@@ -81,13 +82,19 @@ class LeadInboxController extends Controller
 			$query->where('lead_source', $request->lead_source);
 		}
 
-		if ($request->assign_rep) {
-			$query->where('assign_rep', $request->assign_rep);
+		if ($request->assign_rep !== null && $request->assign_rep !== '') {
+
+			if ($request->assign_rep == 'unassigned') {
+				$query->whereNull('assign_rep');
+			} else {
+				$query->where('assign_rep', $request->assign_rep);
+			}
 		}
 
 		if ($request->status) {
 			$query->where('status', $request->status);
 		}
+
 
 		return DataTables::of($query)
 			->addIndexColumn()
@@ -97,6 +104,10 @@ class LeadInboxController extends Controller
 
 			->addColumn('name', function ($lead) {
 				return $lead->first_name .' '.$lead->last_name;
+			})
+
+			->addColumn('salesRep', function ($lead) {
+				return $lead->getAssignUserName->name ?? '';
 			})
 
 			// ->addColumn('created_at', function ($lead) {
@@ -188,7 +199,7 @@ class LeadInboxController extends Controller
 						data-bs-target="#leadDetailsModal">
 						<i class="ph-eye"></i>
 					</button>
-					<a href="'.route('admin.timeline',[$lead->id]).'">Activity</a>
+					<a href="'.route('admin.timeline',[$lead->id]).'"> <i class="ph-clock-counter-clockwise"></i></a>
 					 
 					';
 	
