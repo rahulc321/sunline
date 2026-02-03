@@ -26,11 +26,12 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
-        $schedule->command('projects:sync-status')->everyMinute();
-        $schedule->command('zoom:fetch-today-recordings')->everyMinute();
-        $schedule->command('tier:update')->everyMinute();
-        $schedule->command('commission:calculate')->everyMinute();
-        $schedule->command('gmail:sync')->everyMinute();
+        $schedule->command('projects:sync-status')->everyMinute()->withoutOverlapping();
+        $schedule->command('zoom:fetch-today-recordings')->everyMinute()->withoutOverlapping();
+        $schedule->command('tier:update')->everyMinute()->withoutOverlapping();
+        $schedule->command('commission:calculate')->everyMinute()->withoutOverlapping();
+        $schedule->command('gmail:sync')->everyMinute()->withoutOverlapping();
+        $schedule->command('token:refresh')->weekly()->withoutOverlapping();
     }
 
     /**

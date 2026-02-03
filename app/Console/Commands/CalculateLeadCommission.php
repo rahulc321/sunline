@@ -36,12 +36,12 @@ class CalculateLeadCommission extends Command
             $userData = User::find($lead->assign_rep);
 
             $solarCommision = Tier::where('category', 'solar')
-            ->where('tier_name', $userData->tier_solar)
+            ->where('tier_name', @$userData->tier_solar)
              
             ->first();
     
             $batteryCommision = Tier::where('category', 'battery')
-            ->where('tier_name', $userData->tier_battery)
+            ->where('tier_name', @$userData->tier_battery)
              
             ->first();
 

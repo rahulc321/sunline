@@ -306,7 +306,7 @@ class ApiTesterController extends Controller
             "address" => @$lead->address,
             //  "locality" => "Fakesville",
             "state" => @$lead->state,
-            "country_iso2" => $lead->suburb,
+            //"country_iso2" => $lead->suburb,
             "zip" => $lead->postcode,
             "number_of_phases" => "1",
             // "roof_type" => "https://api.opensolar.com/api/roof_types/6/",
@@ -332,7 +332,7 @@ class ApiTesterController extends Controller
        $response =   $this->send($request);
 
        $decoded = json_decode($response->getContent(), true);
-        //dd($decoded['response']['id']);
+        // dd($decoded['response']);
         if (isset($decoded['response']['contacts_new'][0]['email'][0])) {
             # error from API
             $error = $decoded['response']['contacts_new'][0]['email'][0];
