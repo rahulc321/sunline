@@ -14,7 +14,9 @@ class SyncProjectStatus extends Command
     public function handle()
     {
         # Example: Fetch all leads that have a project_id
-        $leads = Lead::whereNotNull('project_id')->where('status', '!=', 'Sold')->get();
+        $leads = Lead::whereNotNull('project_id')->where('status', '!=', 'Sold')
+        
+        ->get();
 
         foreach ($leads as $lead) {
             $user  = User::find($lead->assign_rep);
@@ -22,7 +24,7 @@ class SyncProjectStatus extends Command
 
             $response = Http::withToken($user->opensolar_token)
                             ->get($url);
-
+            //echo '<pre>';print_r( $response->json());die;
             if ($response->successful()) {
                 $project = $response->json();
                 //echo '<pre>';print_r($decoded['project_sold']);die;
