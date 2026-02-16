@@ -41,7 +41,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
 	Route::any('updateStore', [App\Http\Controllers\Admin\LeadInboxController::class, 'updateStore'])->name('updateStore');
     Route::any('deleteLead/{id}', [App\Http\Controllers\Admin\LeadInboxController::class, 'deleteLead'])->name('deleteLead');
 
-    # For contacts 
+    Route::any('updateLeadStatusNew', [App\Http\Controllers\Admin\LeadInboxController::class, 'updateLeadStatusNew'])->name('updateLeadStatusNew');
+    Route::any('noteStore', [App\Http\Controllers\Admin\LeadInboxController::class, 'noteStore'])->name('noteStore');
+    
+    # For contacts noteStore
     Route::any('contacts', [App\Http\Controllers\Admin\LeadInboxController::class, 'contacts'])->name('contacts');	
     Route::any('listContact', [App\Http\Controllers\Admin\LeadInboxController::class, 'listContact'])->name('listContact');	
     Route::any('updateContact', [App\Http\Controllers\Admin\LeadInboxController::class, 'updateContact'])->name('updateContact');
@@ -67,6 +70,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     # timeline
     Route::get('connectGmail', [App\Http\Controllers\Admin\LeadInboxController::class, 'connectGmail'])->name('connectGmail');
     Route::get('timeline/{leadId}', [App\Http\Controllers\Admin\LeadInboxController::class, 'timeline'])->name('timeline');
+
+    # lead details page leadDetails
+    Route::get('leadDetails/{leadId}', [App\Http\Controllers\Admin\LeadInboxController::class, 'leadDetails'])->name('leadDetails');
 
     Route::get('/gmailConnect/{lead}', [App\Http\Controllers\Admin\GmailController::class, 'gmailConnect'])
         ->name('gmailConnect');

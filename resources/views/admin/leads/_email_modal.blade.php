@@ -3,13 +3,13 @@
         <div class="modal-content">
 
             <div class="modal-header">
-                <h5 class="modal-title" id="emailModelLabel">Send Email to <span class="lead_name"></span></h5>
+                <h5 class="modal-title" id="emailModelLabel">Send Email to <span class="lead_name">{{@$lead->first_name.' '.@$lead->last_name}}</span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <form action="{{ route('admin.sendEmail') }}" method="post">
                 @csrf
-                <input type="hidden" class="form-control lead_id" name="lead_id">
+                <input type="hidden" class="form-control lead_id" name="lead_id" value="{{@$lead->id}}">
                 <div class="modal-body">
 
                     <!-- Recipient -->
@@ -17,7 +17,7 @@
                         <div class="me-2">
                             <span class="badge bg-success rounded-pill">To</span>
                         </div>
-                        <input type="text" class="form-control lead_email" name="email" placeholder="Recipient Email" required>
+                        <input type="text" class="form-control lead_email" name="email" placeholder="Recipient Email" required value="{{@$lead->email}}">
                     </div>
 
                     <!-- Template dropdown -->

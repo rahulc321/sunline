@@ -11,7 +11,7 @@ use App\Models\CaseType;
 use App\Models\LeadFollowUp;
 use App\Models\LeadCommission;
 use App\User;
-use App\Models\{LeadSource, LeadContact, ContactFollowUp, LeadImages};
+use App\Models\{LeadSource, LeadContact, ContactFollowUp, LeadImages, Note};
 use Carbon\Carbon;
 use Gate;
 use App\Models\Lead;
@@ -103,7 +103,9 @@ class LeadInboxController extends Controller
 			})
 
 			->addColumn('name', function ($lead) {
-				return $lead->first_name .' '.$lead->last_name;
+				$name = $lead->first_name . ' ' . $lead->last_name;
+			
+				return '<a href="' . route('admin.leadDetails', $lead->id) . '">' . e($name) . '</a>';
 			})
 
 			->addColumn('salesRep', function ($lead) {
@@ -218,7 +220,7 @@ class LeadInboxController extends Controller
 	
 				return $buttons;
 			})
-			->rawColumns(['status','category','action'])
+			->rawColumns(['status','category','action','name'])
 			->make(true);
 	}
 
@@ -397,6 +399,31 @@ class LeadInboxController extends Controller
 
 		session()->flash('success', 'You have successfully update lead status!');
 		return response()->json(['success' => true]);
+	}
+
+	public function updateLeadStatusNew(Request $request)
+	{
+		$request->validate([
+			'id' => 'required|integer|exists:leads,id',
+			'status' => 'required|string'
+		]);
+
+		$lead = Lead::findOrFail($request->id);
+		$lead->status = $request->status;
+		$lead->save();
+
+		if ($request->status == 'Qualified') {
+			$exists = LeadContact::where('lead_id', $lead->id)->exists();
+		
+			if (! $exists) {
+				LeadContact::create([
+					'lead_id' => $lead->id,
+				]);
+			}
+		}
+
+		session()->flash('success', 'You have successfully updated!');
+		return back();
 	}
 
 	public function followupComplete(Request $request){
@@ -847,6 +874,34 @@ class LeadInboxController extends Controller
 		]);
 	}
 
+
+	// Lead details
+	public function leadDetails($leadId){
+		$this->data['leadSource'] = LeadSource::where('status',1)->get();
+		$this->data['emailTemplates'] = EmailTemplate::get();
+		$this->data['users'] = User::whereHas('roles', function ($query) {
+			$query->where('title', env('ROLE'));
+		})->get();
+		$this->data['lead'] = Lead::with('leadNotes.creator','getAssignUserName','leadSource','leadFollowUp','images')->findOrFail($leadId);
+		//echo '<pre>';print_r($this->data['lead'] );die;
+		return view('admin.leads.lead_details',$this->data);
+	}
+
+	public function noteStore(Request $request)
+    {
+        $request->validate([
+            'lead_id' => 'required|exists:leads,id',
+            'note' => 'required'
+        ]);
+
+        Note::create([
+            'lead_id' => $request->lead_id,
+            'note' => $request->note,
+            'created_by' => auth()->user()->id ?? 'System',
+        ]);
+
+        return back()->with('success', 'Note added successfully');
+    }
 
 
 

@@ -56,4 +56,10 @@ class Lead extends Model
     {
         return Carbon::parse($value)->format('d-m-Y');
     }
+
+    public function leadNotes()
+    {
+        return $this->hasMany(Note::class, 'lead_id', 'id')
+                    ->orderBy('id', 'desc');
+    }
 }
