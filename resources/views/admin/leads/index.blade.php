@@ -37,6 +37,62 @@ strong {
     min-width: calc(var(--badge-padding-y) * 2 + var(--badge-font-size));
     /* box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px; */
     box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+}.rk-stage-wrapper {
+    display: flex;
+    overflow-x: auto;
+    background: #dfeceb;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+/* each step */
+.rk-stage-item {
+    position: relative;
+    padding: 10px 22px;
+    font-size: 13px;
+    color: #2c3e50;
+    background: #b7d8d4;
+    margin-right: 4px;
+    white-space: nowrap;
+    clip-path: polygon(
+        0 0,
+        calc(100% - 16px) 0,
+        100% 50%,
+        calc(100% - 16px) 100%,
+        0 100%
+    );
+    transition: all .15s ease;
+}
+
+/* first */
+.rk-stage-item:first-child {
+    border-radius: 6px 0 0 6px;
+}
+
+/* last */
+.rk-stage-item:last-child {
+    margin-right: 0;
+    border-radius: 0 6px 6px 0;
+}
+
+/* active stage (like Lost in screenshot) */
+.rk-stage-item.active {
+    background: #3aa69b;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* clickable hover */
+.rk-clickable {
+    cursor: pointer;
+}
+
+.rk-clickable:hover {
+    transform: translateY(-1px);
+}
+.card.ll {
+    margin-left: -20px;
+    margin-right: -20px;
 }
 </style>
 <!-- Page header -->
@@ -64,73 +120,48 @@ strong {
     </div>
     <?php $status = config('fri.lead_status'); ?>
     <section class="content">
-        <div class="d-flex flex-wrap gap-2">
-            @php
-            // brand palette (non-empty)
-            $brandColors = [
-            '#00AEEF', // bright blue
-            '#FDB813', // sun yellow
-            '#F36F21', // orange
-            '#0072BC', // darker blue
-            '#FF9D00', // light orange
-            ];
-            $paletteCount = count($brandColors);
-            @endphp
+        @php
+        $currentStatus = $lead->status ?? '';
 
+        $followUpCount = $upcoming->count() + $past->count();
+
+        $unassigned = $leads->whereNull('assign_rep')
+        ->whereNotIn('status', ['Qualified','Sold'])
+        ->count();
+        @endphp
+
+        <div class="rk-stage-wrapper">
+
+            {{-- lifecycle statuses --}}
             @foreach($status as $value)
             @php
-            // use blade's loop index (always integer)
-            $idx = $loop->index % $paletteCount;
-            $bgColor = $brandColors[$idx];
-
-            // convert hex to RGB
-            $hex = ltrim($bgColor, '#');
-            $r = hexdec(substr($hex, 0, 2));
-            $g = hexdec(substr($hex, 2, 2));
-            $b = hexdec(substr($hex, 4, 2));
-
-            // relative luminance / perceived brightness (simple formula)
-            $lum = ($r * 0.299) + ($g * 0.587) + ($b * 0.114);
-
-            // choose text color for contrast
-            $textColor = $lum > 186 ? '#000' : '#fff';
+            $count = $leads->where('status', $value)->count();
+            $isActive = $currentStatus === $value;
             @endphp
 
-            <div class="rounded p-3 text-center shadow-sm"
-                style="background-color: {{ $bgColor }}; color: {{ $textColor }}; min-width: 120px;">
-                <div class="fw-bold fs-5">
-                    {{ $leads->where('status', $value)->count() }}
+            <div class="rk-stage-item {{ $isActive ? 'active' : '' }}">
+                <div class="rk-stage-label">
+                    {{ $value }} ({{ $count }})
                 </div>
-                <small>{{ $value }}</small>
             </div>
             @endforeach
 
-            <div class="rounded p-3 text-center shadow-sm"
-                style="background-color: {{ $bgColor }}; color: {{ $textColor }}; min-width: 120px; cursor:pointer;"
-                data-bs-toggle="modal" data-bs-target="#followUpModal">
-
-                <div class="fw-bold fs-5">
-                    {{ $upcoming->count()+$past->count() }}
+            {{-- Follow Up --}}
+            <div class="rk-stage-item rk-clickable" data-bs-toggle="modal" data-bs-target="#followUpModal">
+                <div class="rk-stage-label">
+                    Follow Up ({{ $followUpCount }})
                 </div>
-
-                <small>List Follow Up</small>
             </div>
 
-            <!-- Total Unassinged lead -->
-            <div class="rounded p-3 text-center shadow-sm"
-                style="background-color: {{ $bgColor }}; color: {{ $textColor }}; min-width: 120px; cursor:pointer;">
-
-                <div class="fw-bold fs-5">
-                    <?php $unassigned = $leads->whereNull('assign_rep')
-                            ->whereNotIn('status', ['Qualified', 'Sold'])
-                            ->count(); ?>
-                    {{ $unassigned }}
+            {{-- Unassigned --}}
+            <div class="rk-stage-item">
+                <div class="rk-stage-label">
+                    Unassigned ({{ $unassigned }})
                 </div>
-
-                <small>Unassigned Lead</small>
             </div>
 
         </div>
+
 
     </section>
 
@@ -325,7 +356,7 @@ strong {
             <div class="row">
                 <div class="col-xl-12">
 
-                    <div class="card">
+                    <div class="card ll">
 
                         <div class="card-body">
                             <div class="table-responsive">
