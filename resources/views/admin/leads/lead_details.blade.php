@@ -27,12 +27,80 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
     <div class="rk-overview-header">
         <h3 class="rk-overview-title">Overview #{{$lead->id}}</h3>
         <div class="rk-action-tabs">
-            <div class="rk-action-tab"><a href="javascript:;" data-lead='@json($lead)' data-bs-toggle="modal"
-                    data-bs-target="#emailModel">Send Email</a></div>
-            <div class="rk-action-tab">
+
+            @can('lead_email_access')
+            <button class="btn btn-outline-primary send_email_inner" data-bs-toggle="modal"
+                data-bs-target="#emailModel"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" class="lucide lucide-mail h-4 w-4 mr-2"
+                    data-lov-id="src/components/leads/LeadDetailModal.tsx:226:14" data-lov-name="Mail"
+                    data-component-path="src/components/leads/LeadDetailModal.tsx" data-component-line="226"
+                    data-component-file="LeadDetailModal.tsx" data-component-name="Mail"
+                    data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D">
+                    <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                </svg> Send Email</button>
+
+            @endcan
+
+            @can('lead_call_log')
+            <button class="btn btn-outline-warning view-lead" data-bs-toggle="modal"
+            data-bs-target="#leadDetailsModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" class="lucide lucide-phone h-4 w-4 mr-2"
+                    data-lov-id="src/components/leads/LeadDetailModal.tsx:238:14" data-lov-name="Phone"
+                    data-component-path="src/components/leads/LeadDetailModal.tsx" data-component-line="238"
+                    data-component-file="LeadDetailModal.tsx" data-component-name="Phone"
+                    data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D">
+                    <path
+                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                    </path>
+                </svg> Log Call</button>
+            @endcan
+            @can('lead_generate_quote')
+            <button class="btn btn-outline-success generateQuote"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text h-4 w-4 mr-2"
+                    data-lov-id="src/components/leads/LeadDetailModal.tsx:245:14" data-lov-name="FileText"
+                    data-component-path="src/components/leads/LeadDetailModal.tsx" data-component-line="245"
+                    data-component-file="LeadDetailModal.tsx" data-component-name="FileText"
+                    data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D">
+                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                    <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                    <path d="M10 9H8"></path>
+                    <path d="M16 13H8"></path>
+                    <path d="M16 17H8"></path>
+                </svg> Generate Quote</button>
+            @endcan
+
+
+            <button data-lead='@json($lead)' class="btn btn-outline-danger edit_lead"  data-lead='@json($lead)' data-bs-toggle="modal"
+            data-bs-target="#editlead">
+                
+            <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text h-4 w-4 mr-2"
+                    data-lov-id="src/components/leads/LeadDetailModal.tsx:245:14" data-lov-name="FileText"
+                    data-component-path="src/components/leads/LeadDetailModal.tsx" data-component-line="245"
+                    data-component-file="LeadDetailModal.tsx" data-component-name="FileText"
+                    data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D">
+                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                    <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                    <path d="M10 9H8"></path>
+                    <path d="M16 13H8"></path>
+                    <path d="M16 17H8"></path>
+                </svg>Edit Lead</button>
+
+            <!-- <div class="rk-action-tab">
                 <a href="javascript:;" class="edit_lead" data-lead='@json($lead)' data-bs-toggle="modal"
                     data-bs-target="#editlead">Edit Lead</a>
-            </div>
+            </div> -->
+
+            <!-- <div class="rk-action-tab">
+                <a href="javascript:;" class="edit_lead" data-lead='@json($lead)' data-bs-toggle="modal"
+                    data-bs-target="#editlead">Generate Quote</a>
+            </div> -->
         </div>
     </div>
 
@@ -148,8 +216,7 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
                         <label>Rejection Url</label>
 
                         @if(!empty($lead->rejection_url))
-                        <a href="{{ $lead->rejection_url }}" target="_blank"
-                            onclick="return confirm('Are you sure?');">
+                        <a href="{{ $lead->rejection_url }}" target="_blank" onclick="return confirm('Are you sure?');">
                             <p class="rk-link" style="color:red">Rejection Url</p>
                         </a>
                         @else
@@ -215,6 +282,7 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
 </div>
 @include('admin.leads._email_modal',['emailTemplates'=>$emailTemplates])
 @include('admin.leads._edit_modal')
+@include('admin.leads.call_logs')
 <style>
 .rk-notes-list {
     height: 250px;
@@ -489,5 +557,17 @@ function changeLeadStatus(status) {
     document.getElementById('statusInput').value = status;
     document.getElementById('statusForm').submit();
 }
+
+$(document).on('click', '.generateQuote', function() {
+    let leadId = $('.lead_id').val();
+    // if hidden input is inside table row
+    //alert(leadId); return;
+    if (confirm("Are you sure you want to generate this quote?")) {
+        let url = "{{ route('admin.generateQuote', ':id') }}";
+        url = url.replace(':id', leadId);
+
+        window.location.href = url;
+    }
+});
 </script>
 @endsection
