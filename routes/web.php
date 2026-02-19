@@ -44,14 +44,17 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('updateLeadStatusNew', [App\Http\Controllers\Admin\LeadInboxController::class, 'updateLeadStatusNew'])->name('updateLeadStatusNew');
     Route::any('noteStore', [App\Http\Controllers\Admin\LeadInboxController::class, 'noteStore'])->name('noteStore');
     
-    # For contacts noteStore
+    # For contacts noteStore contactDetails
     Route::any('contacts', [App\Http\Controllers\Admin\LeadInboxController::class, 'contacts'])->name('contacts');	
     Route::any('listContact', [App\Http\Controllers\Admin\LeadInboxController::class, 'listContact'])->name('listContact');	
     Route::any('updateContact', [App\Http\Controllers\Admin\LeadInboxController::class, 'updateContact'])->name('updateContact');
     Route::any('contactFollowUp/{id}', [App\Http\Controllers\Admin\LeadInboxController::class, 'contactFollowUp'])->name('contactFollowUp');		
     Route::any('deleteImages', [App\Http\Controllers\Admin\LeadInboxController::class, 'deleteImages'])->name('deleteImages');
+    Route::any('listLeadsContact', [App\Http\Controllers\Admin\LeadInboxController::class, 'listLeadsContact'])->name('listLeadsContact');
+    Route::any('contactDetails/{id}', [App\Http\Controllers\Admin\LeadInboxController::class, 'contactDetails'])->name('contactDetails');
+    Route::any('updateContactStatus1', [App\Http\Controllers\Admin\LeadInboxController::class, 'updateContactStatus1'])->name('updateContactStatus1');
+
     # zoom recordings
-    
     Route::any('/zoomRecordings/{id}', [App\Http\Controllers\Admin\LeadInboxController::class, 'zoomRecordings']);	
     Route::any('/audioUrl', [App\Http\Controllers\Admin\LeadInboxController::class, 'audioUrl'])->name('audioUrl');			
 

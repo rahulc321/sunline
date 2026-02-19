@@ -6,26 +6,26 @@
 
 @php
 $stages = [
-'New',
-'Send Intro Email',
-'1st Attempt',
-'2nd Attempt',
-'3rd Attempt',
-'Under Construction',
-'Qualified',
-'Lost'
+'Pending',
+'Getting Proposal Ready',
+'Proposal Sent',
+'Follow Up Scheduled',
+'Proposal Accepted',
+'Lost',
+
 ];
 
 // example — replace with your real status
-$currentStatus = $lead->status ?? 'New';
+$currentStatus = $lead->contact->status ?? '';
 $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
+
 @endphp
 
 <div class="rk-overview-wrapper">
 
     <!-- header -->
     <div class="rk-overview-header">
-        <h3 class="rk-overview-title">Overview #{{$lead->id}}</h3>
+        <h3 class="rk-overview-title">Contact Overview #{{$lead->id}}</h3>
         <div class="rk-action-tabs">
 
             @can('lead_email_access')
@@ -57,24 +57,6 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
                     </path>
                 </svg> Log Call</button>
             @endcan
-            @can('lead_generate_quote')
-            @if(!$lead->project_id)
-            <button class="btn btn-outline-success generateQuote"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text h-4 w-4 mr-2"
-                    data-lov-id="src/components/leads/LeadDetailModal.tsx:245:14" data-lov-name="FileText"
-                    data-component-path="src/components/leads/LeadDetailModal.tsx" data-component-line="245"
-                    data-component-file="LeadDetailModal.tsx" data-component-name="FileText"
-                    data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D">
-                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
-                    <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
-                    <path d="M10 9H8"></path>
-                    <path d="M16 13H8"></path>
-                    <path d="M16 17H8"></path>
-                </svg> Generate Quote</button>
-            @endif
-            @endcan
-
 
             <button data-lead='@json($lead)' class="btn btn-outline-danger edit_lead" data-lead='@json($lead)'
                 data-bs-toggle="modal" data-bs-target="#editlead">
@@ -92,6 +74,32 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
                     <path d="M16 13H8"></path>
                     <path d="M16 17H8"></path>
                 </svg>Edit Lead</button>
+
+                <?php 
+                    if($lead->proposal_url){
+                        $link = $lead->proposal_url;
+                    }else{
+                        $link = "https://app.opensolar.com/projects/{$lead->project_id}/design";
+
+                    }
+                ?>
+
+                <a href="{{$link}}" target="_blank">
+                 <button data-lead='@json($lead)' class="btn btn-outline-success"  >
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-file-text h-4 w-4 mr-2"
+                    data-lov-id="src/components/leads/LeadDetailModal.tsx:245:14" data-lov-name="FileText"
+                    data-component-path="src/components/leads/LeadDetailModal.tsx" data-component-line="245"
+                    data-component-file="LeadDetailModal.tsx" data-component-name="FileText"
+                    data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D">
+                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                    <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                    <path d="M10 9H8"></path>
+                    <path d="M16 13H8"></path>
+                    <path d="M16 17H8"></path>
+                </svg>View Proposal</button></a>
 
             <!-- <div class="rk-action-tab">
                 <a href="javascript:;" class="edit_lead" data-lead='@json($lead)' data-bs-toggle="modal"
@@ -115,14 +123,14 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
         <!-- ✅ HUBSPOT PIPELINE -->
         <div class="rk-pipeline">
             @foreach($stages as $stage)
-            <div class="rk-stage {{ $currentStatus == $stage ? 'active' : '' }}"
+            <div class="rk-stage {{ strtolower($currentStatus) == strtolower($stage) ? 'active' : '' }}"
                 onclick="changeLeadStatus('{{ $stage }}')">
                 {{ $stage }}
             </div>
             @endforeach
-            <form id="statusForm" method="POST" action="{{ route('admin.updateLeadStatusNew') }}">
+            <form id="statusFormContact" method="POST" action="{{ route('admin.updateContactStatus1') }}">
                 @csrf
-                <input type="hidden" name="id" value="{{ $lead->id }}">
+                <input type="hidden" name="id" value="{{ $lead->contact->id }}">
                 <input type="hidden" name="status" id="statusInput">
             </form>
         </div>
@@ -642,13 +650,13 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
     color: #999;
     padding: 8px 0;
 }
+
 .rk-files-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
 }
-
 </style>
 
 @endsection
@@ -661,7 +669,7 @@ function changeLeadStatus(status) {
         return;
     }
     document.getElementById('statusInput').value = status;
-    document.getElementById('statusForm').submit();
+    document.getElementById('statusFormContact').submit();
 }
 
 $(document).on('click', '.generateQuote', function() {
