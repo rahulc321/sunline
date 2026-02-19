@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Str;
 use App\Models\LeadStatus;
 use App\Models\CaseType;
 use App\Models\LeadFollowUp;
@@ -73,7 +74,7 @@ class LeadInboxController extends Controller
 	public function listLeads(Request $request)
 	{
 		$query = Lead::with('getAssignUserName','leadSource','leadFollowUp','images')
-			->whereNotIn('status', ['Qualified', 'Sold'])
+			->whereNotIn('status', ['Sold'])
 			->orderBy('id','DESC')
 			->forCurrentUser();
 
@@ -407,7 +408,7 @@ class LeadInboxController extends Controller
 			'id' => 'required|integer|exists:leads,id',
 			'status' => 'required|string'
 		]);
-
+		
 		$lead = Lead::findOrFail($request->id);
 		$lead->status = $request->status;
 		$lead->save();
@@ -425,6 +426,23 @@ class LeadInboxController extends Controller
 		session()->flash('success', 'You have successfully updated!');
 		return back();
 	}
+
+
+	public function updateContactStatus1(Request $request)
+	{
+		$request->validate([
+			'id' => 'required|integer|exists:leads,id',
+			'status' => 'required|string'
+		]);
+		
+		$contact = LeadContact::findOrFail($request->id);
+		$contact->status = $request->status;
+		$contact->save();
+ 
+		session()->flash('success', 'You have successfully updated!');
+		return back();
+	}
+
 
 	public function followupComplete(Request $request){
 
@@ -468,7 +486,7 @@ class LeadInboxController extends Controller
 		$this->data['leadSource'] = LeadSource::where('status',1)->get();
 		$this->data['emailTemplates'] = EmailTemplate::get();
 		$this->data['leads'] = Lead::get();
-		return view('admin.contact.index',$this->data);
+		return view('admin.contact.index_table',$this->data);
 	}
 
 
@@ -856,6 +874,7 @@ class LeadInboxController extends Controller
             'image_path' => 'lead/' . $originalName
         ]);
 
+		session()->flash('success', 'You have successfully added.');
         return response()->json([
             'file_name' => $originalName,
             'file_url'  => asset('lead/'.$originalName)
@@ -867,7 +886,7 @@ class LeadInboxController extends Controller
 		DB::table($request->tble)
         ->where('id', $request->id)
         ->delete();
-
+		session()->flash('warning', 'You have successfully deleted!');
 		return response()->json([
 			'status' => true,
 			'message' => 'Deleted successfully'
@@ -885,6 +904,17 @@ class LeadInboxController extends Controller
 		$this->data['lead'] = Lead::with('leadNotes.creator','getAssignUserName','leadSource','leadFollowUp','images')->findOrFail($leadId);
 		//echo '<pre>';print_r($this->data['lead'] );die;
 		return view('admin.leads.lead_details',$this->data);
+	}
+	// Contact details
+	public function contactDetails($leadId){
+		$this->data['leadSource'] = LeadSource::where('status',1)->get();
+		$this->data['emailTemplates'] = EmailTemplate::get();
+		$this->data['users'] = User::whereHas('roles', function ($query) {
+			$query->where('title', env('ROLE'));
+		})->get();
+		$this->data['lead'] = Lead::with('leadNotes.creator','getAssignUserName','leadSource','leadFollowUp','images','contact')->findOrFail($leadId);
+		//echo '<pre>';print_r($this->data['lead'] );die;
+		return view('admin.contact.contact_details',$this->data);
 	}
 
 	public function noteStore(Request $request)
@@ -904,6 +934,130 @@ class LeadInboxController extends Controller
     }
 
 
+	public function listLeadsContact(Request $request)
+	{
+		$query = Lead::with('getAssignUserName','leadSource','leadFollowUp','images','contact')
+			->whereIn('status', ['Qualified'])
+			->orderBy('id','DESC')
+			->forCurrentUser();
 
+		# filters
+		if ($request->lead_source) {
+			$query->where('lead_source', $request->lead_source);
+		}
+
+		if ($request->assign_rep !== null && $request->assign_rep !== '') {
+
+			if ($request->assign_rep == 'unassigned') {
+				$query->whereNull('assign_rep');
+			} else {
+				$query->where('assign_rep', $request->assign_rep);
+			}
+		}
+
+		if ($request->status) {
+			$query->whereHas('contact', function ($q) use ($request) {
+				$q->whereRaw('LOWER(status) = ?', [strtolower($request->status)]);
+			});
+		}
+
+
+		return DataTables::of($query)
+			->addIndexColumn()
+			->addColumn('lead_source', function ($lead) {
+				return $lead->leadSource->source ?? '-';
+			})
+
+			->addColumn('name', function ($lead) {
+				$name = $lead->first_name . ' ' . $lead->last_name;
+			
+				return '<a href="' . route('admin.contactDetails', $lead->id) . '">' . e($name) . '</a>';
+			})
+
+			->addColumn('salesRep', function ($lead) {
+				return $lead->getAssignUserName->name ?? '';
+			})
+
+			// ->addColumn('created_at', function ($lead) {
+			// 	return $lead->created_at
+			// 		? $lead->created_at->format('m-d-Y')
+			// 		: '';
+			// })
+
+			->addColumn('status', function ($lead) {
+
+				$status = $lead->contact->status ?? '';
+			
+				// status → color mapping (same as JS)
+				$statusColors = [
+					'pending' => 'warning',
+					'getting proposal ready' => 'info',
+					'proposal sent' => 'secondary',
+					'follow up scheduled' => 'warning',
+					'proposal accepted' => 'success',
+					'lost' => 'danger',
+				];
+				
+				$color = $statusColors[strtolower($status ?? '')] ?? 'secondary';
+			
+				return '
+					<div class="d-flex align-items-center justify-content-end flex-wrap mb-2 gap-2">
+						<span class="badge text-'.$color.' border border-'.$color.' rounded-pill px-2 py-1">
+							'.ucwords(strtolower($status)).'
+						</span>
+					</div>
+				';
+			})
+
+			->addColumn('address', function ($lead) {
+				return trim(implode(', ', array_filter([
+					$lead->address,
+					$lead->suburb,
+					$lead->state ? $lead->state . ' ' . $lead->postcode : $lead->postcode,
+				])));
+			})
+
+			->addColumn('category', function ($lead) {
+
+				$html = 'Category: <strong class="text-dark">'.($lead->category ?? '').'</strong>';
+			
+				// Solar KW condition
+				if (
+					in_array($lead->category, ['Solar', 'Solar+Battery']) &&
+					!empty($lead->solar_kw)
+				) {
+					$html .= ' &nbsp;|&nbsp; Solar KW: 
+						<strong class="text-dark">'.$lead->solar_kw.'</strong>';
+				}
+			
+				// Battery KW condition
+				if (
+					in_array($lead->category, ['Battery', 'Solar+Battery']) &&
+					!empty($lead->battery_kw)
+				) {
+					$html .= ' &nbsp;|&nbsp; Battery KW: 
+						<strong class="text-dark">'.$lead->battery_kw.'</strong>';
+				}
+			
+				return $html;
+			})
+			->addColumn('action', function ($lead) {
+
+				$leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
+				$buttons = '<div class="">';
+	 
+				// view button (always visible)
+				$buttons .= '<a href="' . route('admin.contactDetails', $lead->id) . '"
+					class="btn btn-sm btn-primary">
+					<i class="ph-eye"></i>
+				</a>';
+				 
+				$buttons .= '</div>';
+	
+				return $buttons;
+			})
+			->rawColumns(['status','category','action','name'])
+			->make(true);
+	}
 
 }

@@ -62,4 +62,9 @@ class Lead extends Model
         return $this->hasMany(Note::class, 'lead_id', 'id')
                     ->orderBy('id', 'desc');
     }
+
+    public function contact()
+    {
+        return $this->hasOne(LeadContact::class, 'lead_id');
+    }
 }
