@@ -186,7 +186,7 @@ class LeadInboxController extends Controller
 				// permission: lead_email_access
 				if (auth()->user()->can('lead_email_access')) {
 					$buttons .= '
-						<button class="btn btn-sm btn-warning custom-btn send_email"
+						<button class="btn btn-sm btn-warning custom-btn send_email d-none"
 							data-lead="'.$leadJson.'"
 							data-bs-toggle="modal"
 							data-bs-target="#emailModel">
@@ -196,7 +196,7 @@ class LeadInboxController extends Controller
 	
 				// view button (always visible)
 				$buttons .= '
-					<button class="btn btn-sm btn-primary view-lead"
+					<button class="btn btn-sm btn-primary view-lead d-none"
 						data-lead="'.$leadJson.'"
 						data-bs-toggle="modal"
 						data-bs-target="#leadDetailsModal">
@@ -209,7 +209,7 @@ class LeadInboxController extends Controller
 				// permission: lead_edit
 				if (auth()->user()->can('lead_edit')) {
 					$buttons .= '
-						<button class="btn btn-sm btn-outline-secondary edit_lead"
+						<button class="btn btn-sm btn-outline-secondary edit_lead d-none"
 							data-lead="'.$leadJson.'"
 							data-bs-toggle="modal"
 							data-bs-target="#editlead">
@@ -1058,6 +1058,100 @@ class LeadInboxController extends Controller
 			})
 			->rawColumns(['status','category','action','name'])
 			->make(true);
+	}
+
+	# Export csv lead
+	public function exportLead(Request $request)
+	{
+		$query = Lead::with('getAssignUserName','leadSource','leadFollowUp','images');
+
+		if($request->lead_source){
+			$query->where('lead_source',$request->lead_source);
+		}
+
+		if($request->assign_rep == 'unassigned'){
+			$query->whereNull('assign_rep');
+		}elseif($request->assign_rep){
+			$query->where('assign_rep',$request->assign_rep);
+		}
+
+		if($request->status){
+			$query->where('status',$request->status);
+		}
+
+		if($request->from_date){
+			$query->whereDate('created_at','>=',$request->from_date);
+		}
+
+		if($request->to_date){
+			$query->whereDate('created_at','<=',$request->to_date);
+		}
+
+		$leads = $query->get();
+
+		$filename = "leads.csv";
+
+		$headers = [
+			"Content-Type" => "text/csv",
+			"Content-Disposition" => "attachment; filename=$filename",
+		];
+
+		$callback = function() use ($leads){
+
+			$file = fopen('php://output','w');
+
+			fputcsv($file,[
+				'Lead Name',
+				'Phone',
+				'Email',
+				'Address',
+				'Status',
+				'Lead Source',
+				'Sales Rep',
+				'Category Details',
+				'Created At'
+			]);
+
+			foreach($leads as $lead){
+
+				$name = trim(($lead->first_name ?? '').' '.($lead->last_name ?? ''));
+
+				$address = trim(implode(', ', array_filter([
+					$lead->address,
+					$lead->suburb,
+					$lead->state ? $lead->state.' '.$lead->postcode : $lead->postcode,
+				])));
+
+				# category text
+				$categoryText = 'Category: '.($lead->category ?? '');
+
+				# solar condition
+				if(in_array($lead->category, ['Solar','Solar+Battery']) && !empty($lead->solar_kw)){
+					$categoryText .= ' | Solar KW: '.$lead->solar_kw;
+				}
+
+				# battery condition
+				if(in_array($lead->category, ['Battery','Solar+Battery']) && !empty($lead->battery_kw)){
+					$categoryText .= ' | Battery KW: '.$lead->battery_kw;
+				}
+
+				fputcsv($file,[
+					$name,
+					$lead->phone,
+					$lead->email,
+					$address,
+					$lead->status,
+					$lead->leadSource->source ?? '-',
+					$lead->getAssignUserName->name ?? '',
+					$categoryText,
+					$lead->created_at
+				]);
+			}
+
+			fclose($file);
+		};
+
+		return response()->stream($callback,200,$headers);
 	}
 
 }

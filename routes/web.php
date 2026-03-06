@@ -54,6 +54,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('contactDetails/{id}', [App\Http\Controllers\Admin\LeadInboxController::class, 'contactDetails'])->name('contactDetails');
     Route::any('updateContactStatus1', [App\Http\Controllers\Admin\LeadInboxController::class, 'updateContactStatus1'])->name('updateContactStatus1');
 
+    Route::any('exportLead', [App\Http\Controllers\Admin\LeadInboxController::class, 'exportLead'])->name('exportLead');
+
     # zoom recordings
     Route::any('/zoomRecordings/{id}', [App\Http\Controllers\Admin\LeadInboxController::class, 'zoomRecordings']);	
     Route::any('/audioUrl', [App\Http\Controllers\Admin\LeadInboxController::class, 'audioUrl'])->name('audioUrl');			
