@@ -37,7 +37,9 @@ strong {
     min-width: calc(var(--badge-padding-y) * 2 + var(--badge-font-size));
     /* box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px; */
     box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
-}.rk-stage-wrapper {
+}
+
+.rk-stage-wrapper {
     display: flex;
     overflow-x: auto;
     background: #dfeceb;
@@ -54,13 +56,11 @@ strong {
     background: #b7d8d4;
     margin-right: 4px;
     white-space: nowrap;
-    clip-path: polygon(
-        0 0,
-        calc(100% - 16px) 0,
-        100% 50%,
-        calc(100% - 16px) 100%,
-        0 100%
-    );
+    clip-path: polygon(0 0,
+            calc(100% - 16px) 0,
+            100% 50%,
+            calc(100% - 16px) 100%,
+            0 100%);
     transition: all .15s ease;
 }
 
@@ -90,6 +90,7 @@ strong {
 .rk-clickable:hover {
     transform: translateY(-1px);
 }
+
 .card.ll {
     margin-left: -20px;
     margin-right: -20px;
@@ -253,46 +254,73 @@ strong {
         </div>
 
         <div class="card p-3 form_1">
-            <form class="row align-items-end" id="leadFilterForm">
+            <form id="leadFilterForm">
 
-                <!-- Lead Source -->
-                <div class="col-md-3">
-                    <label>Lead Source</label>
-                    <select name="lead_source" id="lead_source" class="form-control">
-                        <option value="">Select All</option>
-                        @foreach($leadSource as $data)
-                        <option value="{{ $data->id }}">{{ $data->source }}</option>
-                        @endforeach
-                    </select>
+                <div class="row g-3">
+
+                    <!-- Lead Source -->
+                    <div class="col-md-3">
+                        <label class="form-label1">Lead Source</label>
+                        <select name="lead_source" id="lead_source" class="form-control">
+                            <option value="">Select All</option>
+                            @foreach($leadSource as $data)
+                            <option value="{{ $data->id }}">{{ $data->source }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Sales Rep -->
+                    <div class="col-md-3">
+                        <label class="form-label1">Sales Rep</label>
+                        <select name="assign_rep" id="assign_rep" class="form-control">
+                            <option value="">Select All</option>
+                            <option value="unassigned">Unassigned</option>
+                            @foreach($users as $data)
+                            <option value="{{ $data->id }}">{{ $data->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-md-2">
+                        <label class="form-label1">Status</label>
+                        <select name="status" id="status" class="form-select">
+                            <option value="">Select All</option>
+                            @foreach($status as $value)
+                            <option value="{{ $value }}">{{ $value }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- From Date -->
+                    <div class="col-md-2">
+                        <label class="form-label1">From Date</label>
+                        <input type="date" name="from_date" id="from_date" class="form-control">
+                    </div>
+
+                    <!-- To Date -->
+                    <div class="col-md-2">
+                        <label class="form-label1">To Date</label>
+                        <input type="date" name="to_date" id="to_date" class="form-control">
+                    </div>
+
                 </div>
 
-                <!-- Sales Rep -->
-                <div class="col-md-3">
-                    <label>Sales Rep</label>
-                    <select name="assign_rep" id="assign_rep" class="form-control">
-                        <option value="">Select All</option>
-                        <option value="unassigned">Unassigned</option>
-                        @foreach($users as $data)
-                        <option value="{{ $data->id }}">{{ $data->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                <!-- Buttons Row -->
+                <div class="row mt-3">
+                    <div class="col-md-12 d-flex gap-2">
+                        <button type="button" class="btn btn-primary apply">
+                            Apply
+                        </button>
 
-                <!-- Status -->
-                <div class="col-md-3">
-                    <label>Status</label>
-                    <select name="status" id="status" class="form-select form-select-sm">
-                        <option value="">Select All</option>
-                        @foreach($status as $value)
-                        <option value="{{ $value }}">{{ $value }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                        <button type="reset" class="btn btn-outline-secondary reset">
+                            Reset
+                        </button>
 
-                <!-- Buttons -->
-                <div class="col-md-2 d-flex gap-2">
-                    <button type="button" class="btn btn-primary bg_s apply">Apply</button>
-                    <button type="reset" class="btn btn-outline-secondary reset">Reset</button>
+                        <button type="button" class="btn btn-success exportCsv">
+                            Export CSV
+                        </button>
+                    </div>
                 </div>
 
             </form>
@@ -901,6 +929,25 @@ strong {
     // First load
     $(document).ready(function() {
         loadLeads(true);
+    });
+
+    // Export csv logic
+    $('.exportCsv').click(function() {
+
+        let lead_source = $('#lead_source').val();
+        let assign_rep = $('#assign_rep').val();
+        let status = $('#status').val();
+        let from_date = $('#from_date').val();
+        let to_date = $('#to_date').val();
+
+        let url = "/admin/exportLead?" +
+            "lead_source=" + lead_source +
+            "&assign_rep=" + assign_rep +
+            "&status=" + status +
+            "&from_date=" + from_date +
+            "&to_date=" + to_date;
+
+        window.location.href = url;
     });
     </script>
 
