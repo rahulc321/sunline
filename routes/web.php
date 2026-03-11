@@ -194,5 +194,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::get('/attendance', [App\Http\Controllers\Admin\AttendanceController::class, 'userAttendance'])->name('attendance.index');
     Route::get('/admin/attendance', [App\Http\Controllers\Admin\AttendanceController::class, 'adminIndex'])->name('admin.attendance.index');
 
+    #sales 
+    Route::get('salesDetails/{leadId}', [App\Http\Controllers\Admin\LeadInboxController::class, 'salesDetails'])->name('salesDetails');
 
 });

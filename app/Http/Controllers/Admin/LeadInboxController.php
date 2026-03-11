@@ -580,6 +580,8 @@ class LeadInboxController extends Controller
 
 	}
 
+	
+
 	// /////////////////////////////For Salse ///////////////////////////
 	public function sales(Request $request)
 	{	
@@ -607,11 +609,11 @@ class LeadInboxController extends Controller
 		//dd($userRole);
 		$this->data['leads'] = Lead::forCurrentUser()->get();
 
-		return view('admin.sales.index',$this->data);
+		return view('admin.sales_new.index',$this->data);
 	}
 
 	# get sale where status is sold
-	public function getSale(Request $request)
+	public function getSale_old(Request $request)
 	{
 		$limit = $request->limit ?? 10;
 		$offset = $request->offset ?? 0;
@@ -684,6 +686,212 @@ class LeadInboxController extends Controller
 			'totalPayout' => $totalPayout,
 			'followupCount' => $totalFollowups
 		]);
+	}
+
+	public function getSale(Request $request)
+	{
+		$query = Lead::with('getAssignUserName','leadSource','leadFollowUp','images')
+			->whereIn('status', ['Sold'])
+			->orderBy('id','DESC')
+			->forCurrentUser();
+
+		# filters
+		if ($request->lead_source) {
+			$query->where('lead_source', $request->lead_source);
+		}
+
+		if ($request->assign_rep !== null && $request->assign_rep !== '') {
+
+			if ($request->assign_rep == 'unassigned') {
+				$query->whereNull('assign_rep');
+			} else {
+				$query->where('assign_rep', $request->assign_rep);
+			}
+		}
+
+		if ($request->status) {
+			$query->where('status', $request->status);
+		}
+
+		$totalCommision = 0;
+		$totalPayout = 0;
+
+		return DataTables::of($query)	
+			->addIndexColumn()
+			->addColumn('lead_source', function ($lead) {
+				return $lead->leadSource->source ?? '-';
+			})
+
+			->addColumn('name', function ($lead) {
+
+				$name = $lead->first_name . ' ' . $lead->last_name;
+			
+				$statusColor = '#ad8504';
+			
+				if ($lead->sale_status == 'Installed') {
+					$statusColor = 'green';
+				} elseif ($lead->sale_status == 'Cancelled') {
+					$statusColor = 'red';
+				}
+			
+				return '
+					<a href="' . route('admin.salesDetails', $lead->id) . '">' . e($name) . '</a>
+					<br>
+					<span style="color:' . $statusColor . '; font-weight:600;">
+						' . ($lead->sale_status ?? 'Pending') . '
+					</span>
+				';
+			})
+			 
+
+			 
+			->addColumn('salesRep', function ($lead) use ($totalCommision, $totalPayout) {
+
+				$name = $lead->getAssignUserName->name ?? '';
+			
+				$getComm = LeadCommission::where('lead_id', $lead->id)
+					->whereMonth('created_at', date('m'))
+					->whereYear('created_at', date('Y'))
+					->first();
+
+				# if commission row not found → treat as 0
+				$solar = $getComm->solar_commission ?? 0;
+				$battery = $getComm->battery_commission ?? 0;
+
+				$total = $solar + $battery;
+
+				if ($lead->sale_status != 'Cancelled') {
+					$totalCommision += $total;
+				}
+
+				if ($lead->sale_status == 'Installed') {
+					$totalPayout += $total;
+				}
+			
+				return '
+					<a href="' . route('admin.salesDetails', $lead->id) . '">' . e($name) . '</a>
+					<br>
+					<span style="color:green;">
+					💰 Commission: ₹' . $total . '
+					</span>
+				';
+			})
+			
+
+			// ->addColumn('created_at', function ($lead) {
+			// 	return $lead->created_at
+			// 		? $lead->created_at->format('m-d-Y')
+			// 		: '';
+			// })
+
+			->addColumn('status', function ($lead) {
+
+				$status = $lead->status ?? '';
+			
+				// status → color mapping (same as JS)
+				$statusColors = [
+					'New'               => 'primary',
+					'Send Intro Email'  => 'info',
+					'1st Attempt'       => 'warning',
+					'2nd Attempt'       => 'warning',
+					'3rd Attempt'       => 'warning',
+					'Under Construction'=> 'secondary',
+					'Qualified'         => 'success',
+					'Lost'              => 'danger',
+				];
+			
+				$color = $statusColors[$status] ?? 'secondary';
+			
+				return '
+					<div class="d-flex align-items-center justify-content-end flex-wrap mb-2 gap-2">
+						<span class="badge text-'.$color.' border border-'.$color.' rounded-pill px-2 py-1">
+							'.$status.'
+						</span>
+					</div>
+				';
+			})
+
+			->addColumn('address', function ($lead) {
+				return trim(implode(', ', array_filter([
+					$lead->address,
+					$lead->suburb,
+					$lead->state ? $lead->state . ' ' . $lead->postcode : $lead->postcode,
+				])));
+			})
+
+			->addColumn('category', function ($lead) {
+
+				$html = 'Category: <strong class="text-dark">'.($lead->category ?? '').'</strong>';
+			
+				// Solar KW condition
+				if (
+					in_array($lead->category, ['Solar', 'Solar+Battery']) &&
+					!empty($lead->solar_kw)
+				) {
+					$html .= ' &nbsp;|&nbsp; Solar KW: 
+						<strong class="text-dark">'.$lead->solar_kw.'</strong>';
+				}
+			
+				// Battery KW condition
+				if (
+					in_array($lead->category, ['Battery', 'Solar+Battery']) &&
+					!empty($lead->battery_kw)
+				) {
+					$html .= ' &nbsp;|&nbsp; Battery KW: 
+						<strong class="text-dark">'.$lead->battery_kw.'</strong>';
+				}
+			
+				return $html;
+			})
+			->addColumn('action', function ($lead) {
+
+				$leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
+				$buttons = '<div class="">';
+	
+				// permission: lead_email_access
+				if (auth()->user()->can('lead_email_access')) {
+					$buttons .= '
+						<button class="btn btn-sm btn-warning custom-btn send_email d-none"
+							data-lead="'.$leadJson.'"
+							data-bs-toggle="modal"
+							data-bs-target="#emailModel">
+							<i class="ph-envelope-simple"></i>
+						</button>';
+				}
+	
+				// view button (always visible)
+				$buttons .= '
+					<button class="btn btn-sm btn-primary view-lead d-none"
+						data-lead="'.$leadJson.'"
+						data-bs-toggle="modal"
+						data-bs-target="#leadDetailsModal">
+						<i class="ph-eye"></i>
+					</button>
+					<a href="'.route('admin.timeline',[$lead->id]).'"> <i class="ph-clock-counter-clockwise"></i></a>
+					 
+					';
+	
+				// permission: lead_edit
+				if (auth()->user()->can('lead_edit')) {
+					$buttons .= '
+						<button class="btn btn-sm btn-outline-secondary edit_lead d-none"
+							data-lead="'.$leadJson.'"
+							data-bs-toggle="modal"
+							data-bs-target="#editlead">
+							<i class="ph-pencil-line"></i>
+						</button> ';
+				}
+	
+				$buttons .= '</div>';
+	
+				return $buttons;
+			})
+			->rawColumns(['status','category','action','name','salesRep'])
+			->with([
+				'totalCommision' => $totalCommision,
+				'totalPayout' => $totalPayout
+			])
+			->make(true);
 	}
 
 	public function zoomRecordings($id)
@@ -1152,6 +1360,30 @@ class LeadInboxController extends Controller
 		};
 
 		return response()->stream($callback,200,$headers);
+	}
+
+	# Sales details
+	public function salesDetails($leadId){
+		$this->data['leadSource'] = LeadSource::where('status',1)->get();
+		$this->data['emailTemplates'] = EmailTemplate::get();
+		$this->data['users'] = User::whereHas('roles', function ($query) {
+			$query->where('title', env('ROLE'));
+		})->get();
+		$this->data['lead'] = Lead::with('leadNotes.creator','getAssignUserName','leadSource','leadFollowUp','images')->findOrFail($leadId);
+		//echo '<pre>';print_r($this->data['lead'] );die;
+
+		$getComm = LeadCommission::where('lead_id', $leadId)
+			->whereMonth('created_at', date('m'))
+			->whereYear('created_at', date('Y'))
+			->first();
+
+		# if commission row not found → treat as 0
+		$solar = $getComm->solar_commission ?? 0;
+		$battery = $getComm->battery_commission ?? 0;
+
+		$this->data['totalCommision'] = $solar + $battery;
+
+		return view('admin.sales_new.lead_details',$this->data);
 	}
 
 }
