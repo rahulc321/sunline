@@ -90,6 +90,11 @@
 </head>
 
 <body>
+    <style>
+        .nav-link {
+            font-weight: normal !important;
+        }
+    </style>
     <!-- Page content -->
     <div class="page-content">
 
