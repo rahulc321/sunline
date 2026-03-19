@@ -177,6 +177,23 @@ div#jsGrid1_filter {
     transform: scale(1.1);
     filter: brightness(1.2);
 }
+
+.rk-notes-card,
+.rk-summary-card,
+.rk-files-card,
+.rk-lifecycle-box {
+    border: 1px dashed #2ca5e4;
+}
+
+.card {
+
+    border: 1px dashed #2ca5e4 !important;
+}
+
+.rounded {
+
+    border: 1px dashed #2ca5e4 !important;
+}
 </style>
 <!-- Sidebar content -->
 <div class="sidebar-content">
@@ -296,11 +313,45 @@ div#jsGrid1_filter {
             @endcan
 
             @can('automation_access')
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a href="{{route('admin.emailTemplate.index')}}"
                     class="nav-link {{ request()->is('admin/emailTemplate') ? 'active' : '' }}">
                     <i class="ph-lightning"></i><span>Automation</span>
                 </a>
+            </li> -->
+
+            <li
+                class="nav-item nav-item-submenu 
+{{ request()->is('admin/emailTemplate*') || request()->is('admin/email-category*') ? 'nav-item-expanded nav-item-open' : '' }}">
+
+                <a href="#" class="nav-link">
+                    <i class="ph-envelope"></i>
+                    <span>Email Templates</span>
+                </a>
+
+                <ul class="nav-group-sub collapse 
+    {{ request()->is('admin/emailTemplate*') || request()->is('admin/email-category*') ? 'show' : '' }}">
+
+                    <!-- Automation -->
+                    <li class="nav-item">
+                        <a href="{{ route('admin.emailTemplate.index') }}"
+                            class="nav-link {{ request()->is('admin/emailTemplate*') ? 'active' : '' }}">
+                            <i class="ph-lightning text-warning me-1"></i>
+                            Automation
+                        </a>
+                    </li>
+
+                    <!-- Email Category -->
+                    <li class="nav-item">
+                        <a href="{{ route('admin.category.index') }}"
+                            class="nav-link {{ request()->is('admin/category*') ? 'active' : '' }}">
+                            <i class="ph-tag text-info me-1"></i>
+                            Email Category
+                        </a>
+                    </li>
+
+                </ul>
+
             </li>
             @endcan
 

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\EmailTemplate;
 use App\Models\Lead;
-use App\Models\LeadSource;
+use App\Models\{LeadSource, Category};
 
 class EmailTemplateController extends Controller
 {
@@ -37,7 +37,8 @@ class EmailTemplateController extends Controller
         // get results (with pagination if needed)
         $templates = $query->orderBy('id', 'desc')->paginate(10);
         $leadSource = LeadSource::where('status',1)->get();
-        return view('admin.email_templates.index', compact('templates','leadSource'));
+        $category = Category::where('type','mail')->where('status',1)->get();
+        return view('admin.email_templates.index', compact('templates','leadSource', 'category'));
     }
 
 

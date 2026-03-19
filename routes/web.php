@@ -66,10 +66,14 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     Route::any('listFri', [App\Http\Controllers\Admin\FriController::class, 'listFri'])->name('listFri');
     Route::any('viewFri/{id}', [App\Http\Controllers\Admin\FriController::class, 'viewFri'])->name('viewFri');
     Route::any('updateFriStaus', [App\Http\Controllers\Admin\FriController::class, 'updateFriStaus'])->name('updateFriStaus');
+    
     Route::any('friUpdate', [App\Http\Controllers\Admin\FriController::class, 'friUpdate'])->name('friUpdate');
     Route::any('followupComplete', [App\Http\Controllers\Admin\LeadInboxController::class, 'followupComplete'])->name('followupComplete');
     Route::any('friImages', [App\Http\Controllers\Admin\FriController::class, 'fri_images'])->name('friImages');
 
+    //Route::resource('fri', App\Http\Controllers\Admin\FriController::class);
+    Route::any('listFritable', [App\Http\Controllers\Admin\FriController::class, 'listFritable'])->name('listFritable');
+    Route::any('detailsRFI/{id}', [App\Http\Controllers\Admin\FriController::class, 'detailsRFI'])->name('detailsRFI');
     Route::any('updateLeadNotes', [App\Http\Controllers\Admin\LeadInboxController::class, 'updateLeadNotes'])->name('updateLeadNotes');
 
     # timeline
@@ -197,4 +201,5 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin', 'mi
     #sales 
     Route::get('salesDetails/{leadId}', [App\Http\Controllers\Admin\LeadInboxController::class, 'salesDetails'])->name('salesDetails');
 
+    Route::resource('category', App\Http\Controllers\Admin\CategoryController::class);
 });

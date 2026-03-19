@@ -49,11 +49,9 @@
                         <div class="col-sm-6 mb-3">
                             <label>Category</label>
                             <select name="category" class="form-select" required>
-                                <option value="">Select</option>
-                                <option value="Welcome">Welcome</option>
-                                <option value="Follow-up">Follow-up</option>
-                                <option value="Proposal">Proposal</option>
-                                <option value="Thank You">Thank You</option>
+                                @foreach($category as $value)
+                                <option value="{{ $value->name }}">{{ $value->name }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-sm-6 mb-3">

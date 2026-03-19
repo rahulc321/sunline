@@ -47,5 +47,24 @@ class Fri extends Model
         # 'ticket_id' is the foreign key in the replies table
     }
 
+    public function lead_name()
+    {
+    return $this->belongsTo(Lead::class,'lead_id');
+    }
+
+    public function created_by_name()
+    {
+    return $this->belongsTo(User::class,'created_by');
+    }
+
+    public function assigned_user()
+    {
+    return $this->belongsTo(User::class,'assigned_to');
+    }
+
+     
+
+     
+
      
 }

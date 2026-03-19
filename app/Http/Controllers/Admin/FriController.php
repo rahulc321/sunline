@@ -6,9 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{Fri,FriImages};
 use DB;
-use App\User;
+use App\{User};
 use App\Models\Lead;
 use Auth;
+use Yajra\DataTables\Facades\DataTables;
 
 class FriController extends Controller
 {
@@ -30,7 +31,7 @@ class FriController extends Controller
         $this->data['category'] = DB::table('categories')->where('status',1)->get();
         $this->data['leads'] = Lead::get();
 
-        return view('admin.fri.index',$this->data);
+        return view('admin.fri_new.index',$this->data);
 	}
 
     /**
@@ -193,7 +194,8 @@ class FriController extends Controller
         $fri->status = $request->status;
         $fri->save();
 
-        session()->flash('success', 'You have successfully update status!');
+        //session()->flash('success', 'You have successfully update status!');
+        return redirect()->back()->with('success', 'You have successfully update status!');
         return response()->json([
             'data'=>$fri,
             'success' => true,
@@ -278,10 +280,204 @@ class FriController extends Controller
             'image_path' => 'fri_images/' . $originalName
         ]);
 
+        session()->flash('success', 'RFI imagesn updated successfully.');
+         
+
         return response()->json([
             'file_name' => $originalName,
             'file_url'  => asset('fri_images/'.$originalName)
         ]);
+    }
+
+
+
+    public function listFritable(Request $request)
+    {
+
+        $query = Fri::with([
+            'lead_name',
+            'created_by_name',
+            'assigned_user'
+        ])
+        ->withCount([
+             
+            'images'
+        ])->forCurrentUser();
+
+        if($request->search_key){
+
+        $query->where('subject','like','%'.$request->search_key.'%');
+
+        }
+
+        if($request->status){
+
+        $query->where('status',$request->status);
+
+        }
+
+        if($request->priority){
+
+        $query->where('priority',$request->priority);
+
+        }
+
+        if($request->category){
+
+        $query->where('category',$request->category);
+
+        }
+
+        return DataTables::of($query)
+
+        ->addColumn('lead',function($row){
+
+        return $row->lead_name
+        ? $row->lead_name->first_name.' '.$row->lead_name->last_name
+        : '-';
+
+        })
+
+        // subject
+
+        ->addColumn('subject', function ($row) {
+
+            $currentUserId = auth()->id();
+            $counts = Fri::withCount([
+                'replies as unread_replies_count' => function ($q) use ($currentUserId, $row) {
+                    $q->whereNull('read_at')      
+                    ->where('ticket_id',$row->id)
+                    ->where('user_id', '!=', $currentUserId); // exclude current user's own replies
+                }
+            ])->where(function ($q) use ($currentUserId) {
+                $q->where('assigned_to', $currentUserId)  // tickets assigned to current user
+                ->orWhere('created_by', $currentUserId);   // tickets created by current user
+            })->first(['unread_replies_count']);
+
+            $dot = '';
+        
+            if ($counts->unread_replies_count > 0) {
+                $dot = '<span class="notify-wrapper">
+                            <span class="notify-dot"></span>
+                        </span>';
+            }
+        
+            return '
+                <div class="d-flex align-items-center gap-2">
+
+                    <span>'.$row->subject.' '.$dot.'</span>
+
+                    <a 
+                        href="javascript:void(0);" 
+                        class="reply text-primary"
+                        data-id="'.$row->id.'"
+                        data-bs-toggle="modal"
+                        data-bs-target="#replyModel">
+                         - Reply
+                    </a>
+
+                </div>';
+        
+        })
+
+        ->addColumn('responses',function($row){
+
+        return $row->responses_count;
+
+        })
+
+        ->addColumn('attachments',function($row){
+
+        return $row->images_count;
+
+        })
+
+        ->addColumn('created_by',function($row){
+
+        return $row->created_by_name
+        ? $row->created_by_name->name
+        : '-';
+
+        })
+
+        ->addColumn('assigned_to',function($row){
+
+        return $row->assigned_user
+        ? $row->assigned_user->name
+        : '-';
+
+        })
+
+        ->editColumn('status', function ($row) {
+
+            # default color
+            $class = 'bg-secondary';
+        
+            if ($row->status == 'Open') {
+                $class = 'bg-primary';
+            } elseif ($row->status == 'In Progress') {
+                $class = 'bg-warning';
+            } elseif ($row->status == 'Under Review') {
+                $class = 'bg-info';
+            } elseif ($row->status == 'Closed') {
+                $class = 'bg-success';
+            } elseif ($row->status == 'Cancelled') {
+                $class = 'bg-danger';
+            }
+        
+            return '<span class="badge '.$class.'">'.$row->status.'</span>';
+        })
+
+        ->editColumn('priority', function ($row) {
+
+            # set default badge color
+            $class = 'bg-secondary';
+        
+            if ($row->priority == 'High') {
+                $class = 'bg-warning';
+            } elseif ($row->priority == 'Medium') {
+                $class = 'bg-info';
+            } elseif ($row->priority == 'Low') {
+                $class = 'bg-success';
+            } elseif ($row->priority == 'Critical') {
+                $class = 'bg-danger';
+            }
+        
+            return '<span class="badge '.$class.'">'.$row->priority.'</span>';
+        })
+
+        ->addColumn('action', function ($row) {
+
+            return '<a 
+                href="'.route('admin.detailsRFI', $row->id).'" 
+                class="text-primary">
+                View More
+            </a>';
+        
+        })
+
+        ->rawColumns(['status','priority','action','subject'])
+
+        ->make(true);
+
+    }
+
+    public function detailsRFI($id){
+
+        $this->data['fri'] = Fri::with(['createdByName', 'leadName','images'])
+            ->where('id', $id)->first();
+        $this->data['users'] = User::whereHas('roles', function ($query) {
+            $query->where('title', env('ROLE'));
+        })->get();
+
+
+        $this->data['status'] = DB::table('statuses')->where('status', 1)->get();
+        $this->data['priority'] = DB::table('priorities')->where('status',1)->get();
+        $this->data['category'] = DB::table('categories')->where('status',1)->get();
+        $this->data['leads'] = Lead::get();
+
+        return view('admin.fri_new.view',$this->data);
+            
     }
 
 

@@ -78,7 +78,7 @@
                                 Reply
                             </button> -->
 
-                            <a href="{{route('admin.gmailReplyPage',[$threadId])}}">Reply</a>
+                            <a href="{{route('admin.gmailReplyPage',['threadId'=>$threadId,'leadId'=>$lData->id])}}">Reply</a>
                         </div>
 
                         <!-- <div class="reply-box d-none" id="reply-box-{{ $threadId }}">
