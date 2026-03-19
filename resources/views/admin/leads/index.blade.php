@@ -95,6 +95,7 @@ strong {
     margin-left: -20px;
     margin-right: -20px;
 }
+
 </style>
 <!-- Page header -->
 <div class="page-header">

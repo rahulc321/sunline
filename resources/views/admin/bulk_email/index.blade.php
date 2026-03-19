@@ -23,7 +23,7 @@
                     <select name="emails[]" class="form-select select2" multiple required>
                         @foreach($leads as $lead)
                         <option value="{{ $lead->email }}">
-                            {{ $lead->name }} — {{ $lead->email }}
+                            {{ $lead->first_name }} {{ $lead->last_name }} — {{ $lead->email }}
                         </option>
                         @endforeach
                     </select>
@@ -36,7 +36,7 @@
                         <option value="">-- Select Template --</option>
                         @foreach($emailTemplates as $template)
                         <option value="{{ $template->id }}" data-email='@json($template)'>
-                            {{ $template->category }}
+                            {{ $template->template_name }}
                         </option>
                         @endforeach
                     </select>

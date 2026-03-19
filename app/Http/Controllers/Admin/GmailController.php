@@ -262,6 +262,8 @@ class GmailController extends Controller
 
     public function gmailReplyPage($threadId){
         $this->data['threadId'] = $threadId;
+        $this->data['lData'] = Lead::find(request('leadId'));
+        //dd($this->data['lData']);
         return view('admin.leads.reply',$this->data);
     }
 
