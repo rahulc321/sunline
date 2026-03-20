@@ -17,16 +17,38 @@
 
             <div class="card-body">
 
+                <?php $status = config('fri.lead_status'); ?>
+
+                <div class="mb-3">
+                    <label class="fw-semibold">Lead Status</label>
+                    <select id="statusFilter" name="status" class="form-select">
+                        <option value="">-- Select Status --</option>
+                        @foreach($status as $val)
+                        <option value="{{ $val }}">{{ $val }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <!-- Select Users -->
                 <div class="mb-3">
                     <label class="fw-semibold">Select Emails</label>
-                    <select name="emails[]" class="form-select select2" multiple required>
+                    <select id="emailSelect" name="emails[]" class="form-select select2" multiple required>
                         @foreach($leads as $lead)
-                        <option value="{{ $lead->email }}">
+                        <option value="{{ $lead->email }}" data-status="{{ $lead->status }}">
                             {{ $lead->first_name }} {{ $lead->last_name }} — {{ $lead->email }}
                         </option>
                         @endforeach
                     </select>
+
+                    <div class="mb-2">
+                        <a href="javascript:;" id="selectAll">
+                            Select All
+                        </a> | 
+
+                        <a href="javascript:;" id="deselectAll">
+                            Deselect All
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Template dropdown -->
@@ -57,7 +79,8 @@
 
                     <div class="col-md-6 mb-3">
                         <label class="fw-semibold">Preview</label>
-                        <div class="border rounded p-3 bg-light" style="height:100%; overflow-y:auto;" id="emailPreview">
+                        <div class="border rounded p-3 bg-light" style="height:100%; overflow-y:auto;"
+                            id="emailPreview">
                             <p class="text-muted">Your email preview will appear here...</p>
                         </div>
                     </div>
@@ -85,7 +108,7 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
 
 <script>
-$(document).ready(function () {
+$(document).ready(function() {
 
     // initialize select2
     $('.select2').select2({
@@ -110,6 +133,78 @@ $(document).ready(function () {
     // live preview update
     $('#emailBody').on('input', function() {
         $('#emailPreview').html($(this).val());
+    });
+
+});
+
+
+$(document).ready(function() {
+
+    // store all options initially
+    let allOptions = [];
+
+    $('#emailSelect option').each(function() {
+        allOptions.push({
+            id: $(this).val(),
+            text: $(this).text(),
+            status: $(this).data('status')
+        });
+    });
+
+    // initialize select2
+    $('#emailSelect').select2({
+        placeholder: "Select Emails",
+        width: '100%',
+        data: allOptions
+    });
+
+    // filter logic
+    $('#statusFilter').on('change', function() {
+
+        let selectedStatus = $(this).val();
+
+        let filtered = [];
+
+        if (!selectedStatus) {
+            filtered = allOptions;
+        } else {
+            filtered = allOptions.filter(function(item) {
+                return item.status == selectedStatus;
+            });
+        }
+
+        // rebuild select2
+        $('#emailSelect').empty().select2({
+            placeholder: "Select Emails",
+            width: '100%',
+            data: filtered
+        });
+
+    });
+
+    // ✅ SELECT ALL (FIXED)
+    $('#selectAll').on('click', function() {
+
+        let selectedStatus = $('#statusFilter').val();
+
+        let values = [];
+
+        if (!selectedStatus) {
+            // select all
+            values = allOptions.map(item => item.id);
+        } else {
+            // select filtered only
+            values = allOptions
+                .filter(item => item.status == selectedStatus)
+                .map(item => item.id);
+        }
+
+        $('#emailSelect').val(values).trigger('change');
+    });
+
+    // ✅ DESELECT ALL
+    $('#deselectAll').on('click', function() {
+        $('#emailSelect').val([]).trigger('change');
     });
 
 });

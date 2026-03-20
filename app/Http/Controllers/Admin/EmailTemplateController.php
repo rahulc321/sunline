@@ -109,7 +109,7 @@ class EmailTemplateController extends Controller
     }
 
     public function bulkEmail(){
-        $this->data['leads'] =  Lead::where('status','New')->get();
+        $this->data['leads'] =  Lead::get();
         $this->data['emailTemplates'] =  EmailTemplate::get();
         
         return view('admin.bulk_email.index',$this->data);

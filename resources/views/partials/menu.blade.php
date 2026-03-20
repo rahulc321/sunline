@@ -194,6 +194,8 @@ div#jsGrid1_filter {
 
     border: 1px dashed #2ca5e4 !important;
 }
+
+ 
 </style>
 <!-- Sidebar content -->
 <div class="sidebar-content">
