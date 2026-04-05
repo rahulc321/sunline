@@ -67,4 +67,9 @@ class Lead extends Model
     {
         return $this->hasOne(LeadContact::class, 'lead_id');
     }
+
+    public function meta()
+    {
+        return $this->hasMany(LeadMeta::class);
+    }
 }

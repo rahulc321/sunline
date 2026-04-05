@@ -177,6 +177,25 @@ div#jsGrid1_filter {
     transform: scale(1.1);
     filter: brightness(1.2);
 }
+
+.rk-notes-card,
+.rk-summary-card,
+.rk-files-card,
+.rk-lifecycle-box {
+    border: 1px dashed #2ca5e4;
+}
+
+.card {
+
+    border: 1px dashed #2ca5e4 !important;
+}
+
+.rounded {
+
+    border: 1px dashed #2ca5e4 !important;
+}
+
+ 
 </style>
 <!-- Sidebar content -->
 <div class="sidebar-content">
@@ -212,86 +231,86 @@ div#jsGrid1_filter {
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('admin.sales') }}"
-                    class="nav-link {{ request()->is('admin/sales') ? 'active' : '' }}">
+                <a href="{{ route('superadmin.distributorApproval') }}"
+                    class="nav-link {{ request()->is('superadmin/distributorApproval') ? 'active' : '' }}">
                     <i class="ph-shield"></i><span>Distributor Approval</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('admin.sales') }}"
-                    class="nav-link {{ request()->is('admin/sales') ? 'active' : '' }}">
+                <a href="{{ route('superadmin.vicRebate') }}"
+                    class="nav-link {{ request()->is('superadmin/vicRebate') ? 'active' : '' }}">
                     <i class="ph-sun"></i><span>Solar VIC Rebate</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('admin.sales') }}"
-                    class="nav-link {{ request()->is('admin/sales') ? 'active' : '' }}">
+                <a href="{{ route('superadmin.complianceCheck') }}"
+                    class="nav-link {{ request()->is('superadmin/complianceCheck') ? 'active' : '' }}">
                     <i class="ph-currency-dollar"></i><span>Compliance Check</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('admin.sales') }}"
-                    class="nav-link {{ request()->is('admin/sales') ? 'active' : '' }}">
+                <a href="{{ route('superadmin.bookInstallation') }}"
+                    class="nav-link {{ request()->is('superadmin/bookInstallation') ? 'active' : '' }}">
                     <i class="ph-currency-dollar"></i><span>Book Installation</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('admin.sales') }}"
-                    class="nav-link {{ request()->is('admin/sales') ? 'active' : '' }}">
+                <a href="{{ route('superadmin.customerPayment') }}"
+                    class="nav-link {{ request()->is('superadmin/customerPayment') ? 'active' : '' }}">
                     <i class="ph-currency-dollar"></i><span>Customer Payment</span>
                 </a>
             </li>
 
 
             <li class="nav-item">
-                <a href="{{ route('admin.sales') }}"
-                    class="nav-link {{ request()->is('admin/sales') ? 'active' : '' }}">
+                <a href="{{ route('superadmin.coES') }}"
+                    class="nav-link {{ request()->is('superadmin/coES') ? 'active' : '' }}">
                     <i class="ph-currency-dollar"></i><span>Awaiting CoES</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('admin.sales') }}"
-                    class="nav-link {{ request()->is('admin/sales') ? 'active' : '' }}">
+                <a href="{{ route('superadmin.vicPayment') }}"
+                    class="nav-link {{ request()->is('superadmin/vicPayment') ? 'active' : '' }}">
                     <i class="ph-currency-dollar"></i><span>Solar VIC Payment</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('admin.sales') }}"
-                    class="nav-link {{ request()->is('admin/sales') ? 'active' : '' }}">
+                <a href="{{ route('superadmin.stcPayment') }}"
+                    class="nav-link {{ request()->is('superadmin/stcPayment') ? 'active' : '' }}">
                     <i class="ph-currency-dollar"></i><span>STCs Payment</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('admin.sales') }}"
-                    class="nav-link {{ request()->is('admin/sales') ? 'active' : '' }}">
+                <a href="{{ route('superadmin.connectionPaperwork') }}"
+                    class="nav-link {{ request()->is('superadmin/connectionPaperwork') ? 'active' : '' }}">
                     <i class="ph-currency-dollar"></i><span>Connection Paperwork</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('admin.sales') }}"
-                    class="nav-link {{ request()->is('admin/sales') ? 'active' : '' }}">
+                <a href="{{ route('superadmin.supplierPayment') }}"
+                    class="nav-link {{ request()->is('superadmin/supplierPayment') ? 'active' : '' }}">
                     <i class="ph-currency-dollar"></i><span>Supplier Payment</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('admin.sales') }}"
-                    class="nav-link {{ request()->is('admin/sales') ? 'active' : '' }}">
+                <a href="{{ route('superadmin.installerPayment') }}"
+                    class="nav-link {{ request()->is('superadmin/installerPayment') ? 'active' : '' }}">
                     <i class="ph-currency-dollar"></i><span>Installer Payment</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('admin.sales') }}"
-                    class="nav-link {{ request()->is('admin/sales') ? 'active' : '' }}">
+                <a href="{{ route('superadmin.salesRepPayment') }}"
+                    class="nav-link {{ request()->is('superadmin/salesRepPayment') ? 'active' : '' }}">
                     <i class="ph-currency-dollar"></i><span>Sales Rep Payment</span>
                 </a>
             </li>

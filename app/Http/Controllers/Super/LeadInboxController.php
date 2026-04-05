@@ -11,7 +11,7 @@ use App\Models\CaseType;
 use App\Models\LeadFollowUp;
 use App\Models\LeadCommission;
 use App\User;
-use App\Models\{LeadSource, LeadContact, ContactFollowUp, LeadImages};
+use App\Models\{LeadSource, LeadContact, ContactFollowUp, LeadImages, LeadMeta};
 use Carbon\Carbon;
 use Gate;
 use App\Models\Lead;
@@ -73,7 +73,8 @@ class LeadInboxController extends Controller
 	public function listLeads(Request $request)
 	{
 		$query = Lead::with('getAssignUserName','leadSource','leadFollowUp','images')
-			->whereNotIn('status', ['Qualified', 'Sold'])
+			//->whereIn('status', ['Sold'])
+			->orderBy('id','DESC')
 			->forCurrentUser();
 
 		# filters
@@ -81,13 +82,31 @@ class LeadInboxController extends Controller
 			$query->where('lead_source', $request->lead_source);
 		}
 
-		if ($request->assign_rep) {
-			$query->where('assign_rep', $request->assign_rep);
+		if ($request->assign_rep !== null && $request->assign_rep !== '') {
+
+			if ($request->assign_rep == 'unassigned') {
+				$query->whereNull('assign_rep');
+			} else {
+				$query->where('assign_rep', $request->assign_rep);
+			}
 		}
 
+		$customStatus = "";
+		//dd($request->status);
 		if ($request->status) {
-			$query->where('status', $request->status);
+
+			if (in_array('Lead', $request->status)) {
+				// Leads → NOT Sold
+				$query->where('status', '!=', 'Sold');
+			}else if (in_array('Not Applied', $request->status)) {
+				// Leads → NOT Sold
+				$customStatus = $request->status;
+				$query->where('status','Sold');
+			} else {
+				$query->whereIn('status', $request->status);
+			}
 		}
+
 
 		return DataTables::of($query)
 			->addIndexColumn()
@@ -95,8 +114,16 @@ class LeadInboxController extends Controller
 				return $lead->leadSource->source ?? '-';
 			})
 
-			->addColumn('name', function ($lead) {
-				return $lead->first_name .' '.$lead->last_name;
+			->addColumn('name', function ($lead) use ($request){
+
+				$name = $lead->first_name . ' ' . $lead->last_name;
+				$url    = $request->url;
+			
+				return '<a href="' . route('superadmin.leadDetails', $lead->id) . '?url=' . urlencode($url) . '">' . e($name) . '</a>';
+			})
+
+			->addColumn('salesRep', function ($lead) {
+				return $lead->getAssignUserName->name ?? '';
 			})
 
 			// ->addColumn('created_at', function ($lead) {
@@ -105,9 +132,11 @@ class LeadInboxController extends Controller
 			// 		: '';
 			// })
 
-			->addColumn('status', function ($lead) {
+			->addColumn('status', function ($lead) use ($customStatus) {
 
-				$status = $lead->status ?? '';
+				$status = (!empty($customStatus) && is_array($customStatus))
+					? implode(', ', $customStatus)
+					: trim($lead->status ?? '');
 			
 				// status → color mapping (same as JS)
 				$statusColors = [
@@ -119,6 +148,9 @@ class LeadInboxController extends Controller
 					'Under Construction'=> 'secondary',
 					'Qualified'         => 'success',
 					'Lost'              => 'danger',
+					'Not Applied'        => 'dark',      // unique
+					'Awaiting Approval'  => 'warning',   // pending
+					'Approved'           => 'success',
 				];
 			
 				$color = $statusColors[$status] ?? 'secondary';
@@ -170,9 +202,9 @@ class LeadInboxController extends Controller
 				$buttons = '<div class="">';
 	
 				// permission: lead_email_access
-				if (auth()->user()->can('lead_email_access')) {
+				if (auth('superadmin')->user()->can('lead_email_access')) {
 					$buttons .= '
-						<button class="btn btn-sm btn-warning custom-btn send_email"
+						<button class="btn btn-sm btn-warning custom-btn send_email d-none"
 							data-lead="'.$leadJson.'"
 							data-bs-toggle="modal"
 							data-bs-target="#emailModel">
@@ -182,20 +214,20 @@ class LeadInboxController extends Controller
 	
 				// view button (always visible)
 				$buttons .= '
-					<button class="btn btn-sm btn-primary view-lead"
+					<button class="btn btn-sm btn-primary view-lead d-none"
 						data-lead="'.$leadJson.'"
 						data-bs-toggle="modal"
 						data-bs-target="#leadDetailsModal">
 						<i class="ph-eye"></i>
 					</button>
-					<a href="'.route('admin.timeline',[$lead->id]).'">Activity</a>
+					<a href="'.route('admin.timeline',[$lead->id]).'"> <i class="ph-clock-counter-clockwise"></i></a>
 					 
 					';
 	
 				// permission: lead_edit
-				if (auth()->user()->can('lead_edit')) {
+				if (auth('superadmin')->user()->can('lead_edit')) {
 					$buttons .= '
-						<button class="btn btn-sm btn-outline-secondary edit_lead"
+						<button class="btn btn-sm btn-outline-secondary edit_lead d-none"
 							data-lead="'.$leadJson.'"
 							data-bs-toggle="modal"
 							data-bs-target="#editlead">
@@ -207,10 +239,9 @@ class LeadInboxController extends Controller
 	
 				return $buttons;
 			})
-			->rawColumns(['status','category','action'])
+			->rawColumns(['status','category','action','name'])
 			->make(true);
 	}
-
 	 
 
 	public function listLeads_old(Request $request)
@@ -524,36 +555,7 @@ class LeadInboxController extends Controller
 
 	}
 
-	// /////////////////////////////For Salse ///////////////////////////
-	public function sales(Request $request)
-	{	
-		 
-		$this->data['users'] = User::whereHas('roles', function ($query) {
-			$query->where('title', env('ROLE'));
-		})->get();
-
-		$followups = LeadFollowUp::whereHas('lead', function ($q) {
-			$q->whereNull('deleted_at');
-		})
-		->with('lead')
-        ->orderBy('date', 'desc')
-        ->get();
-
-		$this->data['upcoming'] = $followups->where('is_completed', 0);
-		$this->data['past'] = $followups->where('is_completed', 1);
-
-		$this->data['leadSource'] = LeadSource::where('status',1)->get();
-		$this->data['emailTemplates'] = EmailTemplate::get();
-		$this->data['leads'] = Lead::forCurrentUser()->get();
-
-		$userRole = auth('superadmin')->user()->roles[0]->title;
-		$this->data['role'] = $userRole;
-		//dd($userRole);
-		$this->data['leads'] = Lead::forCurrentUser()->get();
-
-		return view('super.sales.index',$this->data);
-	}
-
+	
 	# get sale where status is sold
 	public function getSale(Request $request)
 	{
@@ -802,7 +804,7 @@ class LeadInboxController extends Controller
     {
         $request->validate([
             'lead_id' => 'required|integer',
-            'file'   => 'required|file|max:2048'
+            'file'   => 'required|file|mimes:pdf,png,jpg,jpeg|max:10240'
         ]);
 
         # get original file name
@@ -835,6 +837,394 @@ class LeadInboxController extends Controller
 			'message' => 'Deleted successfully'
 		]);
 	}
+
+	public function leadDetails($leadId, Request $request){
+		$this->data['leadSource'] = LeadSource::where('status',1)->get();
+		$this->data['emailTemplates'] = EmailTemplate::get();
+		$this->data['users'] = User::whereHas('roles', function ($query) {
+			$query->where('title', env('ROLE'));
+		})->get();
+		$this->data['lead'] = Lead::with('leadNotes.creator','getAssignUserName','leadSource','leadFollowUp','images','meta')->findOrFail($leadId);
+		$this->data['leadMeta'] = $this->data['lead']->meta->pluck('meta_value', 'meta_key')->toArray();
+		//echo '<pre>';print_r($this->data['lead'] );die;
+
+
+		if($request->url == 'distributorApproval'){
+			return view('super.leads.dist.lead_details',$this->data);
+
+		}else if($request->url == 'vicRebate'){
+			return view('super.leads.vic.lead_details',$this->data);
+
+		}else if($request->url == 'complianceCheck'){
+			return view('super.leads.comp.lead_details',$this->data);
+
+		}else{
+			return view('super.leads.lead_details',$this->data);
+		}
+		
+	}
+
+	public function saveDistributorApprovalMeta(Request $request)
+	{
+		$request->validate([
+			'lead_id' => 'required|integer|exists:leads,id',
+			'approval_required' => 'required|in:Yes,No',
+			'distributor_name' => 'nullable|string|max:255',
+			'existing_system' => 'required|in:Yes,No',
+			'meter_number' => 'nullable|string|max:255',
+			'nmi_number' => 'nullable|string|max:255',
+			'photos_required' => 'nullable|in:Yes,No',
+			'approval_file' => 'nullable|file|mimes:pdf,png,jpg,jpeg|max:10240',
+			'status' => 'nullable|string',
+		]);
+
+		if ($request->approval_required === 'Yes' && empty($request->distributor_name)) {
+			return response()->json([
+				'status' => false,
+				'message' => 'Please select distributor.',
+			], 422);
+		}
+
+		$lead = Lead::findOrFail($request->lead_id);
+
+		$metaData = [
+			'distributor_approval_required' => $request->approval_required,
+			'distributor_name' => $request->approval_required === 'Yes' ? $request->distributor_name : '',
+			'existing_system' => $request->existing_system,
+			'meter_number' => $request->approval_required === 'Yes' ? $request->meter_number : '',
+			'nmi_number' => $request->approval_required === 'Yes' ? $request->nmi_number : '',
+			'photos_required' => $request->approval_required === 'Yes' ? $request->photos_required : '',
+		];
+
+		foreach ($metaData as $metaKey => $metaValue) {
+			LeadMeta::updateOrCreate(
+				[
+					'lead_id' => $lead->id,
+					'meta_key' => $metaKey,
+				],
+				[
+					'meta_value' => $metaValue,
+					'meta_type' => 'text',
+				]
+			);
+		}
+
+		$fileUrl = null;
+		if ($request->hasFile('approval_file')) {
+			$file = $request->file('approval_file');
+			$fileName = time() . '_' . preg_replace('/\s+/', '_', $file->getClientOriginalName());
+			$file->move(public_path('lead/approval'), $fileName);
+			$fileUrl = asset('lead/approval/' . $fileName);
+
+			LeadMeta::updateOrCreate(
+				[
+					'lead_id' => $lead->id,
+					'meta_key' => 'distributor_approval_file',
+				],
+				[
+					'meta_value' => $fileUrl,
+					'meta_type' => 'file',
+				]
+			);
+		}
+
+		if ($request->filled('status')) {
+			$lead->status = $request->status;
+			$lead->save();
+		}
+
+		return response()->json([
+			'status' => true,
+			'message' => 'Distributor approval data saved successfully.',
+			'file_url' => $fileUrl,
+		]);
+	}
+
+	public function saveVicRebateMeta(Request $request)
+	{
+		$request->validate([
+			'lead_id' => 'required|integer|exists:leads,id',
+			'status' => 'required|string|in:VIC REBATE NOT APPLIED,VIC REBATE AWAITING APPROVAL,COMPLIANCE NOT APPLIED',
+			'customer_applying' => 'nullable|in:Yes,No',
+			'ins_number' => 'nullable|string|max:255',
+			'rebate_status' => 'nullable|string|max:255',
+		]);
+
+		$lead = Lead::findOrFail($request->lead_id);
+
+		$metaData = [
+			'vic_customer_applying' => $request->customer_applying ?? '',
+			'vic_ins_number' => $request->ins_number ?? '',
+			'vic_rebate_status' => $request->rebate_status ?? '',
+		];
+
+		foreach ($metaData as $metaKey => $metaValue) {
+			LeadMeta::updateOrCreate(
+				[
+					'lead_id' => $lead->id,
+					'meta_key' => $metaKey,
+				],
+				[
+					'meta_value' => $metaValue,
+					'meta_type' => 'text',
+				]
+			);
+		}
+
+		$lead->status = $request->status;
+		$lead->save();
+
+		return response()->json([
+			'status' => true,
+			'message' => 'Solar VIC rebate data saved successfully.',
+		]);
+	}
+
+
+	// /////////////////////////////For Salse ///////////////////////////
+	public function sales(Request $request)
+	{
+		$this->data = $this->commonLeadData();
+
+		$this->data['title'] = 'Sales Pipeline';
+		$this->data['desc'] = 'Manage and track workflow progress';
+
+		$this->data['lstatus'] =[]; // pass to blade
+
+		$this->data['tabs'] = [
+			'Leads' => ['Lead'],
+			'Contacts' => ['Qualified'],
+			'Sales'  => ['Sold'],
+		];
+
+		return view('super.leads.index', $this->data);
+	}
+
+	public function distributorApproval(Request $request)
+	{
+		$this->data = $this->commonLeadData();
+
+		$this->data['title'] = 'Distributor Approval';
+		$this->data['desc'] = 'Manage and track workflow progress';
+
+		$this->data['lstatus'] = ['Sold']; // pass to blade
+
+		$this->data['tabs'] = [
+			'Not Applied' => ['Not Applied'],
+			'Awaiting Approval' => ['Awaiting Approval'],
+			//'Approved'  => ['Approved'],
+		];
+
+		return view('super.leads.index', $this->data);
+	}
+
+	public function vicRebate(Request $request)
+	{
+		$this->data = $this->commonLeadData();
+
+		$this->data['title'] = 'Solar VIC Rebate';
+		$this->data['desc'] = 'Manage Solar VIC rebate applications and approvals';
+
+		$this->data['lstatus'] = ['Sold']; // pass to blade
+
+		$this->data['tabs'] = [
+			'Not Applied' => ['VIC REBATE NOT APPLIED'],
+			'Awaiting Approval' => ['VIC REBATE AWAITING APPROVAL'],
+			//'Approved'  => ['Approved'],
+		];
+
+		return view('super.leads.index', $this->data);
+	}
+
+	# complianceCheck
+
+	public function complianceCheck(Request $request)
+	{
+		$this->data = $this->commonLeadData();
+
+		$this->data['title'] = 'Compliance Check';
+		$this->data['desc'] = 'Manage and track workflow progress';
+
+		$this->data['lstatus'] = ['Sold']; // pass to blade
+
+		$this->data['tabs'] = [
+			'Not Applied' => ['COMPLIANCE NOT APPLIED'],
+			'Awaiting Approval' => ['COMPLIANCE AWAITING APPROVAL'],
+			//'Approved'  => ['Approved'],
+		];
+
+		return view('super.leads.index', $this->data);
+	}
+
+	# bookInstallation
+	public function bookInstallation(Request $request)
+	{
+		$this->data = $this->commonLeadData();
+
+		$this->data['title'] = 'Book Installation';
+		$this->data['desc'] = 'Manage and track workflow progress';
+
+		$this->data['lstatus'] = ['Sold']; // pass to blade
+
+		return view('super.leads.index', $this->data);
+	}
+
+	# customerPayment
+	public function customerPayment(Request $request)
+	{
+		$this->data = $this->commonLeadData();
+
+		$this->data['title'] = 'Customer Payment';
+		$this->data['desc'] = 'Manage and track workflow progress';
+
+		$this->data['lstatus'] = ['Sold']; // pass to blade
+
+		return view('super.leads.index', $this->data);
+	}
+
+	# coES
+	public function coES(Request $request)
+	{
+		$this->data = $this->commonLeadData();
+
+		$this->data['title'] = 'Awaiting CoES';
+		$this->data['desc'] = 'Manage and track workflow progress';
+
+		$this->data['lstatus'] = ['Sold']; // pass to blade
+
+		return view('super.leads.index', $this->data);
+	}
+
+	# vicPayment
+	public function vicPayment(Request $request)
+	{
+		$this->data = $this->commonLeadData();
+
+		$this->data['title'] = 'Solar VIC Payment';
+		$this->data['desc'] = 'Track Solar VIC rebate payments and claim processing';
+
+		$this->data['lstatus'] = ['Sold']; // pass to blade
+
+		return view('super.leads.index', $this->data);
+	}
+
+	# stcPayment
+	public function stcPayment(Request $request)
+	{
+		$this->data = $this->commonLeadData();
+
+		$this->data['title'] = 'STCs Payment';
+		$this->data['desc'] = 'Track Small-scale Technology Certificate payments and processing';
+
+		$this->data['lstatus'] = ['Sold']; // pass to blade
+
+		return view('super.leads.index', $this->data);
+	}
+
+	# connectionPaperwork
+	public function connectionPaperwork(Request $request)
+	{
+		$this->data = $this->commonLeadData();
+
+		$this->data['title'] = 'Connection Paperwork';
+		$this->data['desc'] = 'Manage network connection applications and approvals';
+
+		$this->data['lstatus'] = ['Sold']; // pass to blade
+
+		return view('super.leads.index', $this->data);
+	}
+
+	# supplierPayment
+	public function supplierPayment(Request $request)
+	{
+		$this->data = $this->commonLeadData();
+
+		$this->data['title'] = 'Supplier Payment';
+		$this->data['desc'] = 'Track supplier invoices and payment processing';
+
+		$this->data['lstatus'] = ['Sold']; // pass to blade
+
+		return view('super.leads.index', $this->data);
+	}
+
+	# installerPayment
+	public function installerPayment(Request $request)
+	{
+		$this->data = $this->commonLeadData();
+
+		$this->data['title'] = 'Installer Payment';
+		$this->data['desc'] = 'Track installer payments based on CoES completion';
+
+		$this->data['lstatus'] = ['Sold']; // pass to blade
+
+		return view('super.leads.index', $this->data);
+	}
+
+	# salesRepPayment
+	public function salesRepPayment(Request $request)
+	{
+		$this->data = $this->commonLeadData();
+
+		$this->data['title'] = 'Sales Rep Payment';
+		$this->data['desc'] = 'Track sales representative commission payments';
+
+		$this->data['lstatus'] = ['Sold']; // pass to blade
+
+		return view('super.leads.index', $this->data);
+	}
+
+
+	private function commonLeadData()
+	{
+		$data['users'] = User::whereHas('roles', function ($query) {
+			$query->where('title', env('ROLE'));
+		})->get();
+
+		$followups = LeadFollowUp::whereHas('lead', function ($q) {
+			$q->whereNull('deleted_at');
+		})
+		->with('lead')
+		->orderBy('date', 'desc')
+		->get();
+
+		$data['upcoming'] = $followups->where('is_completed', 0);
+		$data['past'] = $followups->where('is_completed', 1);
+
+		$data['leadSource'] = LeadSource::where('status',1)->get();
+		$data['emailTemplates'] = EmailTemplate::get();
+		$data['leads'] = Lead::forCurrentUser()->get();
+
+		$data['role'] = auth('superadmin')->user()->roles[0]->title;
+
+		return $data;
+	}
+
+	# Update lead status
+	public function updateLeadStatusNew(Request $request)
+	{
+		$request->validate([
+			'id' => 'required|integer|exists:leads,id',
+			'status' => 'required|string'
+		]);
+		
+		$lead = Lead::findOrFail($request->id);
+		$lead->status = $request->status;
+		$lead->save();
+
+		if ($request->status == 'Qualified') {
+			$exists = LeadContact::where('lead_id', $lead->id)->exists();
+		
+			if (! $exists) {
+				LeadContact::create([
+					'lead_id' => $lead->id,
+				]);
+			}
+		}
+
+		session()->flash('success', 'You have successfully updated!');
+		return back();
+	}
+
 
 
 

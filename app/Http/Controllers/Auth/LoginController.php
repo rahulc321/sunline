@@ -57,12 +57,7 @@ class LoginController extends Controller
         // fetch user first
         $user = User::where('email', $credentials['email'])->first();
        
-        // user not found OR not director
-        if (!$user || !$user->roles->contains('title', 'Director')) {
-            return back()->withErrors([
-                'email' => 'Unauthorized access',
-            ]);
-        }
+        
        
         // attempt login with SUPERADMIN guard
         if (Auth::guard('superadmin')->attempt($credentials)) {
@@ -72,7 +67,14 @@ class LoginController extends Controller
             return redirect()->route('superadmin.dashboard');
         }
 
-        dd(1);
+        // user not found OR not director
+        if (!$user || !$user->roles->contains('title', 'Director')) {
+            return back()->withErrors([
+                'email' => 'Unauthorized access',
+            ]);
+        }
+
+       // dd(1);
     
         return back()->withErrors([
             'email' => 'Invalid credentials',

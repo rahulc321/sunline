@@ -311,9 +311,7 @@ strong {
                                             <th>Sales Rep</th>
                                             <th>Category</th>
                                             <th>Created At</th>
-                                            <th>
-                                                Action
-                                            </th>
+                                            
                                         </tr>
                                     </thead>
 
@@ -446,13 +444,7 @@ strong {
                 {
                     data: 'created_at',
                     name: 'created_at'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                }
+                } 
             ]
         });
 
