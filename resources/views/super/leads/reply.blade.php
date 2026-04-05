@@ -17,8 +17,8 @@
                 <div class="tab-pane fade show active" id="sync-contacts">
 
                     @php
-                    $syncedEmail = 'rahulidcsoftwares@gmail.com';
-                    $leadEmail = 'arvinditc007@gmail.com';
+                    $syncedEmail = auth()->user()->connected_email;
+                    $leadEmail = $lData->email;
 
                     $threadIds = DB::table('gmails')
                     ->where('user_id', auth()->id())

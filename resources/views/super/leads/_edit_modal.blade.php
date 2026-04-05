@@ -112,6 +112,10 @@
                             <input type="text" name="battery_kw" class="form-control" placeholder="Battery KW">
                         </div>
 
+                        <div class="col-sm-12 mb-6">
+                            <label for="phone">Proposal Url</label>
+                            <input type="text" name="proposal_url" class="form-control" placeholder="Proposal Url" value="{{@$lead->proposal_url}}">
+                        </div>
 
                     </div>
                 </div>

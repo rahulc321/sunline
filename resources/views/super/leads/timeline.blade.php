@@ -18,9 +18,9 @@
                 <div class="tab-pane fade show active" id="sync-contacts">
 
                     @php
-                    $syncedEmail = 'rahulidcsoftwares@gmail.com';
-                    $leadEmail = 'arvinditc007@gmail.com';
-
+                    $syncedEmail = auth()->user()->connected_email;
+                    $leadEmail = $lData->email;
+                   // dd($leadEmail);
                     $threadIds = DB::table('gmails')
                     ->where('user_id', auth()->id())
                     ->where(function ($q) use ($syncedEmail, $leadEmail) {
@@ -78,7 +78,7 @@
                                 Reply
                             </button> -->
 
-                            <a href="{{route('admin.gmailReplyPage',[$threadId])}}">Reply</a>
+                            <a href="{{route('admin.gmailReplyPage',['threadId'=>$threadId,'leadId'=>$lData->id])}}">Reply</a>
                         </div>
 
                         <!-- <div class="reply-box d-none" id="reply-box-{{ $threadId }}">
