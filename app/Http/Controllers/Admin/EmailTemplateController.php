@@ -136,7 +136,7 @@ class EmailTemplateController extends Controller
                 'email' => $email,
             ];
 
-            sendGlobalEmail1(
+            sendGlobalEmail(
                 $email,
                 $request->subject,
                 $request->body,
