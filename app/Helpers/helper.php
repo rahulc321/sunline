@@ -64,7 +64,7 @@ if (! function_exists('sendGlobalEmail')) {
             if (!$user->google_refresh_token) {
                 return [
                             'status' => false,
-                            'message' => 'Google session expired. Please reconnect Gmail.'
+                            'message' => 'Google session expired. Please reconnect Gmail..'
                         ];
             }
 
@@ -73,20 +73,39 @@ if (! function_exists('sendGlobalEmail')) {
                 'refresh_token' => $user->google_refresh_token,
             ]);
 
-            if ($client->isAccessTokenExpired()) {
+             if ($client->isAccessTokenExpired()) {
+
                 $token = $client->fetchAccessTokenWithRefreshToken(
                     $user->google_refresh_token
                 );
-               return [
-                    'status' => false,
-                    'message' => 'Google session expired. Please reconnect Gmail.'
-                ];
-
+            
+                // ❌ if refresh failed
+                if (isset($token['error'])) {
+                    return [
+                        'status'  => false,
+                        'message' => 'Google session expired. Please reconnect Gmail...'
+                    ];
+                }
+            
+                // ✅ update access token
                 $user->update([
-                    'google_access_token' => $token['access_token']
+                    'google_access_token' => $token['access_token'],
                 ]);
-
-                $client->setAccessToken($token);
+            
+                // ✅ update refresh token if provided
+                if (isset($token['refresh_token'])) {
+                    $user->update([
+                        'google_refresh_token' => $token['refresh_token']
+                    ]);
+                }
+            
+                // ✅ set token back to client
+                $client->setAccessToken([
+                    'access_token'  => $token['access_token'],
+                    'refresh_token' => $user->google_refresh_token,
+                    'expires_in'    => 3600,
+                    'created'       => time()
+                ]);
             }
 
             /* ===============================
