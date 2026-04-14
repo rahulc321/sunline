@@ -60,6 +60,13 @@ if (! function_exists('sendGlobalEmail')) {
             $client->setClientId(env('GOOGLE_CLIENT_ID'));
             $client->setClientSecret(env('GOOGLE_CLIENT_SECRET'));
             $client->setAccessType('offline');
+            
+            if (!$user->google_refresh_token) {
+                return [
+                            'status' => false,
+                            'message' => 'Google session expired. Please reconnect Gmail.'
+                        ];
+            }
 
             $client->setAccessToken([
                 'access_token'  => $user->google_access_token,
@@ -70,6 +77,10 @@ if (! function_exists('sendGlobalEmail')) {
                 $token = $client->fetchAccessTokenWithRefreshToken(
                     $user->google_refresh_token
                 );
+               return [
+                    'status' => false,
+                    'message' => 'Google session expired. Please reconnect Gmail.'
+                ];
 
                 $user->update([
                     'google_access_token' => $token['access_token']
@@ -138,7 +149,9 @@ if (! function_exists('sendGlobalEmail')) {
                 'lead_id'         => $leadId,
             ]);
 
-            return true;
+            return [
+                'status' => true
+            ];
 
         // } catch (\Exception $e) {
         //     \Log::error('Gmail send failed: '.$e->getMessage());

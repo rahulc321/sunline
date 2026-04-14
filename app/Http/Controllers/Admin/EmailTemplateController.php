@@ -136,7 +136,7 @@ class EmailTemplateController extends Controller
                 'email' => $email,
             ];
 
-            sendGlobalEmail(
+           $response = sendGlobalEmail(
                 $email,
                 $request->subject,
                 $request->body,
@@ -146,6 +146,10 @@ class EmailTemplateController extends Controller
                 'lead',
                 $variables
             );
+            
+            if (isset($response['status']) && !$response['status']) {
+             return back()->with('error', $response['message']);
+            }
         }
 
         return back()->with('success', 'Bulk email sent successfully!');
