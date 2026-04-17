@@ -32,9 +32,14 @@ $compliancePlanViewValue = $leadMeta['compliance_plan_view_photo'] ?? '';
 $complianceStoreyValue = $leadMeta['compliance_storey_type'] ?? '';
 $complianceNotesValue = $leadMeta['compliance_notes'] ?? '';
 $complianceRfiMessageValue = $leadMeta['compliance_rfi_message'] ?? '';
+$complianceDocumentIds = json_decode($leadMeta['compliance_document_ids'] ?? '[]', true);
+$complianceDocumentIds = is_array($complianceDocumentIds) ? $complianceDocumentIds : [];
+$complianceDocuments = $lead->images->whereIn('id', $complianceDocumentIds);
+$hasComplianceData = $complianceJobTypeValue !== '' || $complianceBillCopyValue !== '' || $compliancePhaseTypeValue !== '' || $complianceCouplingTypeValue !== '' || $complianceBatteryAccessValue !== '' || $compliancePivotSlabValue !== '' || $complianceBatteryInstallValue !== '' || $complianceBackupValue !== '' || $compliancePlanViewValue !== '' || $complianceStoreyValue !== '' || $complianceNotesValue !== '' || $complianceRfiMessageValue !== '';
 $vicWorkflowStatuses = [
-    'COMPLIANCE NOT APPLIED' => 'Not Applied',
-    'COMPLIANCE AWAITING APPROVAL' => 'Awaiting Approval',
+    'BOOK INSTALLATION' => 'Book Installation',
+    'INSTALLATION BOOKED' => 'Installation Booked',
+    'STOCK ORDERING' => 'Stock Ordering',
 ];
 
 if (!empty($lead->status) && !array_key_exists($lead->status, $vicWorkflowStatuses)) {
@@ -43,8 +48,8 @@ if (!empty($lead->status) && !array_key_exists($lead->status, $vicWorkflowStatus
 
 $currentVicWorkflowStatus = !empty($lead->status)
     ? $lead->status
-    : 'COMPLIANCE NOT APPLIED';
-$activeVicPane = $currentVicWorkflowStatus === 'COMPLIANCE AWAITING APPROVAL' ? 'documents' : 'checklist';
+    : 'BOOK INSTALLATION';
+$activeVicPane = 'checklist';
 @endphp
 
 @php
@@ -290,7 +295,7 @@ $stages = $vicWorkflowStatuses;
                 <div class="col-sm-6">
                     <div class="rk-summary-card h-100">
                 <div class="rk-summary-header">
-                    <strong>Distributor & VIC Rebate Details</strong>
+                    <strong>Distributor Details</strong>
                 </div>
 
                 <div class="rk-summary-content">
@@ -344,25 +349,116 @@ $stages = $vicWorkflowStatuses;
                         </div>
                     </div>
 
-                    <div class="rk-mini-bordered-box">
-                        <div class="rk-mini-bordered-title">Compliance Details</div>
-                        <div class="rk-summary-row mb-0">
-                            <div>
-                                <label>Job Type</label>
-                                <p>{{ $complianceJobTypeValue ?: '-' }}</p>
-                            </div>
+                </div>
+                    </div>
+                </div>
+                @endif
 
-                            <div>
-                                <label>Phase Type</label>
-                                <p>{{ $compliancePhaseTypeValue ?: '-' }}</p>
-                            </div>
+                @if($hasComplianceData)
+                <div class="col-sm-6">
+                    <div class="rk-summary-card h-100">
+                <div class="rk-summary-header">
+                    <strong>Compliance Details</strong>
+                </div>
 
-                            <div>
-                                <label>Storey Type</label>
-                                <p>{{ $complianceStoreyValue ?: '-' }}</p>
-                            </div>
+                <div class="rk-summary-content">
+                    <div class="rk-summary-row">
+                        <div>
+                            <label>Job Type</label>
+                            <p>{{ $complianceJobTypeValue ?: '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label>Bill Copy / NMI Received</label>
+                            <p>{{ $complianceBillCopyValue ?: '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label>Phase Type</label>
+                            <p>{{ $compliancePhaseTypeValue ?: '-' }}</p>
                         </div>
                     </div>
+
+                    <div class="rk-summary-row">
+                        <div>
+                            <label>Coupling Type</label>
+                            <p>{{ $complianceCouplingTypeValue ?: '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label>Battery Access Photo</label>
+                            <p>{{ $complianceBatteryAccessValue ?: '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label>Pivot Slab Required</label>
+                            <p>{{ $compliancePivotSlabValue ?: '-' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="rk-summary-row">
+                        <div>
+                            <label>Battery Install Photo</label>
+                            <p>{{ $complianceBatteryInstallValue ?: '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label>Backup Requirement</label>
+                            <p>{{ $complianceBackupValue ?: '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label>Plan View Photo</label>
+                            <p>{{ $compliancePlanViewValue ?: '-' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="rk-summary-row">
+                        <div>
+                            <label>Storey Type</label>
+                            <p>{{ $complianceStoreyValue ?: '-' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="rk-summary-row">
+                        <div style="width: 100%;">
+                            <label>Compliance Notes</label>
+                            <p>{{ $complianceNotesValue ?: '-' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="rk-summary-row">
+                        <div style="width: 100%;">
+                            <label>RFI Message</label>
+                            <p>{{ $complianceRfiMessageValue ?: '-' }}</p>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+                </div>
+                @endif
+
+                @if($complianceDocuments->count())
+                <div class="col-sm-6">
+                    <div class="rk-summary-card h-100">
+                <div class="rk-summary-header">
+                    <strong>Compliance Documents</strong>
+                </div>
+
+                <div class="rk-summary-content">
+                    <ul class="rk-attach-list mb-0">
+                        @foreach($complianceDocuments as $file)
+                        @php
+                        $fileUrl = preg_replace('/^admin\//', '', $file->image_path);
+                        $fullUrl = asset($fileUrl);
+                        @endphp
+                        <li class="rk-attach-item">
+                            <a href="{{ $fullUrl }}" target="_blank" class="rk-attach-link">
+                                📎 {{ basename($file->image_path) }}
+                            </a>
+                        </li>
+                        @endforeach
+                    </ul>
                 </div>
                     </div>
                 </div>
@@ -1424,7 +1520,6 @@ $(function() {
             formData.append('file', pendingFile);
             formData.append('lead_id', leadId);
             formData.append('status', 'BOOK INSTALLATION');
-            formData.append('upload_context', 'compliance');
             formData.append('_token', '{{ csrf_token() }}');
 
             $btn.prop('disabled', true).text('Uploading...');

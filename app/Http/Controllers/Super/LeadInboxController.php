@@ -804,7 +804,9 @@ class LeadInboxController extends Controller
     {
         $request->validate([
             'lead_id' => 'required|integer',
-            'file'   => 'required|file|mimes:pdf,png,jpg,jpeg|max:10240'
+            'file'   => 'required|file|mimes:pdf,png,jpg,jpeg|max:10240',
+            'status' => 'nullable|string|max:255',
+            'upload_context' => 'nullable|string|max:255',
         ]);
 
         # get original file name
@@ -820,9 +822,43 @@ class LeadInboxController extends Controller
             'image_path' => 'lead/' . $originalName
         ]);
 
+        if ($request->upload_context === 'compliance') {
+            $existingComplianceDocumentIds = LeadMeta::where('lead_id', $request->lead_id)
+                ->where('meta_key', 'compliance_document_ids')
+                ->value('meta_value');
+
+            $complianceDocumentIds = json_decode($existingComplianceDocumentIds ?: '[]', true);
+
+            if (!is_array($complianceDocumentIds)) {
+                $complianceDocumentIds = [];
+            }
+
+            if (!in_array($image->id, $complianceDocumentIds)) {
+                $complianceDocumentIds[] = $image->id;
+            }
+
+            LeadMeta::updateOrCreate(
+                [
+                    'lead_id' => $request->lead_id,
+                    'meta_key' => 'compliance_document_ids',
+                ],
+                [
+                    'meta_value' => json_encode(array_values($complianceDocumentIds)),
+                    'meta_type' => 'json',
+                ]
+            );
+        }
+
+        if ($request->filled('status')) {
+            Lead::where('id', $request->lead_id)->update([
+                'status' => $request->status,
+            ]);
+        }
+
         return response()->json([
             'file_name' => $originalName,
-            'file_url'  => asset('lead/'.$originalName)
+            'file_url'  => asset('lead/'.$originalName),
+            'status'    => $request->status,
         ]);
     }
 
@@ -857,6 +893,9 @@ class LeadInboxController extends Controller
 
 		}else if($request->url == 'complianceCheck'){
 			return view('super.leads.comp.lead_details',$this->data);
+
+		}else if($request->url == 'bookInstallation'){
+			return view('super.leads.book.lead_details',$this->data);
 
 		}else{
 			return view('super.leads.lead_details',$this->data);
@@ -980,6 +1019,103 @@ class LeadInboxController extends Controller
 		]);
 	}
 
+	public function saveComplianceMeta(Request $request)
+	{
+		$request->validate([
+			'lead_id' => 'required|integer|exists:leads,id',
+			'status' => 'required|string|in:COMPLIANCE NOT APPLIED,COMPLIANCE AWAITING APPROVAL',
+			'job_type' => 'required|in:Solar Only,Battery Only,Solar + Battery',
+			'bill_copy_received' => 'nullable|in:Yes,No',
+			'phase_type' => 'nullable|in:Single Phase,Three Phase',
+			'coupling_type' => 'nullable|in:AC Couple,DC Couple',
+			'battery_access_photo' => 'nullable|in:Yes,No',
+			'pivot_slab_required' => 'nullable|in:Yes,No',
+			'battery_install_photo' => 'nullable|in:Yes,No',
+			'backup_requirement' => 'nullable|string|max:255',
+			'plan_view_photo' => 'nullable|in:Yes,No',
+			'storey_type' => 'nullable|in:Single Storey,Double Storey',
+			'notes' => 'nullable|string',
+			'rfi_message' => 'nullable|string',
+		]);
+
+		$lead = Lead::findOrFail($request->lead_id);
+		$jobType = $request->job_type;
+		$hasBattery = in_array($jobType, ['Battery Only', 'Solar + Battery']);
+
+		if (empty($request->phase_type)) {
+			return response()->json([
+				'status' => false,
+				'message' => 'Please select phase type.',
+			], 422);
+		}
+
+		if (empty($request->storey_type)) {
+			return response()->json([
+				'status' => false,
+				'message' => 'Please select storey type.',
+			], 422);
+		}
+
+		if ($hasBattery) {
+			if (empty($request->coupling_type)) {
+				return response()->json([
+					'status' => false,
+					'message' => 'Please select coupling type for battery jobs.',
+				], 422);
+			}
+
+			if (empty($request->pivot_slab_required)) {
+				return response()->json([
+					'status' => false,
+					'message' => 'Please select whether pivot slab is required.',
+				], 422);
+			}
+
+			if (empty($request->backup_requirement)) {
+				return response()->json([
+					'status' => false,
+					'message' => 'Please enter the backup requirement for battery jobs.',
+				], 422);
+			}
+		}
+
+		$metaData = [
+			'compliance_job_type' => $jobType,
+			'compliance_bill_copy_received' => $request->bill_copy_received ?? '',
+			'compliance_phase_type' => $request->phase_type ?? '',
+			'compliance_coupling_type' => $hasBattery ? ($request->coupling_type ?? '') : '',
+			'compliance_battery_access_photo' => $hasBattery ? ($request->battery_access_photo ?? '') : '',
+			'compliance_pivot_slab_required' => $hasBattery ? ($request->pivot_slab_required ?? '') : '',
+			'compliance_battery_install_photo' => $hasBattery ? ($request->battery_install_photo ?? '') : '',
+			'compliance_backup_requirement' => $hasBattery ? ($request->backup_requirement ?? '') : '',
+			'compliance_plan_view_photo' => $request->plan_view_photo ?? '',
+			'compliance_storey_type' => $request->storey_type ?? '',
+			'compliance_notes' => $request->notes ?? '',
+			'compliance_rfi_message' => $request->rfi_message ?? '',
+		];
+
+		foreach ($metaData as $metaKey => $metaValue) {
+			LeadMeta::updateOrCreate(
+				[
+					'lead_id' => $lead->id,
+					'meta_key' => $metaKey,
+				],
+				[
+					'meta_value' => $metaValue,
+					'meta_type' => 'text',
+				]
+			);
+		}
+
+		$lead->status = $request->status;
+		$lead->save();
+
+		return response()->json([
+			'status' => true,
+			'message' => 'Compliance check saved successfully.',
+		]);
+	}
+
 
 	// /////////////////////////////For Salse ///////////////////////////
 	public function sales(Request $request)
@@ -1065,6 +1201,11 @@ class LeadInboxController extends Controller
 		$this->data['desc'] = 'Manage and track workflow progress';
 
 		$this->data['lstatus'] = ['Sold']; // pass to blade
+		$this->data['tabs'] = [
+			'Book Installation' => ['BOOK INSTALLATION'],
+			'Installation Booked' => ['INSTALLATION BOOKED'],
+			'Stock Ordering' => ['STOCK ORDERING'],
+		];
 
 		return view('super.leads.index', $this->data);
 	}

@@ -85,5 +85,6 @@ Route::prefix('superadmin')->name('superadmin.')->middleware(['superadmin.auth']
     Route::any('leadImages', [App\Http\Controllers\Super\LeadInboxController::class, 'leadImages'])->name('leadImages');
     Route::post('saveDistributorApprovalMeta', [App\Http\Controllers\Super\LeadInboxController::class, 'saveDistributorApprovalMeta'])->name('saveDistributorApprovalMeta');
     Route::post('saveVicRebateMeta', [App\Http\Controllers\Super\LeadInboxController::class, 'saveVicRebateMeta'])->name('saveVicRebateMeta');
+    Route::post('saveComplianceMeta', [App\Http\Controllers\Super\LeadInboxController::class, 'saveComplianceMeta'])->name('saveComplianceMeta');
 });
 
