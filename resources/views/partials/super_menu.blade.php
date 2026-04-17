@@ -195,23 +195,113 @@ div#jsGrid1_filter {
     border: 1px dashed #2ca5e4 !important;
 }
 
- 
+/* sidebar refresh */
+.sidebar-content {
+    border-right: 0;
+    background: linear-gradient(180deg, #162344 0%, #223b8f 100%);
+    padding: 10px 10px 18px;
+}
+
+.sidebar-section {
+    font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+.sidebar-user-block {
+    padding: 8px 12px 16px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-user-block .hello {
+    font-size: 14px;
+    color: #b8c6ea;
+    line-height: 1.4;
+}
+
+.sidebar-user-block strong {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.sidebar-content .nav-item-header {
+    padding: 10px 12px 6px;
+    margin-top: 8px;
+}
+
+.sidebar-content .nav-item-header .sidebar-section-title {
+    font-size: 10px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: #8da2db;
+    font-weight: 700;
+}
+
+.sidebar-content .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 42px;
+    margin: 2px 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: #e7eeff;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background .18s ease, color .18s ease;
+}
+
+.sidebar-content .nav-link i {
+    width: 18px;
+    min-width: 18px;
+    margin-right: 0;
+    font-size: 15px;
+    color: #8fb3ff;
+    background: none;
+    -webkit-text-fill-color: initial;
+    transform: none !important;
+    filter: none !important;
+}
+
+.sidebar-content .nav-link:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff;
+}
+
+.sidebar-content .nav-link.active {
+    background: rgba(108, 154, 255, 0.22);
+    color: #ffffff;
+}
+
+.sidebar-content .nav-group-sub {
+    margin-left: 16px;
+    padding-left: 10px;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-content .nav-group-sub .nav-link {
+    min-height: 36px;
+    font-size: 13px;
+    padding: 8px 10px;
+}
+
+.sidebar-content .nav-item-submenu > .nav-link::after {
+    color: #97aadd;
+}
 </style>
 <!-- Sidebar content -->
 <div class="sidebar-content">
 
     <!-- Main navigation -->
     <div class="sidebar-section">
+        <div class="sidebar-user-block sidebar-resize-hide">
+            <div class="hello">Hi, <strong>{{ auth('superadmin')->user()->name ?? 'Admin' }}</strong></div>
+        </div>
         <ul class="nav nav-sidebar" data-nav-type="accordion">
 
             <!-- Main -->
             <li class="nav-item-header">
-                <div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide white">
-                </div>
-
+                <div class="sidebar-section-title sidebar-resize-hide">Dashboards</div>
             </li>
-
-
             <!-- For dashboard -->
             <li class="nav-item">
                 <a href="/superadmin/dashboard" class="nav-link {{ request()->is('admin') ? 'active' : '' }}">
@@ -222,12 +312,15 @@ div#jsGrid1_filter {
                 </a>
             </li>
 
-
             <li class="nav-item">
                 <a href="{{ route('superadmin.sales') }}"
                     class="nav-link {{ request()->is('superadmin/sales') ? 'active' : '' }}">
                     <i class="ph-trend-up"></i><span>Sales Pipeline</span>
                 </a>
+            </li>
+
+            <li class="nav-item-header">
+                <div class="sidebar-section-title sidebar-resize-hide">Workflow</div>
             </li>
 
             <li class="nav-item">
@@ -314,9 +407,10 @@ div#jsGrid1_filter {
                     <i class="ph-currency-dollar"></i><span>Sales Rep Payment</span>
                 </a>
             </li>
-            
 
-            
+            <li class="nav-item-header">
+                <div class="sidebar-section-title sidebar-resize-hide">Manage Modules</div>
+            </li>
             @can('RFI_access')
             <li class="nav-item">
                 <a href="{{route('admin.fri.index')}}"
