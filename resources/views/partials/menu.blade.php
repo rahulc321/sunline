@@ -195,6 +195,118 @@ div#jsGrid1_filter {
     border: 1px dashed #2ca5e4 !important;
 }
 
+.sidebar-content {
+    border-right: 0;
+    background: linear-gradient(145deg, #0f172a 0%, #092575 55%, #0b38b6 100%);
+    padding: 0 10px 16px;
+    color: #e8efff;
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-section {
+    font-family: inherit;
+}
+
+.sidebar-user-block {
+    padding: 14px 12px 12px;
+    margin: 0 -10px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+    background: rgba(4, 14, 42, 0.18);
+}
+
+.sidebar-user-block .hello {
+    color: rgba(232, 239, 255, 0.68);
+    font-size: 14px;
+    line-height: 1.35;
+}
+
+.sidebar-user-block strong {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.sidebar-content .nav-sidebar {
+    padding: 0;
+}
+
+.sidebar-content .nav-item-header {
+    padding: 13px 2px 6px;
+    margin: 0;
+}
+
+.sidebar-content .nav-item-header .sidebar-section-title {
+    color: rgba(190, 205, 255, 0.62);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.sidebar-content .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 36px;
+    margin: 2px 0;
+    padding: 9px 10px;
+    border-radius: 8px;
+    color: rgba(237, 243, 255, 0.86);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0;
+    transition: background .18s ease, color .18s ease, box-shadow .18s ease;
+}
+
+.sidebar-content .nav-link span {
+    min-width: 0;
+}
+
+.sidebar-content .nav-link i {
+    width: 17px;
+    min-width: 17px;
+    margin-right: 0;
+    color: #7cc7ff;
+    background: none;
+    -webkit-text-fill-color: initial;
+    font-size: 15px;
+    transform: none !important;
+    filter: none !important;
+}
+
+.sidebar-content .nav-link:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-content .nav-link.active {
+    color: #ffffff;
+    background: rgba(50, 103, 223, 0.72);
+    box-shadow: inset 3px 0 0 #26a8ff, 0 8px 22px rgba(2, 13, 40, 0.20);
+}
+
+.sidebar-content .nav-link.active i,
+.sidebar-content .nav-link:hover i {
+    color: #a9dcff;
+}
+
+.sidebar-content .nav-group-sub {
+    margin: 2px 0 6px 15px;
+    padding: 3px 0 3px 9px;
+    border-left: 1px solid rgba(255, 255, 255, 0.11);
+}
+
+.sidebar-content .nav-group-sub .nav-link {
+    min-height: 32px;
+    padding: 7px 9px;
+    color: rgba(232, 239, 255, 0.76);
+    font-size: 12px;
+}
+
+.sidebar-content .nav-item-submenu > .nav-link::after {
+    color: rgba(205, 220, 255, 0.70);
+}
+
  
 </style>
 <!-- Sidebar content -->
@@ -202,13 +314,15 @@ div#jsGrid1_filter {
 
     <!-- Main navigation -->
     <div class="sidebar-section">
+        <div class="sidebar-user-block sidebar-resize-hide">
+            <div class="hello">Hi, <strong>{{ auth()->user()->name ?? 'Admin' }}</strong></div>
+        </div>
+
         <ul class="nav nav-sidebar" data-nav-type="accordion">
 
             <!-- Main -->
             <li class="nav-item-header">
-                <div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide white">
-                </div>
-
+                <div class="sidebar-section-title sidebar-resize-hide">Dashboards</div>
             </li>
 
 
@@ -276,6 +390,10 @@ div#jsGrid1_filter {
                 </ul>
             </li>
             @endcan
+
+            <li class="nav-item-header">
+                <div class="sidebar-section-title sidebar-resize-hide">CRM Modules</div>
+            </li>
 
             @can('lead_access')
             <li class="nav-item">
@@ -373,6 +491,11 @@ div#jsGrid1_filter {
                 </a>
             </li>
             @endcan
+
+            <li class="nav-item-header">
+                <div class="sidebar-section-title sidebar-resize-hide">Settings</div>
+            </li>
+
             @can('leadSource_access')
             <li class="nav-item">
                 <a href="{{route('admin.leadSource.index')}}"

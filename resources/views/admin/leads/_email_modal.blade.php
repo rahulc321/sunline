@@ -1,52 +1,63 @@
-<div class="modal fade" id="emailModel" tabindex="-1" aria-labelledby="emailModelLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+<div class="modal fade rk-email-modal" id="emailModel" tabindex="-1" aria-labelledby="emailModelLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rk-email-shell">
 
-            <div class="modal-header">
-                <h5 class="modal-title" id="emailModelLabel">Send Email to <span class="lead_name">{{@$lead->first_name.' '.@$lead->last_name}}</span></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header rk-email-header">
+                <div class="rk-email-title-wrap">
+                    <span class="rk-email-icon">
+                        <i class="fa fa-paper-plane-o"></i>
+                    </span>
+                    <div>
+                        <span class="rk-email-kicker">Lead communication</span>
+                        <h5 class="modal-title" id="emailModelLabel">Send Email to <span class="lead_name">{{@$lead->first_name.' '.@$lead->last_name}}</span></h5>
+                    </div>
+                </div>
+                <button type="button" class="btn-close rk-email-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <form action="{{ route('admin.sendEmail') }}" method="post">
                 @csrf
                 <input type="hidden" class="form-control lead_id" name="lead_id" value="{{@$lead->id}}">
-                <div class="modal-body">
+                <div class="modal-body rk-email-body">
 
                     <!-- Recipient -->
-                    <div class="mb-3 d-flex align-items-center">
-                        <div class="me-2">
-                            <span class="badge bg-success rounded-pill">To</span>
+                    <div class="rk-email-field rk-recipient-field">
+                        <label class="rk-email-label">Recipient</label>
+                        <div class="rk-email-recipient">
+                            <span class="rk-recipient-pill">To</span>
+                            <input type="text" class="form-control lead_email" name="email" placeholder="Recipient Email" required value="{{@$lead->email}}">
                         </div>
-                        <input type="text" class="form-control lead_email" name="email" placeholder="Recipient Email" required value="{{@$lead->email}}">
                     </div>
 
                     <!-- Template dropdown -->
-                    <select id="templateSelect" class="form-select" name="template_id">
-                        <option value="">-- Select Template --</option>
-                        @foreach($emailTemplates as $template)
-                        <option value="{{ $template->id }}" data-email='@json($template)'>
-                            {{ $template->template_name }}
-                        </option>
-                        @endforeach
-                    </select>
+                    <div class="rk-email-field">
+                        <label class="rk-email-label">Template</label>
+                        <select id="templateSelect" class="form-select" name="template_id">
+                            <option value="">-- Select Template --</option>
+                            @foreach($emailTemplates as $template)
+                            <option value="{{ $template->id }}" data-email='@json($template)'>
+                                {{ $template->template_name }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                    <div class="mb-3">
-                        <label class="form-label1 fw-semibold">Subject Line</label>
+                    <div class="rk-email-field">
+                        <label class="rk-email-label">Subject Line</label>
                         <input type="text" class="form-control" name="subject" id="subjectInput"
                             placeholder="Enter email subject" required>
                     </div>
 
                     <!-- Email Content + Preview -->
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label1 fw-semibold">Email Content</label>
+                    <div class="row rk-email-compose-grid">
+                        <div class="col-md-6">
+                            <label class="rk-email-label">Email Content</label>
                             <textarea class="form-control" name="body" id="emailBody" rows="10"
                                 placeholder="Type your email..."></textarea>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label1 fw-semibold">Email Preview</label>
-                            <div class="border rounded p-3 bg-light" style="height: 100%; overflow-y: auto;"
-                                id="emailPreview">
+                        <div class="col-md-6">
+                            <label class="rk-email-label">Email Preview</label>
+                            <div class="rk-email-preview" id="emailPreview">
                                 <p class="text-muted">Your email preview will appear here...</p>
                             </div>
                         </div>
@@ -54,9 +65,9 @@
 
                 </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-warning" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary bg_s"><svg xmlns="http://www.w3.org/2000/svg"
+                <div class="modal-footer rk-email-footer">
+                    <button type="button" class="btn rk-email-cancel" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn rk-email-send"><svg xmlns="http://www.w3.org/2000/svg"
                             width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                             class="lucide lucide-send h-4 w-4 mr-2"
@@ -74,6 +85,253 @@
         </div>
     </div>
 </div>
+<style>
+.rk-email-modal .modal-dialog {
+    max-width: 860px;
+}
+
+.rk-email-shell {
+    overflow: hidden;
+    border: 0;
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at top left, rgba(20, 184, 166, .18), transparent 34%),
+        radial-gradient(circle at top right, rgba(56, 168, 255, .16), transparent 32%),
+        linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+    box-shadow: 0 28px 80px rgba(15, 23, 42, .28);
+    color: #172033;
+}
+
+.rk-email-header {
+    align-items: center;
+    padding: 18px 22px;
+    border: 0;
+    background: linear-gradient(135deg, #0f172a 0%, #164e63 58%, #0f766e 100%);
+    color: #fff;
+}
+
+.rk-email-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+}
+
+.rk-email-icon {
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, .30);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .14);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .34), 0 12px 26px rgba(0, 0, 0, .20);
+    color: #c7fff6;
+    font-size: 18px;
+}
+
+.rk-email-kicker {
+    display: block;
+    margin-bottom: 3px;
+    color: rgba(255, 255, 255, .68);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.rk-email-header .modal-title {
+    margin: 0;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.rk-email-header .lead_name {
+    color: #d9fffa;
+}
+
+.rk-email-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, .86);
+    opacity: 1;
+}
+
+.rk-email-body {
+    padding: 22px;
+}
+
+.rk-email-field {
+    margin-bottom: 15px;
+}
+
+.rk-email-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.rk-email-modal .form-control,
+.rk-email-modal .form-select {
+    min-height: 44px;
+    border: 1px solid #d9e4ef;
+    border-radius: 11px;
+    background-color: rgba(255, 255, 255, .88);
+    color: #172033;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7);
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.rk-email-modal .form-control:focus,
+.rk-email-modal .form-select:focus {
+    border-color: #14b8a6;
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, .13);
+}
+
+.rk-email-recipient {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border: 1px solid #d9e4ef;
+    border-radius: 13px;
+    background: rgba(248, 252, 255, .9);
+}
+
+.rk-email-recipient .form-control {
+    min-height: 34px;
+    padding: 4px 8px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    box-shadow: none;
+}
+
+.rk-email-recipient .form-control:focus {
+    box-shadow: none;
+}
+
+.rk-recipient-pill {
+    display: inline-flex;
+    min-width: 36px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #0f766e, #14b8a6);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.rk-email-compose-grid {
+    row-gap: 16px;
+}
+
+.rk-email-compose-grid textarea.form-control,
+.rk-email-preview {
+    min-height: 250px;
+}
+
+.rk-email-compose-grid textarea.form-control {
+    padding: 14px;
+    resize: vertical;
+}
+
+.rk-email-preview {
+    height: 100%;
+    padding: 16px;
+    overflow-y: auto;
+    border: 1px dashed rgba(56, 168, 255, .85);
+    border-radius: 13px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .78), rgba(247, 251, 255, .94)),
+        repeating-linear-gradient(135deg, rgba(56, 168, 255, .05) 0 8px, transparent 8px 16px);
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.rk-email-preview p {
+    margin: 0;
+}
+
+.rk-email-footer {
+    padding: 16px 22px 20px;
+    border: 0;
+    background: linear-gradient(180deg, rgba(248, 251, 255, .65), #fff);
+}
+
+.rk-email-cancel,
+.rk-email-send {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 11px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.rk-email-cancel {
+    border: 1px solid rgba(249, 115, 22, .34);
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.rk-email-cancel:hover {
+    border-color: rgba(249, 115, 22, .55);
+    background: #ffedd5;
+    color: #9a3412;
+}
+
+.rk-email-send {
+    border: 0;
+    background: linear-gradient(135deg, #2563eb, #14b8a6);
+    box-shadow: 0 12px 24px rgba(37, 99, 235, .22);
+    color: #fff;
+}
+
+.rk-email-send:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 30px rgba(20, 184, 166, .24);
+    color: #fff;
+}
+
+.rk-email-send svg {
+    width: 16px;
+    height: 16px;
+}
+
+@media (max-width: 768px) {
+    .rk-email-modal .modal-dialog {
+        margin: 12px;
+    }
+
+    .rk-email-header,
+    .rk-email-body,
+    .rk-email-footer {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .rk-email-header .modal-title {
+        font-size: 16px;
+    }
+}
+</style>
 <script>
 $(document).on('change', '#templateSelect', function() {
     let selected = $(this).find(':selected').data('email');

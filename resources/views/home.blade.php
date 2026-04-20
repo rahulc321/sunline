@@ -1,336 +1,778 @@
 @extends('layouts.admin')
 @section('title', 'Dashboard')
-@section('content')
-<!-- Page header -->
-<div class="page-header">
-    <div class="page-header-content d-lg-flex">
-        <div class="d-flex justify-content-between align-items-center w-100 flex-wrap">
-            <!-- Title + subtitle stacked -->
-            <div class="d-flex flex-column">
-                <h4 class="page-title mb-0 crm_c" style="font-size: 1.875rem;">Sales Dashboard</h4>
-                <p class="mb-0 txt_1">Track performance and monitor lead pipeline</p>
-            </div>
 
-            <!-- Punch buttons aligned right -->
-            <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
-                <form action="{{ route('admin.attendance.punchin') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="btn btn-success px-4 py-2 rounded-pill shadow-sm">
-                        <i class="ph-arrow-circle-right me-1"></i> Punch In
-                    </button>
-                </form>
+@section('styles')
+@parent
+<style>
+    .sunline-dashboard {
+        --sun-ink: #152033;
+        --sun-muted: #667085;
+        --sun-border: #dbe3ef;
+        --sun-blue: #2563eb;
+        --sun-teal: #0f766e;
+        --sun-gold: #f59e0b;
+        --sun-green: #16a34a;
+        --sun-red: #dc2626;
+        --sun-panel: rgba(255, 255, 255, 0.88);
+        color: var(--sun-ink);
+        font-family: "Inter", "Segoe UI", sans-serif;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
 
-                <form action="{{ route('admin.attendance.punchout') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="btn btn-danger px-4 py-2 rounded-pill shadow-sm">
-                        <i class="ph-arrow-circle-left me-1"></i> Punch Out
-                    </button>
-                </form>
-            </div>
-        </div>
+    .sunline-dashboard .premium-shell {
+        background:
+            radial-gradient(circle at 18% 12%, rgba(37, 99, 235, 0.14), transparent 32%),
+            radial-gradient(circle at 88% 2%, rgba(245, 158, 11, 0.16), transparent 30%),
+            linear-gradient(180deg, #f7faff 0%, #eef5ff 42%, #ffffff 100%);
+        border: 1px solid rgba(219, 227, 239, 0.85);
+        border-left: 0;
+        border-right: 0;
+        border-radius: 0;
+        padding: 18px;
+        box-shadow: 0 20px 55px rgba(21, 32, 51, 0.10);
+    }
 
+    .sunline-dashboard .hero-panel {
+        position: relative;
+        overflow: hidden;
+        min-height: 210px;
+        padding: 24px;
+        border-radius: 18px;
+        background:
+            linear-gradient(135deg, rgba(18, 34, 68, 0.98), rgba(37, 99, 235, 0.88) 54%, rgba(15, 118, 110, 0.88)),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.10) 1px, transparent 1px),
+            linear-gradient(180deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+        background-size: auto, 38px 38px, 38px 38px;
+        color: #ffffff;
+        box-shadow: 0 24px 55px rgba(23, 37, 84, 0.24);
+    }
 
+    .sunline-dashboard .hero-panel:after {
+        content: "";
+        position: absolute;
+        inset: 18px 22px auto auto;
+        width: 178px;
+        height: 178px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 36px;
+        background:
+            linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04)),
+            url("{{ asset('logo.png') }}");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 118px auto;
+        opacity: .9;
+        transform: rotate(-4deg);
+    }
 
-    </div>
-</div>
-<!-- /page header -->
+    .sunline-dashboard .hero-content {
+        position: relative;
+        z-index: 1;
+    }
 
+    .sunline-dashboard .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 11px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.88);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
 
-<!-- Content area -->
-<div class="content pt-0">
+    .sunline-dashboard .hero-title {
+        max-width: 560px;
+        margin: 16px 0 8px;
+        color: #ffffff;
+        font-size: clamp(26px, 3vw, 38px);
+        line-height: 1.12;
+        font-weight: 800;
+        letter-spacing: 0;
+    }
 
-    <!-- Dashboard content -->
-    <div class="row">
-        <div class="col-xl-12">
+    .sunline-dashboard .hero-copy {
+        max-width: 560px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 14px;
+        line-height: 1.55;
+    }
 
-            <div class="card p-3 form_1">
-                <form class="row align-items-end">
+    .sunline-dashboard .hero-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 18px;
+    }
 
-                    <!-- Title -->
-                    <div class="col-12">
-                        <h6 class="mb-3">
-                            <i class="bi bi-funnel"></i><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round"
-                                class="lucide lucide-filter h-5 w-5 text-primary"
-                                data-lov-id="src/components/dashboard/DashboardFilters.tsx:67:8" data-lov-name="Filter"
-                                data-component-path="src/components/dashboard/DashboardFilters.tsx"
-                                data-component-line="67" data-component-file="DashboardFilters.tsx"
-                                data-component-name="Filter"
-                                data-component-content="%7B%22className%22%3A%22h-5%20w-5%20text-primary%22%7D">
-                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                            </svg> Dashboard Filters
-                        </h6>
-                    </div>
+    .sunline-dashboard .hero-stat {
+        min-width: 130px;
+        padding: 11px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(10px);
+    }
 
-                    <!-- From Date -->
-                    <div class="col-md-2">
-                        <label>From Date</label>
-                        <input type="date" class="form-control">
-                    </div>
+    .sunline-dashboard .hero-stat span {
+        display: block;
+        color: rgba(255, 255, 255, 0.68);
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+    }
 
-                    <!-- To Date -->
-                    <div class="col-md-2">
-                        <label>To Date</label>
-                        <input type="date" class="form-control">
-                    </div>
+    .sunline-dashboard .hero-stat strong {
+        display: block;
+        margin-top: 5px;
+        color: #ffffff;
+        font-size: 22px;
+        line-height: 1;
+    }
 
-                    <!-- Sales Rep -->
-                    <div class="col-md-3">
-                        <label>Sales Rep</label>
-                        <select class="form-select">
-                            <option>All Sales Reps</option>
-                            <option>Rep 1</option>
-                            <option>Rep 2</option>
-                        </select>
-                    </div>
+    .sunline-dashboard .punch-card,
+    .sunline-dashboard .filter-panel,
+    .sunline-dashboard .metric-card,
+    .sunline-dashboard .insight-panel {
+        border: 1px solid var(--sun-border) !important;
+        border-radius: 16px !important;
+        background: var(--sun-panel);
+        box-shadow: 0 14px 34px rgba(21, 32, 51, 0.08) !important;
+    }
 
-                    <!-- Lead Source -->
-                    <div class="col-md-3">
-                        <label>Lead Source</label>
-                        <select class="form-select">
-                            <option>All Sources</option>
-                            <option>Source 1</option>
-                            <option>Source 2</option>
-                        </select>
-                    </div>
+    .sunline-dashboard .punch-card {
+        padding: 18px;
+        height: 100%;
+    }
 
-                    <!-- Buttons -->
-                    <div class="col-md-2 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary bg_s">Apply</button>
-                        <button type="reset" class="btn btn-outline-secondary">Reset</button>
-                    </div>
+    .sunline-dashboard .punch-card h6,
+    .sunline-dashboard .filter-panel h6,
+    .sunline-dashboard .insight-panel h6 {
+        margin: 0;
+        color: var(--sun-ink);
+        font-size: 15px;
+        font-weight: 800;
+    }
 
-                </form>
-            </div>
+    .sunline-dashboard .muted-copy {
+        color: var(--sun-muted);
+        font-size: 13px;
+        line-height: 1.5;
+    }
 
-            <div class="row g-3">
-                <!-- Example Box with icon on right like screenshot -->
-                <div class="col-md-3 col-sm-6">
-                    <div class="border rounded p-3 h-100">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="txt_2">Total Leads Assigned</span>
-                            <div class="bg_s d-flex align-items-center justify-content-center"
-                                style="width:46px;height:46px;background:hsl(215, 16%, 47%);border-radius:8px;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="lucide lucide-users h-6 w-6 text-white"
-                                    data-lov-id="src/components/dashboard/KPICard.tsx:34:10" data-lov-name="Icon"
-                                    data-component-path="src/components/dashboard/KPICard.tsx" data-component-line="34"
-                                    data-component-file="KPICard.tsx" data-component-name="Icon"
-                                    data-component-content="%7B%22className%22%3A%22h-6%20w-6%20text-white%22%7D">
-                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <h4 class="mb-0 txt_2">{{$assign_lead->count() ?? 0}}</h4>
-                        <small class="text-success">+12% from last month</small>
-                    </div>
-                </div>
+    .sunline-dashboard .premium-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 38px;
+        border-radius: 11px;
+        font-weight: 700;
+        box-shadow: none !important;
+    }
 
-                <!-- Box 2 -->
+    .sunline-dashboard .btn-punch-in {
+        border: 0;
+        background: linear-gradient(135deg, #16a34a, #0f766e);
+        color: #ffffff;
+    }
 
-                <div class="col-md-3 col-sm-6">
-                    <div class="border rounded p-3 h-100">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="txt_2">Leads Contacted</span>
-                            <div class="bg_s d-flex align-items-center justify-content-center"
-                                style="width:46px;height:46px;background:hsl(215, 16%, 47%);border-radius:8px;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="lucide lucide-phone h-6 w-6 text-white"
-                                    data-lov-id="src/components/dashboard/KPICard.tsx:34:10" data-lov-name="Icon"
-                                    data-component-path="src/components/dashboard/KPICard.tsx" data-component-line="34"
-                                    data-component-file="KPICard.tsx" data-component-name="Icon"
-                                    data-component-content="%7B%22className%22%3A%22h-6%20w-6%20text-white%22%7D">
-                                    <path
-                                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
-                                    </path>
-                                </svg>
-                            </div>
-                        </div>
-                        <h4 class="mb-0 txt_2">{{$contacts->count() ?? 0}}</h4>
-                        <small class="text-success">82% contact rate</small>
-                    </div>
-                </div>
+    .sunline-dashboard .btn-punch-out {
+        border: 1px solid rgba(220, 38, 38, 0.22);
+        background: #fff7f7;
+        color: var(--sun-red);
+    }
 
-                <!-- Box 3 -->
+    .sunline-dashboard .filter-panel {
+        padding: 12px;
+    }
 
-                <div class="col-md-3 col-sm-6">
-                    <div class="border rounded p-3 h-100">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="txt_2">Quotes Sent</span>
-                            <div class="bg_s d-flex align-items-center justify-content-center"
-                                style="width:46px;height:46px;background:hsl(215, 16%, 47%);border-radius:8px;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="lucide lucide-file-text h-6 w-6 text-white"
-                                    data-lov-id="src/components/dashboard/KPICard.tsx:34:10" data-lov-name="Icon"
-                                    data-component-path="src/components/dashboard/KPICard.tsx" data-component-line="34"
-                                    data-component-file="KPICard.tsx" data-component-name="Icon"
-                                    data-component-content="%7B%22className%22%3A%22h-6%20w-6%20text-white%22%7D">
-                                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
-                                    <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
-                                    <path d="M10 9H8"></path>
-                                    <path d="M16 13H8"></path>
-                                    <path d="M16 17H8"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <h4 class="mb-0 txt_2">33</h4>
-                        <small class="text-success">+8% from last month</small>
-                    </div>
-                </div>
+    .sunline-dashboard .compact-filter-form {
+        display: grid;
+        grid-template-columns: minmax(150px, .9fr) minmax(132px, .7fr) minmax(132px, .7fr) minmax(170px, .9fr) minmax(170px, .9fr) minmax(164px, auto);
+        align-items: end;
+        gap: 10px;
+    }
 
-                <!-- Box 4 -->
-                <div class="col-md-3 col-sm-6">
-                    <div class="border rounded p-3 h-100">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="txt_2">Sales Closed</span>
-                            <div class="bg_s d-flex align-items-center justify-content-center"
-                                style="width:46px;height:46px;background:hsl(215, 16%, 47%);border-radius:8px;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="lucide lucide-dollar-sign h-6 w-6 text-white"
-                                    data-lov-id="src/components/dashboard/KPICard.tsx:34:10" data-lov-name="Icon"
-                                    data-component-path="src/components/dashboard/KPICard.tsx" data-component-line="34"
-                                    data-component-file="KPICard.tsx" data-component-name="Icon"
-                                    data-component-content="%7B%22className%22%3A%22h-6%20w-6%20text-white%22%7D">
-                                    <line x1="12" x2="12" y1="2" y2="22"></line>
-                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <h4 class="mb-0 txt_2">{{$closed_sale->count() ?? 0}}</h4>
-                        <small class="text-success">25.8% conversion rate</small>
-                    </div>
-                </div>
+    .sunline-dashboard .filter-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 38px;
+        padding-right: 8px;
+    }
 
+    .sunline-dashboard .filter-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+    }
 
-                <!-- Box 5 -->
-                <div class="col-md-3 col-sm-6">
-                    <div class="border rounded p-3 h-100">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="txt_2">Products Sold</span>
-                            <div class="bg_s d-flex align-items-center justify-content-center"
-                                style="width:46px;height:46px;background:hsl(215, 16%, 47%);border-radius:8px;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="lucide lucide-package h-6 w-6 text-white"
-                                    data-lov-id="src/components/dashboard/KPICard.tsx:34:10" data-lov-name="Icon"
-                                    data-component-path="src/components/dashboard/KPICard.tsx" data-component-line="34"
-                                    data-component-file="KPICard.tsx" data-component-name="Icon"
-                                    data-component-content="%7B%22className%22%3A%22h-6%20w-6%20text-white%22%7D">
-                                    <path
-                                        d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z">
-                                    </path>
-                                    <path d="M12 22V12"></path>
-                                    <path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path>
-                                    <path d="m7.5 4.27 9 5.15"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <h4 class="mb-0 txt_2">156</h4>
-                        <small class="text-success">Battery: 40, Solar+Battery: 60, Heat Pump: 20, Aircon:
-                            14</small>
-                    </div>
-                </div>
+    .sunline-dashboard .filter-panel label {
+        margin-bottom: 4px;
+        color: #475467;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
 
-                <!-- Box 6 -->
-                <div class="col-md-3 col-sm-6">
-                    <div class="border rounded p-3 h-100">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="txt_2">Total Conversion %</span>
-                            <div class="bg_s d-flex align-items-center justify-content-center"
-                                style="width:46px;height:46px;background:hsl(215, 16%, 47%);border-radius:8px;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="lucide lucide-target h-6 w-6 text-white"
-                                    data-lov-id="src/components/dashboard/KPICard.tsx:34:10" data-lov-name="Icon"
-                                    data-component-path="src/components/dashboard/KPICard.tsx" data-component-line="34"
-                                    data-component-file="KPICard.tsx" data-component-name="Icon"
-                                    data-component-content="%7B%22className%22%3A%22h-6%20w-6%20text-white%22%7D">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <circle cx="12" cy="12" r="6"></circle>
-                                    <circle cx="12" cy="12" r="2"></circle>
-                                </svg>
-                            </div>
-                        </div>
-                        <h4 class="mb-0 txt_2">25.8%</h4>
-                        <small class="text-success">+2.3% from last month</small>
-                    </div>
-                </div>
+    .sunline-dashboard .filter-panel .form-control,
+    .sunline-dashboard .filter-panel .form-select {
+        height: 38px;
+        min-height: 38px;
+        border-color: #d7dfec;
+        border-radius: 10px;
+        color: var(--sun-ink);
+        font-size: 13px;
+        box-shadow: none;
+    }
 
-                <!-- Box 7 -->
-                <div class="col-md-3 col-sm-6">
-                    <div class="border rounded p-3 h-100">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="txt_2">Total Conversation %</span>
-                            <div class="bg_s d-flex align-items-center justify-content-center"
-                                style="width:46px;height:46px;background:hsl(215, 16%, 47%);border-radius:8px;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="lucide lucide-zap h-6 w-6 text-white"
-                                    data-lov-id="src/components/dashboard/KPICard.tsx:34:10" data-lov-name="Icon"
-                                    data-component-path="src/components/dashboard/KPICard.tsx" data-component-line="34"
-                                    data-component-file="KPICard.tsx" data-component-name="Icon"
-                                    data-component-content="%7B%22className%22%3A%22h-6%20w-6%20text-white%22%7D">
-                                    <path
-                                        d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z">
-                                    </path>
-                                </svg>
-                            </div>
-                        </div>
-                        <h4 class="mb-0 txt_2">87.6%</h4>
-                        <small class="text-success">Contact rate from calls/meetings</small>
-                    </div>
-                </div>
+    .sunline-dashboard .filter-panel .form-control:focus,
+    .sunline-dashboard .filter-panel .form-select:focus {
+        border-color: rgba(37, 99, 235, .55);
+        box-shadow: 0 0 0 .18rem rgba(37, 99, 235, .12);
+    }
 
+    .sunline-dashboard .btn-apply {
+        border: 0;
+        background: linear-gradient(135deg, var(--sun-blue), var(--sun-teal));
+        color: #ffffff;
+    }
 
-                <!-- Box 8 -->
-                <div class="col-md-3 col-sm-6">
-                    <div class="border rounded p-3 h-100">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <span class="txt_2">Lead Cost Spend</span>
-                            <div class="bg_s d-flex align-items-center justify-content-center"
-                                style="width:46px;height:46px;background:hsl(215, 16%, 47%);border-radius:8px;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="lucide lucide-dollar-sign h-6 w-6 text-white"
-                                    data-lov-id="src/components/dashboard/KPICard.tsx:34:10" data-lov-name="Icon"
-                                    data-component-path="src/components/dashboard/KPICard.tsx" data-component-line="34"
-                                    data-component-file="KPICard.tsx" data-component-name="Icon"
-                                    data-component-content="%7B%22className%22%3A%22h-6%20w-6%20text-white%22%7D">
-                                    <line x1="12" x2="12" y1="2" y2="22"></line>
-                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <h4 class="mb-0 txt_2">$12,485</h4>
-                        <small class="text-success">Based on source costs × volumes</small>
-                    </div>
-                </div>
+    .sunline-dashboard .filter-actions {
+        display: grid;
+        grid-template-columns: 1fr 42px;
+        gap: 8px;
+    }
 
+    .sunline-dashboard .metric-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 174px;
+        padding: 20px;
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
 
-            </div>
+    .sunline-dashboard .metric-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 42px rgba(21, 32, 51, 0.12) !important;
+    }
 
+    .sunline-dashboard .metric-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+    }
 
+    .sunline-dashboard .metric-label {
+        margin: 0;
+        color: var(--sun-muted);
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: .02em;
+    }
 
+    .sunline-dashboard .metric-value {
+        margin: 16px 0 8px;
+        color: var(--sun-ink);
+        font-size: 32px;
+        line-height: 1;
+        font-weight: 850;
+    }
 
+    .sunline-dashboard .metric-note {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--sun-muted);
+        font-size: 12px;
+        line-height: 1.35;
+    }
 
+    .sunline-dashboard .metric-note.positive {
+        color: var(--sun-green);
+        font-weight: 700;
+    }
 
-        </div>
+    .sunline-dashboard .icon-tile {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        width: 48px;
+        height: 48px;
+        border-radius: 13px;
+        color: #ffffff;
+        box-shadow: 0 12px 26px rgba(21, 32, 51, .18);
+    }
 
+    .sunline-dashboard .tile-blue { background: linear-gradient(135deg, #2563eb, #60a5fa); }
+    .sunline-dashboard .tile-teal { background: linear-gradient(135deg, #0f766e, #2dd4bf); }
+    .sunline-dashboard .tile-gold { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    .sunline-dashboard .tile-green { background: linear-gradient(135deg, #16a34a, #86efac); }
+    .sunline-dashboard .tile-rose { background: linear-gradient(135deg, #e11d48, #fb7185); }
+    .sunline-dashboard .tile-indigo { background: linear-gradient(135deg, #4f46e5, #818cf8); }
+    .sunline-dashboard .tile-slate { background: linear-gradient(135deg, #334155, #64748b); }
+    .sunline-dashboard .tile-cyan { background: linear-gradient(135deg, #0891b2, #67e8f9); }
 
-    </div>
-    <!-- /dashboard content -->
+    .sunline-dashboard .mini-meter {
+        height: 7px;
+        margin-top: 18px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #edf2f7;
+    }
 
-</div>
-<!-- /content area -->
+    .sunline-dashboard .mini-meter span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--sun-blue), var(--sun-teal), var(--sun-gold));
+    }
+
+    .sunline-dashboard .insight-panel {
+        padding: 20px;
+        height: 100%;
+    }
+
+    .sunline-dashboard .pipeline-row {
+        display: grid;
+        grid-template-columns: 112px 1fr 54px;
+        align-items: center;
+        gap: 12px;
+        margin-top: 16px;
+        color: var(--sun-muted);
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .sunline-dashboard .pipeline-bar {
+        height: 10px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #eef2f7;
+    }
+
+    .sunline-dashboard .pipeline-bar span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+    }
+
+    .sunline-dashboard .source-list {
+        display: grid;
+        gap: 13px;
+        margin-top: 18px;
+    }
+
+    .sunline-dashboard .source-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px;
+        border-radius: 13px;
+        background: #f8fbff;
+        border: 1px solid #e5ebf5;
+    }
+
+    .sunline-dashboard .source-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+    }
+
+    .sunline-dashboard .source-name {
+        color: var(--sun-ink);
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .sunline-dashboard .source-meta {
+        color: var(--sun-muted);
+        font-size: 12px;
+    }
+
+    @media (max-width: 1199.98px) {
+        .sunline-dashboard .compact-filter-form {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .sunline-dashboard .filter-title,
+        .sunline-dashboard .filter-actions {
+            grid-column: auto;
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        .sunline-dashboard .premium-shell {
+            padding: 14px;
+            border-radius: 14px;
+        }
+
+        .sunline-dashboard .hero-panel {
+            padding: 22px;
+        }
+
+        .sunline-dashboard .hero-panel:after {
+            opacity: .22;
+        }
+
+        .sunline-dashboard .compact-filter-form {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .sunline-dashboard .filter-title,
+        .sunline-dashboard .filter-actions {
+            grid-column: 1 / -1;
+        }
+
+        .sunline-dashboard .pipeline-row {
+            grid-template-columns: 88px 1fr 44px;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .sunline-dashboard .compact-filter-form {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 @endsection
+
+@section('content')
+@php
+    $assignedLeadCount = isset($assign_lead) && is_countable($assign_lead) ? count($assign_lead) : 0;
+    $contactedCount = isset($contacts) && is_countable($contacts) ? count($contacts) : 0;
+    $closedSaleCount = isset($closed_sale) && is_countable($closed_sale) ? count($closed_sale) : 0;
+    $quoteCount = 33;
+    $productCount = 156;
+    $conversionRate = $assignedLeadCount > 0 ? round(($closedSaleCount / $assignedLeadCount) * 100, 1) : 0;
+    $contactRate = $assignedLeadCount > 0 ? round(($contactedCount / $assignedLeadCount) * 100, 1) : 0;
+@endphp
+
+<div class="content sunline-dashboard pt-0">
+    <div class="premium-shell">
+        <div class="row g-3 align-items-stretch">
+            <div class="col-xl-8">
+                <section class="hero-panel">
+                    <div class="hero-content">
+                        <span class="eyebrow"><i class="ph-sparkle"></i> Sales Command Center</span>
+                        <h1 class="hero-title">Sales visibility for every Sunline Energy opportunity.</h1>
+                        <p class="hero-copy">
+                            Track assigned leads, contact quality, quotes, conversion, and revenue movement from one polished dashboard.
+                        </p>
+
+                        <div class="hero-actions">
+                            <div class="hero-stat">
+                                <span>Assigned Leads</span>
+                                <strong>{{ number_format($assignedLeadCount) }}</strong>
+                            </div>
+                            <div class="hero-stat">
+                                <span>Contact Rate</span>
+                                <strong>{{ $contactRate }}%</strong>
+                            </div>
+                            <div class="hero-stat">
+                                <span>Closed Sales</span>
+                                <strong>{{ number_format($closedSaleCount) }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="col-xl-4">
+                <aside class="punch-card">
+                    <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                        <div>
+                            <h6>Attendance</h6>
+                            <div class="muted-copy mt-1">Start or close your active work session.</div>
+                        </div>
+                        <span class="icon-tile tile-gold"><i class="ph-clock fs-4"></i></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <form action="{{ route('admin.attendance.punchin') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn premium-btn btn-punch-in w-100">
+                                <i class="ph-arrow-circle-right"></i> Punch In
+                            </button>
+                        </form>
+
+                        <form action="{{ route('admin.attendance.punchout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn premium-btn btn-punch-out w-100">
+                                <i class="ph-arrow-circle-left"></i> Punch Out
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="source-item mt-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="source-dot bg-success"></span>
+                            <div>
+                                <div class="source-name">Live dashboard</div>
+                                <div class="source-meta">Pipeline metrics refreshed by CRM data</div>
+                            </div>
+                        </div>
+                        <i class="ph-shield-check text-success fs-5"></i>
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+        <section class="filter-panel mt-2">
+            <form class="compact-filter-form">
+                <div class="filter-title">
+                    <span class="icon-tile tile-blue filter-icon">
+                        <i class="ph-funnel"></i>
+                    </span>
+                    <div>
+                        <h6>Filters</h6>
+                        <div class="muted-copy">Date, rep and source</div>
+                    </div>
+                </div>
+
+                <div>
+                    <label>From Date</label>
+                    <input type="date" class="form-control">
+                </div>
+
+                <div>
+                    <label>To Date</label>
+                    <input type="date" class="form-control">
+                </div>
+
+                <div>
+                    <label>Sales Rep</label>
+                    <select class="form-select">
+                        <option>All Sales Reps</option>
+                        <option>Rep 1</option>
+                        <option>Rep 2</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Lead Source</label>
+                    <select class="form-select">
+                        <option>All Sources</option>
+                        <option>Source 1</option>
+                        <option>Source 2</option>
+                    </select>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn premium-btn btn-apply">
+                        <i class="ph-check-circle"></i> Apply
+                    </button>
+                    <button type="reset" class="btn premium-btn btn-light border" title="Reset filters">
+                        <i class="ph-arrow-counter-clockwise"></i>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="row g-3 mt-1">
+            <div class="col-xxl-3 col-md-6">
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <p class="metric-label">Total Leads Assigned</p>
+                        <span class="icon-tile tile-blue"><i class="ph-users-three fs-4"></i></span>
+                    </div>
+                    <div class="metric-value">{{ number_format($assignedLeadCount) }}</div>
+                    <div class="metric-note positive"><i class="ph-trend-up"></i> +12% from last month</div>
+                    <div class="mini-meter"><span style="width: 78%"></span></div>
+                </div>
+            </div>
+
+            <div class="col-xxl-3 col-md-6">
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <p class="metric-label">Leads Contacted</p>
+                        <span class="icon-tile tile-teal"><i class="ph-phone-call fs-4"></i></span>
+                    </div>
+                    <div class="metric-value">{{ number_format($contactedCount) }}</div>
+                    <div class="metric-note positive"><i class="ph-activity"></i> {{ $contactRate }}% contact rate</div>
+                    <div class="mini-meter"><span style="width: {{ min($contactRate, 100) }}%"></span></div>
+                </div>
+            </div>
+
+            <div class="col-xxl-3 col-md-6">
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <p class="metric-label">Quotes Sent</p>
+                        <span class="icon-tile tile-gold"><i class="ph-file-text fs-4"></i></span>
+                    </div>
+                    <div class="metric-value">{{ number_format($quoteCount) }}</div>
+                    <div class="metric-note positive"><i class="ph-trend-up"></i> +8% from last month</div>
+                    <div class="mini-meter"><span style="width: 64%"></span></div>
+                </div>
+            </div>
+
+            <div class="col-xxl-3 col-md-6">
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <p class="metric-label">Sales Closed</p>
+                        <span class="icon-tile tile-green"><i class="ph-currency-dollar fs-4"></i></span>
+                    </div>
+                    <div class="metric-value">{{ number_format($closedSaleCount) }}</div>
+                    <div class="metric-note positive"><i class="ph-target"></i> {{ $conversionRate }}% conversion rate</div>
+                    <div class="mini-meter"><span style="width: {{ min($conversionRate, 100) }}%"></span></div>
+                </div>
+            </div>
+
+            <div class="col-xxl-3 col-md-6">
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <p class="metric-label">Products Sold</p>
+                        <span class="icon-tile tile-rose"><i class="ph-package fs-4"></i></span>
+                    </div>
+                    <div class="metric-value">{{ number_format($productCount) }}</div>
+                    <div class="metric-note"><i class="ph-stack"></i> Battery, solar, heat pump and aircon mix</div>
+                    <div class="mini-meter"><span style="width: 82%"></span></div>
+                </div>
+            </div>
+
+            <div class="col-xxl-3 col-md-6">
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <p class="metric-label">Total Conversion</p>
+                        <span class="icon-tile tile-indigo"><i class="ph-crosshair fs-4"></i></span>
+                    </div>
+                    <div class="metric-value">{{ $conversionRate }}%</div>
+                    <div class="metric-note positive"><i class="ph-arrow-up-right"></i> +2.3% from last month</div>
+                    <div class="mini-meter"><span style="width: {{ min($conversionRate, 100) }}%"></span></div>
+                </div>
+            </div>
+
+            <div class="col-xxl-3 col-md-6">
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <p class="metric-label">Total Conversation</p>
+                        <span class="icon-tile tile-cyan"><i class="ph-lightning fs-4"></i></span>
+                    </div>
+                    <div class="metric-value">87.6%</div>
+                    <div class="metric-note"><i class="ph-chats-circle"></i> Contact rate from calls and meetings</div>
+                    <div class="mini-meter"><span style="width: 88%"></span></div>
+                </div>
+            </div>
+
+            <div class="col-xxl-3 col-md-6">
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <p class="metric-label">Lead Cost Spend</p>
+                        <span class="icon-tile tile-slate"><i class="ph-wallet fs-4"></i></span>
+                    </div>
+                    <div class="metric-value">$12,485</div>
+                    <div class="metric-note"><i class="ph-chart-line-up"></i> Based on source costs and volumes</div>
+                    <div class="mini-meter"><span style="width: 58%"></span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="row g-3 mt-1">
+            <div class="col-xl-7">
+                <div class="insight-panel">
+                    <div class="d-flex align-items-start justify-content-between gap-3">
+                        <div>
+                            <h6>Pipeline Momentum</h6>
+                            <div class="muted-copy mt-1">A compact read on where leads are moving right now.</div>
+                        </div>
+                        <i class="ph-chart-bar text-primary fs-3"></i>
+                    </div>
+
+                    <div class="pipeline-row">
+                        <span>Assigned</span>
+                        <div class="pipeline-bar"><span class="tile-blue" style="width: 92%"></span></div>
+                        <strong>{{ number_format($assignedLeadCount) }}</strong>
+                    </div>
+                    <div class="pipeline-row">
+                        <span>Contacted</span>
+                        <div class="pipeline-bar"><span class="tile-teal" style="width: {{ min($contactRate, 100) }}%"></span></div>
+                        <strong>{{ number_format($contactedCount) }}</strong>
+                    </div>
+                    <div class="pipeline-row">
+                        <span>Quoted</span>
+                        <div class="pipeline-bar"><span class="tile-gold" style="width: 56%"></span></div>
+                        <strong>{{ number_format($quoteCount) }}</strong>
+                    </div>
+                    <div class="pipeline-row">
+                        <span>Closed</span>
+                        <div class="pipeline-bar"><span class="tile-green" style="width: {{ min($conversionRate, 100) }}%"></span></div>
+                        <strong>{{ number_format($closedSaleCount) }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-5">
+                <div class="insight-panel">
+                    <div class="d-flex align-items-start justify-content-between gap-3">
+                        <div>
+                            <h6>Product Mix</h6>
+                            <div class="muted-copy mt-1">Sold product split across the most active categories.</div>
+                        </div>
+                        <i class="ph-sun text-warning fs-3"></i>
+                    </div>
+
+                    <div class="source-list">
+                        <div class="source-item">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="source-dot" style="background:#2563eb"></span>
+                                <div>
+                                    <div class="source-name">Battery</div>
+                                    <div class="source-meta">Standalone storage</div>
+                                </div>
+                            </div>
+                            <strong>40</strong>
+                        </div>
+                        <div class="source-item">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="source-dot" style="background:#0f766e"></span>
+                                <div>
+                                    <div class="source-name">Solar + Battery</div>
+                                    <div class="source-meta">Bundled energy systems</div>
+                                </div>
+                            </div>
+                            <strong>60</strong>
+                        </div>
+                        <div class="source-item">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="source-dot" style="background:#f59e0b"></span>
+                                <div>
+                                    <div class="source-name">Heat Pump</div>
+                                    <div class="source-meta">Hot water efficiency</div>
+                                </div>
+                            </div>
+                            <strong>20</strong>
+                        </div>
+                        <div class="source-item">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="source-dot" style="background:#e11d48"></span>
+                                <div>
+                                    <div class="source-name">Aircon</div>
+                                    <div class="source-meta">Comfort upgrades</div>
+                                </div>
+                            </div>
+                            <strong>14</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+@endsection
+
 @section('scripts')
 @parent
 <script src="{{ asset('vendor/demo/pages/dashboard.js') }}"></script>
@@ -340,5 +782,4 @@
 <script src="{{ asset('vendor/demo/charts/pages/dashboard/progress.js') }}"></script>
 <script src="{{ asset('vendor/demo/charts/pages/dashboard/heatmaps.js') }}"></script>
 <script src="{{ asset('vendor/demo/charts/pages/dashboard/pies.js') }}"></script>
-
 @endsection
