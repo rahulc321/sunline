@@ -16,20 +16,44 @@ $stages = [
 'Lost'
 ];
 
+$stageIcons = [
+'New' => ['icon' => '', 'label' => '✦', 'class' => 'rk-stage-icon-new'],
+'Send Intro Email' => ['icon' => '', 'label' => '✈', 'class' => 'rk-stage-icon-email'],
+'1st Attempt' => ['icon' => '', 'label' => '1', 'class' => 'rk-stage-icon-attempt-one'],
+'2nd Attempt' => ['icon' => '', 'label' => '2', 'class' => 'rk-stage-icon-attempt-two'],
+'3rd Attempt' => ['icon' => '', 'label' => '3', 'class' => 'rk-stage-icon-attempt-three'],
+'Under Construction' => ['icon' => '', 'label' => '⚒', 'class' => 'rk-stage-icon-construction'],
+'Qualified' => ['icon' => '', 'label' => '✓', 'class' => 'rk-stage-icon-qualified'],
+'Lost' => ['icon' => '', 'label' => '×', 'class' => 'rk-stage-icon-lost']
+];
+
 // example — replace with your real status
 $currentStatus = $lead->status ?? 'New';
 $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
+$leadName = trim(($lead->first_name ?? '') . ' ' . ($lead->last_name ?? '')) ?: 'Lead';
+$leadInitials = strtoupper(substr($lead->first_name ?? 'L', 0, 1) . substr($lead->last_name ?? '', 0, 1));
 @endphp
 
 <div class="rk-overview-wrapper">
 
     <!-- header -->
     <div class="rk-overview-header">
-        <h3 class="rk-overview-title">Overview #{{$lead->id}}</h3>
+        <div class="rk-lead-hero">
+            <div class="rk-lead-avatar">{{ $leadInitials ?: 'L' }}</div>
+            <div>
+                <span class="rk-page-kicker">Lead overview</span>
+                <h3 class="rk-overview-title">{{ $leadName }} <span>#{{$lead->id}}</span></h3>
+                <div class="rk-hero-meta">
+                    <span><i class="fa fa-envelope-o"></i>{{ $lead->email ?? 'No email' }}</span>
+                    <span><i class="fa fa-phone"></i>{{ $lead->phone ?? 'No mobile' }}</span>
+                    <span><i class="fa fa-user-o"></i>{{ $lead->getAssignUserName->name ?? 'Not Assign Yet' }}</span>
+                </div>
+            </div>
+        </div>
         <div class="rk-action-tabs">
 
             @can('lead_email_access')
-            <button class="btn btn-outline-primary send_email_inner" data-bs-toggle="modal"
+            <button class="btn btn-outline-primary rk-action-btn send_email_inner" data-bs-toggle="modal"
                 data-bs-target="#emailModel"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                     stroke-linejoin="round" class="lucide lucide-mail h-4 w-4 mr-2"
@@ -44,7 +68,7 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
             @endcan
 
             @can('lead_call_log')
-            <button class="btn btn-outline-warning view-lead" data-bs-toggle="modal" data-bs-target="#leadDetailsModal">
+            <button class="btn btn-outline-warning rk-action-btn view-lead" data-bs-toggle="modal" data-bs-target="#leadDetailsModal">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                     class="lucide lucide-phone h-4 w-4 mr-2"
@@ -59,7 +83,7 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
             @endcan
             @can('lead_generate_quote')
             @if(!$lead->project_id)
-            <button class="btn btn-outline-success generateQuote"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+            <button class="btn btn-outline-success rk-action-btn generateQuote"><svg xmlns="http://www.w3.org/2000/svg" width="24"
                     height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text h-4 w-4 mr-2"
                     data-lov-id="src/components/leads/LeadDetailModal.tsx:245:14" data-lov-name="FileText"
@@ -76,7 +100,7 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
             @endcan
 
 
-            <button data-lead='@json($lead)' class="btn btn-outline-danger edit_lead" data-lead='@json($lead)'
+            <button data-lead='@json($lead)' class="btn btn-outline-danger rk-action-btn edit_lead"
                 data-bs-toggle="modal" data-bs-target="#editlead">
 
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -91,7 +115,7 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
                     <path d="M10 9H8"></path>
                     <path d="M16 13H8"></path>
                     <path d="M16 17H8"></path>
-                </svg>Edit Lead</button>
+                </svg> Edit Lead</button>
 
             <!-- <div class="rk-action-tab">
                 <a href="javascript:;" class="edit_lead" data-lead='@json($lead)' data-bs-toggle="modal"
@@ -108,16 +132,24 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
     <!-- lifecycle -->
     <div class="rk-lifecycle-box">
         <div class="rk-lifecycle-top">
-            <span class="rk-lifecycle-label">Life-cycle stage</span>
-            <span class="rk-lifecycle-value">{{ $currentStatus }} ▼</span>
+            <span class="rk-lifecycle-label">Life-cycle stage {{ $currentStatus }} ▼</span>
         </div>
 
         <!-- ✅ HUBSPOT PIPELINE -->
         <div class="rk-pipeline">
             @foreach($stages as $stage)
+            @php($stageIcon = $stageIcons[$stage] ?? ['icon' => 'fa-circle-o', 'label' => '', 'class' => 'rk-stage-icon-default'])
             <div class="rk-stage {{ $currentStatus == $stage ? 'active' : '' }}"
                 onclick="changeLeadStatus('{{ $stage }}')">
-                {{ $stage }}
+                <span class="rk-stage-icon {{ $stageIcon['class'] }}">
+                    @if(!empty($stageIcon['icon']))
+                    <i class="fa {{ $stageIcon['icon'] }}"></i>
+                    @endif
+                    @if(!empty($stageIcon['label']))
+                    <em>{{ $stageIcon['label'] }}</em>
+                    @endif
+                </span>
+                <span class="rk-stage-text">{{ $stage }}</span>
             </div>
             @endforeach
             <form id="statusForm" method="POST" action="{{ route('admin.updateLeadStatusNew') }}">
@@ -244,12 +276,19 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
 
         <!-- right -->
         <div class="rk-notes-card">
+            <div class="rk-card-title">
+                <div>
+                    <span class="rk-section-kicker">Activity</span>
+                    <strong>Notes</strong>
+                </div>
+                <span class="rk-soft-count">{{ $lead->leadNotes->count() }}</span>
+            </div>
 
             <form method="POST" action="{{ route('admin.noteStore') }}">
                 @csrf
                 <input type="hidden" name="lead_id" value="{{ $lead->id }}">
                 <textarea name="note" class="rk-note-input" placeholder="Add a note..." required></textarea>
-                <button type="submit" class="badge bg-success me-1">Save</button>
+                <button type="submit" class="rk-save-note-btn">Save Note</button>
             </form>
 
             <div class="rk-notes-list">
@@ -280,10 +319,13 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
         <div class="rk-files-card">
 
             <div class="rk-files-header">
-                <h6 class="mb-0"><strong>Attachments ({{$lead->images->count()}})</strong></h6>
+                <div>
+                    <span class="rk-section-kicker">Documents</span>
+                    <h6 class="mb-0"><strong>Attachments</strong> <span>{{$lead->images->count()}}</span></h6>
+                </div>
 
-                <button id="addFileBtn" class="btn btn-sm btn-outline-primary">
-                    + Add Files
+                <button id="addFileBtn" class="btn btn-sm btn-outline-primary rk-add-file-btn">
+                    <i class="fa fa-plus"></i> Add Files
                 </button>
 
                 <input type="file" id="fileInput" hidden>
@@ -293,19 +335,11 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
 
                 @forelse($lead->images as $file)
 
-                @php
-                // remove admin/ from path if exists
-                $fileUrl = preg_replace('/^admin\//', '', $file->image_path);
-
-                // final URL (adjust if using storage)
-                $fullUrl = asset($fileUrl);
-                @endphp
-
                 <li class="rk-attach-item">
 
                     {{-- file link --}}
-                    <a href="{{ $fullUrl }}" target="_blank" class="rk-attach-link">
-                        📎 {{ basename($file->image_path) }}
+                    <a href="{{ asset(preg_replace('/^admin\//', '', $file->image_path ?? '')) }}" target="_blank" class="rk-attach-link">
+                        <i class="fa fa-paperclip"></i> {{ basename($file->image_path ?? '') }}
                     </a>
 
                     {{-- delete button --}}
@@ -338,315 +372,685 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
 @include('admin.leads._edit_modal')
 @include('admin.leads.call_logs')
 <style>
-.rk-notes-list {
-    height: 250px;
-    overflow-y: auto;
-}
-
-/* ===== base stage ===== */
-.rk-stage {
-    cursor: pointer;
-    transition: background .25s ease, color .25s ease;
-
-}
-
-/* ===== active stage premium ===== */
-
-
-/* ✨ premium shine effect */
-.rk-stage.active::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -120%;
-    width: 60%;
-    height: 100%;
-    background: linear-gradient(120deg,
-            transparent,
-            rgba(255, 255, 255, 0.45),
-            transparent);
-    animation: rkShine 2.5s infinite;
-}
-
-/* smooth shine animation */
-@keyframes rkShine {
-    0% {
-        left: -120%;
-    }
-
-    100% {
-        left: 130%;
-    }
-}
-
-.rk-stage {
-    cursor: pointer;
-}
-
-/* wrapper */
 .rk-overview-wrapper {
-    font-family: Inter, sans-serif;
-    background: #f6f8fb;
-    padding: 20px;
+    min-height: calc(100vh - 120px);
+    padding: 24px;
+    overflow-x: hidden;
+    border-radius: 0;
+    background:
+        radial-gradient(circle at top left, rgba(16, 185, 129, .14), transparent 34%),
+        radial-gradient(circle at top right, rgba(37, 99, 235, .12), transparent 30%),
+        linear-gradient(180deg, #f8fbff 0%, #eef4f8 100%);
+    color: #172033;
+    font-family: Inter, "Segoe UI", sans-serif;
 }
 
-/* header */
+.rk-overview-wrapper,
+.rk-overview-wrapper * {
+    font-family: inherit;
+}
+
+.rk-overview-wrapper {
+    font-size: 14px;
+    font-weight: 500;
+}
+
 .rk-overview-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 18px;
+    padding: 22px;
+    border: 1px solid rgba(148, 163, 184, .22);
+    border-radius: 8px;
+    background:
+        linear-gradient(135deg, rgba(15, 23, 42, .96), rgba(30, 64, 175, .90)),
+        #172033;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, .13);
+    color: #fff;
 }
 
-.rk-overview-title {
-    margin: 0;
+.rk-lead-hero {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+}
+
+.rk-lead-avatar {
+    display: inline-flex;
+    width: 58px;
+    height: 58px;
+    flex: 0 0 58px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, .28);
+    border-radius: 8px;
+    background: linear-gradient(135deg, #14b8a6, #f59e0b);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 14px 30px rgba(0, 0, 0, .22);
+    color: #fff;
     font-size: 20px;
     font-weight: 600;
 }
 
-.rk-overview-customize {
-    background: #eef2f7;
-    border: 1px solid #d0d7e2;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
+.rk-page-kicker,
+.rk-section-kicker {
+    display: block;
+    margin-bottom: 3px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: uppercase;
 }
 
-/* lifecycle */
-.rk-lifecycle-box {
+.rk-page-kicker {
+    color: rgba(255, 255, 255, .72);
+}
+
+.rk-overview-title {
+    margin: 0;
+    color: #fff;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.18;
+}
+
+.rk-overview-title span {
+    color: rgba(255, 255, 255, .62);
+    font-size: 17px;
+    font-weight: 500;
+}
+
+.rk-hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.rk-hero-meta span {
+    display: inline-flex;
+    max-width: 290px;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, .15);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .10);
+    color: rgba(255, 255, 255, .88);
+    font-size: 12px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rk-action-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: 0;
+}
+
+.rk-overview-wrapper .rk-action-btn {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    gap: 7px;
+    border-width: 0;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 10px 22px rgba(15, 23, 42, .14);
+    color: #172033;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.rk-overview-wrapper .rk-action-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.rk-overview-wrapper .rk-action-btn:hover {
+    transform: translateY(-1px);
     background: #fff;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 15px;
+    color: #0f766e;
 }
 
-/* ================= HUBSPOT PIPELINE ================= */
+.rk-lifecycle-box {
+    margin-bottom: 18px;
+    padding: 16px;
+    border: 1px dashed rgba(56, 168, 255, .9);
+    border-radius: 10px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .94), rgba(246, 252, 255, .88)),
+        radial-gradient(circle at top right, rgba(56, 168, 255, .14), transparent 34%);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, .05), inset 0 1px 0 rgba(255, 255, 255, .86);
+}
+
+.rk-lifecycle-top {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 10px;
+}
+
+.rk-lifecycle-label {
+    color: #0f2f3d;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: .01em;
+}
 
 .rk-pipeline {
+    position: relative;
     display: flex;
-    overflow-x: auto;
-    background: #e9f5f2;
-    padding: 8px;
-    border-radius: 8px;
+    flex-wrap: wrap;
+    gap: 0;
+    padding: 6px;
+    overflow: visible;
+    border-radius: 9px;
+    background: linear-gradient(180deg, rgba(229, 246, 244, .88), rgba(215, 238, 235, .78));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .92), inset 0 -1px 0 rgba(15, 118, 110, .08);
+}
+
+.rk-pipeline #statusForm {
+    display: none;
 }
 
 .rk-stage {
     position: relative;
-    padding: 10px 28px 10px 22px;
-    background: #bfe8df;
-    color: #2d3748;
+    display: inline-flex;
+    flex: 1 1 128px;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-right: -20px;
+    padding: 0 34px 0 24px;
+    border: 0;
+    border-radius: 0;
+    background: linear-gradient(180deg, #cdeee8 0%, #bfe5de 100%);
+    box-shadow: none;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%, 20px 50%);
+    color: #123d48;
+    cursor: pointer;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
+    letter-spacing: .01em;
+    line-height: 1;
     white-space: nowrap;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .5);
+    transition: background .2s ease, color .2s ease, filter .2s ease, transform .2s ease;
+    z-index: 1;
 }
 
 .rk-stage::after {
     content: "";
     position: absolute;
-    top: 0;
-    right: -18px;
-    width: 0;
-    height: 0;
-    border-top: 19px solid transparent;
-    border-bottom: 19px solid transparent;
-    border-left: 18px solid #bfe8df;
-    z-index: 2;
+    inset: 1px 21px 1px 1px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .30), transparent 58%);
+    clip-path: inherit;
+    pointer-events: none;
 }
 
-.rk-stage:not(:first-child) {
-    margin-left: 18px;
+.rk-stage span {
+    position: relative;
+    z-index: 1;
+}
+
+.rk-stage-icon {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--rk-status-icon-border, rgba(15, 23, 42, .12));
+    border-radius: 999px;
+    background: var(--rk-status-icon-bg, rgba(255, 255, 255, .72));
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .46);
+    color: var(--rk-status-icon-color, #0f766e);
+    font-size: 12px;
+    line-height: 1;
+    text-shadow: none;
+}
+
+.rk-stage-icon i,
+.rk-stage-icon em {
+    line-height: 1;
+}
+
+.rk-stage-icon em {
+    color: inherit;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+}
+
+.rk-stage-icon-new {
+    --rk-status-icon-bg: #eef0ff;
+    --rk-status-icon-border: rgba(99, 102, 241, .28);
+    --rk-status-icon-color: #6366f1;
+}
+
+.rk-stage-icon-email {
+    --rk-status-icon-bg: #ddf7ff;
+    --rk-status-icon-border: rgba(6, 182, 212, .28);
+    --rk-status-icon-color: #0891b2;
+}
+
+.rk-stage-icon-email em {
+    font-size: 13px;
+    transform: translateX(-1px);
+}
+
+.rk-stage-icon-attempt-one {
+    --rk-status-icon-bg: #fff4e8;
+    --rk-status-icon-border: rgba(249, 115, 22, .36);
+    --rk-status-icon-color: #f97316;
+}
+
+.rk-stage-icon-attempt-two {
+    --rk-status-icon-bg: #fff0ef;
+    --rk-status-icon-border: rgba(239, 68, 68, .30);
+    --rk-status-icon-color: #ef4444;
+}
+
+.rk-stage-icon-attempt-three {
+    --rk-status-icon-bg: #fff7e6;
+    --rk-status-icon-border: rgba(245, 158, 11, .38);
+    --rk-status-icon-color: #d97706;
+}
+
+.rk-stage-icon-construction {
+    --rk-status-icon-bg: #f0eaff;
+    --rk-status-icon-border: rgba(139, 92, 246, .32);
+    --rk-status-icon-color: #8b5cf6;
+}
+
+.rk-stage-icon-construction em {
+    font-size: 13px;
+}
+
+.rk-stage-icon-qualified {
+    --rk-status-icon-bg: #e8fff3;
+    --rk-status-icon-border: rgba(22, 163, 74, .30);
+    --rk-status-icon-color: #16a34a;
+}
+
+.rk-stage-icon-qualified em,
+.rk-stage-icon-lost em {
+    font-size: 14px;
+}
+
+.rk-stage-icon-lost {
+    --rk-status-icon-bg: #fff1f2;
+    --rk-status-icon-border: rgba(220, 38, 38, .30);
+    --rk-status-icon-color: #dc2626;
+}
+
+.rk-stage-icon-default {
+    --rk-status-icon-bg: #e6fffb;
+    --rk-status-icon-border: rgba(15, 118, 110, .28);
+    --rk-status-icon-color: #0f766e;
+}
+
+.rk-stage.active .rk-stage-icon {
+    border-color: rgba(255, 255, 255, .45);
+    background: rgba(255, 255, 255, .92);
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .4), 0 4px 10px rgba(6, 78, 70, .18);
+}
+
+.rk-stage:first-of-type {
+    padding-left: 24px;
+    border-radius: 6px 0 0 6px;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%);
+}
+
+.rk-stage:last-of-type {
+    margin-right: 0;
+    padding-right: 24px;
+    border-radius: 0 6px 6px 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 20px 50%);
+}
+
+.rk-stage:hover {
+    filter: brightness(.98) saturate(1.08);
+    transform: translateY(-1px);
 }
 
 .rk-stage.active {
-    background: #2ec4b6;
+    background: linear-gradient(180deg, #35c4b7 0%, #16a59a 100%);
+    box-shadow: 0 9px 20px rgba(20, 184, 166, .26), inset 0 1px 0 rgba(255, 255, 255, .28);
     color: #fff;
-    font-weight: 600;
+    text-shadow: 0 1px 1px rgba(6, 78, 70, .28);
+    z-index: 2;
 }
 
 .rk-stage.active::after {
-    border-left-color: #2ec4b6;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .26), transparent 62%);
 }
 
-.rk-stage:last-child::after {
-    display: none;
-}
-
-/* body layout */
 .rk-overview-body {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 15px;
+    grid-template-columns: minmax(0, 1.8fr) minmax(320px, .9fr);
+    gap: 18px;
+    align-items: start;
 }
 
-/* summary */
-.rk-summary-card {
+.rk-summary-card,
+.rk-notes-card,
+.rk-files-card {
+    position: relative;
     background: #fff;
-    border-radius: 10px;
-    overflow: hidden;
+    border: 0;
+    border-radius: 8px;
+    box-shadow: 0 16px 35px rgba(15, 23, 42, .07);
+}
+
+.rk-summary-card::before,
+.rk-notes-card::before,
+.rk-files-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background:
+        repeating-linear-gradient(90deg, #38a8ff 0 4px, transparent 4px 8px) top left / 100% 1px no-repeat,
+        repeating-linear-gradient(90deg, #38a8ff 0 4px, transparent 4px 8px) bottom left / 100% 1px no-repeat,
+        repeating-linear-gradient(180deg, #38a8ff 0 4px, transparent 4px 8px) top left / 1px 100% no-repeat,
+        repeating-linear-gradient(180deg, #38a8ff 0 4px, transparent 4px 8px) top right / 1px 100% no-repeat;
+    pointer-events: none;
 }
 
 .rk-summary-header {
-    background: #eaf0f7;
-    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border-bottom: 1px solid #eef2f7;
+    background: linear-gradient(180deg, #ffffff, #f8fafc);
+    color: #0f172a;
+    font-size: 15px;
 }
 
 .rk-summary-content {
-    padding: 15px;
+    padding: 18px;
 }
 
 .rk-summary-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    margin-bottom: 15px;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.rk-summary-row:last-child {
+    margin-bottom: 0;
+}
+
+.rk-summary-row > div {
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid #eef2f7;
+    border-radius: 8px;
+    background: #fbfdff;
 }
 
 .rk-summary-row label {
+    display: block;
+    margin-bottom: 6px;
+    color: #64748b;
     font-size: 12px;
-    color: #6b7280;
-}
-
-.rk-summary-row p {
-    margin: 3px 0 0;
     font-weight: 500;
 }
 
-.rk-link {
-    color: #3b82f6;
-    cursor: pointer;
+.rk-summary-row p {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: #172033;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
 }
 
-/* notes */
+.rk-link {
+    color: #dc2626 !important;
+    cursor: pointer;
+    font-weight: 600;
+}
+
 .rk-notes-card {
-    background: #fff;
-    border-radius: 10px;
-    padding: 15px;
+    padding: 16px;
+}
+
+.rk-card-title,
+.rk-files-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.rk-card-title strong {
+    display: block;
+    color: #0f172a;
+    font-size: 17px;
+}
+
+.rk-soft-count,
+.rk-files-header h6 span {
+    display: inline-flex;
+    min-width: 30px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #eef6ff;
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .rk-note-input {
     width: 100%;
-    height: 80px;
-    border: 1px solid #e1e5eb;
-    border-radius: 6px;
-    padding: 10px;
-    margin-bottom: 15px;
+    min-height: 104px;
+    margin-bottom: 10px;
+    padding: 12px;
+    border: 1px solid #dbe4ef;
+    border-radius: 8px;
+    background: #fbfdff;
+    color: #172033;
+    font-size: 13px;
+    resize: vertical;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.rk-note-input:focus {
+    outline: none;
+    border-color: #14b8a6;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, .12);
+}
+
+.rk-save-note-btn,
+.rk-add-file-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 36px;
+    padding: 8px 13px;
+    border: 0;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #0f766e, #14b8a6);
+    box-shadow: 0 10px 20px rgba(20, 184, 166, .20);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.rk-save-note-btn:hover,
+.rk-add-file-btn:hover {
+    background: linear-gradient(135deg, #115e59, #0f766e);
+    color: #fff;
+}
+
+.rk-notes-list {
+    height: 270px;
+    margin-top: 14px;
+    padding-right: 4px;
+    overflow-y: auto;
 }
 
 .rk-note-item {
-    border-bottom: 1px solid #eef2f7;
-    padding: 8px 0;
+    margin-bottom: 10px;
+    padding: 12px;
+    border: 1px solid #eef2f7;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #fff, #fbfdff);
+}
+
+.rk-note-item p {
+    margin: 0 0 8px;
+    color: #172033;
+    font-size: 13px;
+    line-height: 1.45;
 }
 
 .rk-note-item span {
+    color: #64748b;
     font-size: 11px;
-    color: #6b7280;
+    font-weight: 500;
 }
 
-.rk-view-all {
-    text-align: right;
-    color: #3b82f6;
+.rk-note-empty,
+.rk-attach-empty {
+    padding: 22px 12px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    background: #fbfdff;
+    color: #64748b;
     font-size: 13px;
-    cursor: pointer;
-    margin-top: 10px;
+    font-weight: 500;
+    text-align: center;
 }
 
-/* mobile */
-@media (max-width: 768px) {
+.rk-note-empty p {
+    margin: 0;
+}
+
+.rk-files-card {
+    grid-column: 1 / -1;
+    padding: 16px;
+}
+
+.rk-attach-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.rk-attach-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 12px;
+    border: 1px solid #eef2f7;
+    border-radius: 8px;
+    background: #fbfdff;
+    font-size: 13px;
+}
+
+.rk-attach-item + .rk-attach-item {
+    margin-top: 8px;
+}
+
+.rk-attach-link {
+    display: inline-flex;
+    min-width: 0;
+    align-items: center;
+    gap: 8px;
+    overflow-wrap: anywhere;
+    color: #172033;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.rk-attach-link:hover {
+    color: #0f766e;
+}
+
+.rk-attach-item .delete-lead-image {
+    flex: 0 0 auto;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+@media (max-width: 1199px) {
+    .rk-overview-header,
     .rk-overview-body {
         grid-template-columns: 1fr;
+    }
+
+    .rk-overview-header {
+        flex-direction: column;
+    }
+
+    .rk-action-tabs {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
+    .rk-overview-wrapper {
+        padding: 14px;
+    }
+
+    .rk-overview-header {
+        padding: 18px;
+    }
+
+    .rk-lead-hero {
+        align-items: flex-start;
+    }
+
+    .rk-lead-avatar {
+        width: 48px;
+        height: 48px;
+        flex-basis: 48px;
+        font-size: 17px;
+    }
+
+    .rk-overview-title {
+        font-size: 21px;
+    }
+
+    .rk-hero-meta span {
+        max-width: 100%;
     }
 
     .rk-summary-row {
         grid-template-columns: 1fr;
     }
-}
 
-/* ===== added action tabs (non-breaking) ===== */
-.rk-action-tabs {
-    display: flex;
-    gap: 8px;
-    margin: 10px 0 14px;
-    flex-wrap: wrap;
-}
+    .rk-card-title,
+    .rk-files-header,
+    .rk-attach-item {
+        align-items: flex-start;
+        flex-direction: column;
+    }
 
-.rk-action-tab {
-    padding: 6px 14px;
-    background: #fff;
-    border: 1px solid #d0d7e2;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all .2s ease;
-}
-
-.rk-action-tab:hover {
-    background: #f3f6fa;
-}
-
-.rk-action-tab.active {
-    background: #2ec4b6;
-    color: #fff;
-    border-color: #2ec4b6;
-    font-weight: 600;
-}
-
-.rk-note-empty {
-    text-align: center;
-    padding: 20px 10px;
-    color: #6b7280;
-    font-size: 13px;
-}
-
-/* card */
-.rk-files-card {
-    margin-top: 16px;
-    padding: 14px;
-    border: 1px solid #e6eceb;
-    border-radius: 10px;
-    background: #fff;
-}
-
-/* list */
-.rk-attach-list {
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
-    max-height: 220px;
-    overflow-y: auto;
-}
-
-/* item */
-.rk-attach-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 7px 0;
-    border-bottom: 1px dashed #eee;
-    font-size: 13px;
-}
-
-/* link */
-.rk-attach-link {
-    text-decoration: none;
-    color: #2c3e50;
-}
-
-.rk-attach-link:hover {
-    text-decoration: underline;
-}
-
-/* empty */
-.rk-attach-empty {
-    font-size: 12px;
-    color: #999;
-    padding: 8px 0;
-}
-.rk-files-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+    .rk-notes-list {
+        height: 230px;
+    }
 }
 
 </style>
