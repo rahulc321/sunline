@@ -1,60 +1,103 @@
 <style>
+:root {
+    --sunline-ink: #102033;
+    --sunline-muted: #8ea0b4;
+    --sunline-blue: #1769aa;
+    --sunline-blue-dark: #0b2f52;
+    --sunline-green: #36b37e;
+    --sunline-line: rgba(255, 255, 255, 0.12);
+    --sunline-soft: rgba(255, 255, 255, 0.08);
+}
+
 .navbar {
-    --navbar-bg: rgb(255 255 255);
-    height: 3.5rem;
-    border-bottom: 1px solid #d1d5db;
+    --navbar-bg: #ffffff;
+    min-height: 3.75rem;
+    border-bottom: 1px solid #dce6ef;
+    box-shadow: 0 10px 30px rgba(16, 32, 51, 0.05) !important;
 }
 
 h6 {
     margin-top: 12px;
-    color: rgb(49, 62, 74);
-
+    color: var(--sunline-ink);
 }
 
 .page-content {
+    background: #f4f8fb;
+}
 
-    background: white;
+.sidebar-light,
+.sidebar-content,
+.sidebar-logo {
+    background: linear-gradient(180deg, #071a2f 0%, #0d3d67 54%, #17695c 100%) !important;
+}
+
+.sidebar-main {
+    box-shadow: 18px 0 45px rgba(7, 26, 47, 0.18);
 }
 
 .sidebar-content {
+    border-right: 0;
+    padding: 12px 10px 18px;
+    position: relative;
+    overflow: hidden;
+}
 
-    border-right: 1px solid #d1d5db;
+.sidebar-content::before {
+    content: "";
+    position: absolute;
+    top: 72px;
+    left: 50%;
+    width: 220px;
+    height: 120px;
+    background: url("{{ asset('logo.png') }}") center/contain no-repeat;
+    opacity: 0.09;
+    filter: brightness(0) invert(1) drop-shadow(0 0 34px rgba(255, 255, 255, 0.9));
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.sidebar-content::after {
+    content: "";
+    position: absolute;
+    top: 34px;
+    left: -55px;
+    width: 190px;
+    height: 190px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.22), rgba(81, 183, 216, 0.14) 34%, transparent 68%);
+    pointer-events: none;
+}
+
+.sidebar-section {
+    position: relative;
+    z-index: 1;
 }
 
 .sidebar-logo {
-    border-bottom: 1px solid #d1d5db;
-    border-right: 1px solid #d1d5db;
-    background: white;
+    min-height: 4.25rem;
+    border: 0 !important;
+    border-bottom: 1px solid var(--sunline-line) !important;
+    position: relative;
 }
 
-.fw-bold {
-    font-size: 16px;
-}
-
-.fw-bold.text-dark {
-    margin-bottom: -7px;
+.sidebar-logo img {
+    max-width: 158px;
+    height: auto;
+    filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.28));
 }
 
 .logo_text {
     margin-right: 8px;
-    background: linear-gradient(135deg, hsl(214 84% 56%), hsl(214 84% 76%));
+    background: linear-gradient(135deg, var(--sunline-blue), var(--sunline-green));
 }
 
 .crm_c {
-    /* color: hsl(214 84% 56%) !important; */
-    /* font-size: 1.875rem; */
-    /* font-size: 21px; */
     line-height: 2.25rem;
-
-
-    line-height: 2.25rem;
-    background: linear-gradient(135deg, hsl(214 84% 56%) 0%, hsl(142 76% 36%) 100%);
+    background: linear-gradient(135deg, var(--sunline-blue) 0%, var(--sunline-green) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    /* for Firefox */
     color: transparent;
-
 }
 
 .txt_1 {
@@ -72,36 +115,30 @@ h6 {
 .select-all,
 .deselect-all,
 input[value="Save"] {
-    background: linear-gradient(135deg, hsl(214 84% 56%), hsl(214 84% 76%)) !important;
-}
-
-.rounded {
-    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    background: linear-gradient(135deg, var(--sunline-blue), var(--sunline-green)) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
 }
 
 .form_1,
 .card {
-    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
-    border: 1px solid #d1d5db;
+    box-shadow: 0 14px 36px rgba(16, 32, 51, 0.07);
+    border: 1px solid #dce6ef;
+    border-radius: 8px;
 }
 
-.table> :not(caption)>*>* {
-
+.table > :not(caption) > * > * {
     padding: 8px !important;
 }
 
-.table>thead {
+.table > thead {
     vertical-align: middle;
-    /* background: #fddef2; */
-    color: #f7f7f7;
-    background: linear-gradient(135deg, hsl(214deg 38.04% 68.23%), hsl(214 84% 76%)) !important;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--sunline-blue), var(--sunline-green)) !important;
 }
 
 td {
     color: hsl(215, 16%, 47%) !important;
-}
-
-td {
     border-color: inherit;
     border-style: solid;
     border-width: 0;
@@ -131,15 +168,11 @@ div#jsGrid1_filter {
 }
 
 .lead {
-
     font-size: 1.125rem !important;
-    ;
     line-height: 1.75rem !important;
-    ;
 }
 
 .btn {
-
     cursor: pointer;
     height: 2.25rem;
     font-weight: 500;
@@ -149,33 +182,10 @@ div#jsGrid1_filter {
     background-color: white !important;
     color: black !important;
     border: 1px solid #ccc;
-    /* optional border */
 }
 
 .custom-btn i {
     color: #ff3b00 !important;
-    /* icon color */
-
-}
-
-/* color all sidebar icons */
-.sidebar-content .nav-link i {
-    background: linear-gradient(135deg, hsl(214 84% 56%) 0%, hsl(142 76% 36%) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    color: transparent;
-    /* fallback for Firefox */
-    font-size: 18px;
-    margin-right: 6px;
-    transition: transform 0.2s ease, filter 0.2s ease;
-}
-
-/* slightly enlarge and brighten icon when active or hovered */
-.sidebar-content .nav-link:hover i,
-.sidebar-content .nav-link.active i {
-    transform: scale(1.1);
-    filter: brightness(1.2);
 }
 
 .rk-notes-card,
@@ -185,21 +195,8 @@ div#jsGrid1_filter {
     border: 1px dashed #2ca5e4;
 }
 
-.card {
-
-    border: 1px dashed #2ca5e4 !important;
-}
-
 .rounded {
-
-    border: 1px dashed #2ca5e4 !important;
-}
-
-/* sidebar refresh */
-.sidebar-content {
-    border-right: 0;
-    background: linear-gradient(180deg, #162344 0%, #223b8f 100%);
-    padding: 10px 10px 18px;
+    box-shadow: 0 8px 24px rgba(16, 32, 51, 0.08);
 }
 
 .sidebar-section {
@@ -207,75 +204,91 @@ div#jsGrid1_filter {
 }
 
 .sidebar-user-block {
-    padding: 8px 12px 16px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 10px 12px 16px;
+    margin: 2px 2px 12px;
+    border: 1px solid var(--sunline-line);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .sidebar-user-block .hello {
-    font-size: 14px;
-    color: #b8c6ea;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.72);
     line-height: 1.4;
 }
 
 .sidebar-user-block strong {
     color: #ffffff;
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .sidebar-content .nav-item-header {
-    padding: 10px 12px 6px;
+    padding: 12px 12px 6px;
     margin-top: 8px;
 }
 
 .sidebar-content .nav-item-header .sidebar-section-title {
     font-size: 10px;
-    letter-spacing: .18em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: #8da2db;
-    font-weight: 700;
+    color: rgba(255, 255, 255, 0.52);
+    font-weight: 800;
 }
 
 .sidebar-content .nav-link {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 11px;
     min-height: 42px;
-    margin: 2px 0;
+    margin: 3px 0;
     padding: 10px 12px;
-    border-radius: 10px;
-    color: #e7eeff;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.78);
     font-size: 14px;
-    font-weight: 500;
-    transition: background .18s ease, color .18s ease;
+    font-weight: 600;
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
 }
 
 .sidebar-content .nav-link i {
-    width: 18px;
-    min-width: 18px;
+    width: 20px;
+    min-width: 20px;
     margin-right: 0;
-    font-size: 15px;
-    color: #8fb3ff;
+    font-size: 18px;
+    color: #7bd9b1;
     background: none;
     -webkit-text-fill-color: initial;
     transform: none !important;
     filter: none !important;
+    transition: color 0.18s ease;
 }
 
 .sidebar-content .nav-link:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.13);
+    color: #ffffff;
+    transform: translateX(2px);
+}
+
+.sidebar-content .nav-link:hover i {
     color: #ffffff;
 }
 
 .sidebar-content .nav-link.active {
-    background: rgba(108, 154, 255, 0.22);
+    background: linear-gradient(135deg, rgba(23, 105, 170, 0.95), rgba(54, 179, 126, 0.95));
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    box-shadow: 0 12px 26px rgba(4, 18, 32, 0.26);
+}
+
+.sidebar-content .nav-link.active i {
     color: #ffffff;
 }
 
 .sidebar-content .nav-group-sub {
-    margin-left: 16px;
+    margin: 4px 0 8px 20px;
     padding-left: 10px;
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 1px solid var(--sunline-line);
 }
 
 .sidebar-content .nav-group-sub .nav-link {
@@ -285,7 +298,7 @@ div#jsGrid1_filter {
 }
 
 .sidebar-content .nav-item-submenu > .nav-link::after {
-    color: #97aadd;
+    color: rgba(255, 255, 255, 0.58);
 }
 </style>
 <!-- Sidebar content -->
@@ -304,7 +317,7 @@ div#jsGrid1_filter {
             </li>
             <!-- For dashboard -->
             <li class="nav-item">
-                <a href="/superadmin/dashboard" class="nav-link {{ request()->is('admin') ? 'active' : '' }}">
+                <a href="/superadmin/dashboard" class="nav-link {{ request()->is('superadmin/dashboard') ? 'active' : '' }}">
                     <i class="ph-house"></i>
                     <span>
                         {{ trans('dashboard.dashboard') }}
@@ -411,6 +424,14 @@ div#jsGrid1_filter {
             <li class="nav-item-header">
                 <div class="sidebar-section-title sidebar-resize-hide">Manage Modules</div>
             </li>
+
+            <li class="nav-item">
+                <a href="{{ route('admin.dialer.index') }}"
+                    class="nav-link {{ request()->is('admin/dialer') || request()->is('admin/dialer/*') ? 'active' : '' }}">
+                    <i class="ph-phone-call"></i><span>Dialer</span>
+                </a>
+            </li>
+
             @can('RFI_access')
             <li class="nav-item">
                 <a href="{{route('admin.fri.index')}}"

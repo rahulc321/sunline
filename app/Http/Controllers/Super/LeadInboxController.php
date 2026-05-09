@@ -11,7 +11,7 @@ use App\Models\CaseType;
 use App\Models\LeadFollowUp;
 use App\Models\LeadCommission;
 use App\User;
-use App\Models\{LeadSource, LeadContact, ContactFollowUp, LeadImages, LeadMeta};
+use App\Models\{LeadSource, LeadContact, ContactFollowUp, LeadImages, LeadMeta, Note};
 use Carbon\Carbon;
 use Gate;
 use App\Models\Lead;
@@ -116,14 +116,38 @@ class LeadInboxController extends Controller
 
 			->addColumn('name', function ($lead) use ($request){
 
-				$name = $lead->first_name . ' ' . $lead->last_name;
+				$name = trim($lead->first_name . ' ' . $lead->last_name) ?: 'Unnamed Lead';
 				$url    = $request->url;
+				$initial = strtoupper(substr(trim($lead->first_name ?: $lead->last_name ?: $name), 0, 1));
+				$gradients = [
+					'linear-gradient(135deg, #2563eb, #51b7d8)',
+					'linear-gradient(135deg, #059669, #36b37e)',
+					'linear-gradient(135deg, #d97706, #f6b445)',
+					'linear-gradient(135deg, #7c3aed, #db2777)',
+					'linear-gradient(135deg, #0891b2, #1769aa)',
+					'linear-gradient(135deg, #16a34a, #0f766e)',
+				];
+				$color = $gradients[($lead->id ?? 0) % count($gradients)];
+				$link = route('superadmin.leadDetails', $lead->id) . '?url=' . urlencode($url);
 			
-				return '<a href="' . route('superadmin.leadDetails', $lead->id) . '?url=' . urlencode($url) . '">' . e($name) . '</a>';
+				return '<a class="sales-person-link" href="' . $link . '"><span class="sales-person-avatar" style="background:' . $color . '">' . e($initial) . '</span><span class="sales-person-name">' . e($name) . '</span></a>';
 			})
 
 			->addColumn('salesRep', function ($lead) {
-				return $lead->getAssignUserName->name ?? '';
+				$name = $lead->getAssignUserName->name ?? 'Unassigned';
+				$initial = strtoupper(substr(trim($name), 0, 1));
+				$seed = $lead->assign_rep ?: $lead->id;
+				$gradients = [
+					'linear-gradient(135deg, #36b37e, #58c79b)',
+					'linear-gradient(135deg, #1769aa, #51b7d8)',
+					'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+					'linear-gradient(135deg, #e8792e, #f6b445)',
+					'linear-gradient(135deg, #0f466f, #268765)',
+				];
+				$color = $gradients[($seed ?? 0) % count($gradients)];
+				$mutedClass = $lead->getAssignUserName ? '' : ' is-muted';
+
+				return '<span class="sales-person-chip' . $mutedClass . '"><span class="sales-person-avatar" style="background:' . $color . '">' . e($initial) . '</span><span class="sales-person-name">' . e($name) . '</span></span>';
 			})
 
 			// ->addColumn('created_at', function ($lead) {
@@ -138,30 +162,40 @@ class LeadInboxController extends Controller
 					? implode(', ', $customStatus)
 					: trim($lead->status ?? '');
 			
-				// status → color mapping (same as JS)
 				$statusColors = [
-					'New'               => 'primary',
-					'Send Intro Email'  => 'info',
-					'1st Attempt'       => 'warning',
-					'2nd Attempt'       => 'warning',
-					'3rd Attempt'       => 'warning',
-					'Under Construction'=> 'secondary',
-					'Qualified'         => 'success',
-					'Lost'              => 'danger',
-					'Not Applied'        => 'dark',      // unique
-					'Awaiting Approval'  => 'warning',   // pending
-					'Approved'           => 'success',
+					'New'                => '#1769aa',
+					'Send Intro Email'   => '#0891b2',
+					'1st Attempt'        => '#d97706',
+					'2nd Attempt'        => '#d97706',
+					'3rd Attempt'        => '#d97706',
+					'Under Construction' => '#65758b',
+					'Qualified'          => '#36b37e',
+					'Sold'               => '#268765',
+					'Lost'               => '#dc2626',
+					'Not Applied'        => '#102033',
+					'Awaiting Approval'  => '#d97706',
+					'Approved'           => '#36b37e',
 				];
-			
-				$color = $statusColors[$status] ?? 'secondary';
-			
-				return '
-					<div class="d-flex align-items-center justify-content-end flex-wrap mb-2 gap-2">
-						<span class="badge text-'.$color.' border border-'.$color.' rounded-pill px-2 py-1">
-							'.$status.'
-						</span>
-					</div>
-				';
+
+				$statusIcons = [
+					'New'                => 'ph-sparkle',
+					'Send Intro Email'   => 'ph-envelope-simple',
+					'1st Attempt'        => 'ph-phone-call',
+					'2nd Attempt'        => 'ph-phone-call',
+					'3rd Attempt'        => 'ph-phone-call',
+					'Under Construction' => 'ph-clock-countdown',
+					'Qualified'          => 'ph-circle-wavy-check',
+					'Sold'               => 'ph-chart-line-up',
+					'Lost'               => 'ph-x-circle',
+					'Not Applied'        => 'ph-minus-circle',
+					'Awaiting Approval'  => 'ph-hourglass-medium',
+					'Approved'           => 'ph-check-circle',
+				];
+
+				$color = $statusColors[$status] ?? '#65758b';
+				$icon = $statusIcons[$status] ?? 'ph-circle';
+
+				return '<span class="sales-status-badge" style="--status-color:' . e($color) . '"><i class="ph ' . e($icon) . '"></i><span>' . e($status ?: '-') . '</span></span>';
 			})
 
 			->addColumn('address', function ($lead) {
@@ -239,7 +273,7 @@ class LeadInboxController extends Controller
 	
 				return $buttons;
 			})
-			->rawColumns(['status','category','action','name'])
+			->rawColumns(['status','category','action','name','salesRep'])
 			->make(true);
 	}
 	 
@@ -798,6 +832,22 @@ class LeadInboxController extends Controller
 
 		return response()->json(['success' => true]);
 	}
+
+	public function noteStore(Request $request)
+    {
+        $request->validate([
+            'lead_id' => 'required|exists:leads,id',
+            'note' => 'required'
+        ]);
+
+        Note::create([
+            'lead_id' => $request->lead_id,
+            'note' => $request->note,
+            'created_by' => auth('superadmin')->id() ?? auth()->id(),
+        ]);
+
+        return back()->with('success', 'Note added successfully');
+    }
 
 
 	public function leadImages(Request $request)

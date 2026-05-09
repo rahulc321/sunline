@@ -8,7 +8,7 @@
             </div>
 
             <!-- Start form -->
-            <form action="{{route('admin.updateStore')}}" method="post">
+            <form action="{{route('superadmin.updateStore')}}" method="post">
                 @csrf
                 <div class="modal-body">
                     <input type="hidden" name="id">

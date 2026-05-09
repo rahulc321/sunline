@@ -42,6 +42,8 @@ Route::prefix('superadmin')->name('superadmin.')->middleware(['superadmin.auth']
     Route::get('sales', [App\Http\Controllers\Super\LeadInboxController::class, 'sales'])->name('sales');
     Route::get('listLeads', [App\Http\Controllers\Super\LeadInboxController::class, 'listLeads'])->name('listLeads');
     Route::get('getSale', [App\Http\Controllers\Super\LeadInboxController::class, 'getSale'])->name('getSale');
+    Route::any('updateStore', [App\Http\Controllers\Super\LeadInboxController::class, 'updateStore'])->name('updateStore');
+    Route::any('noteStore', [App\Http\Controllers\Super\LeadInboxController::class, 'noteStore'])->name('noteStore');
     Route::get('leadDetails/{leadId}', [App\Http\Controllers\Super\LeadInboxController::class, 'leadDetails'])->name('leadDetails');
 
     # distributorApproval

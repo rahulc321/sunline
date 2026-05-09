@@ -1,53 +1,63 @@
-<div class="modal fade" id="editlead" tabindex="-1" aria-labelledby="editlead" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+<div class="modal fade rk-edit-modal" id="editlead" tabindex="-1" aria-labelledby="editlead" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rk-edit-shell">
 
-            <div class="modal-header">
-                <h5 class="modal-title" id="popupFormLabel">Edit Lead</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header rk-edit-header">
+                <div class="rk-edit-title-wrap">
+                    <span class="rk-edit-icon">✎</span>
+                    <div>
+                        <span class="rk-edit-kicker">Lead profile</span>
+                        <h5 class="modal-title" id="popupFormLabel">Edit Lead</h5>
+                    </div>
+                </div>
+                <button type="button" class="btn-close rk-edit-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <!-- Start form -->
-            <form action="{{route('admin.updateStore')}}" method="post">
+            <form action="{{route('admin.updateStore')}}" method="post" class="rk-edit-form">
                 @csrf
-                <div class="modal-body">
+                <div class="modal-body rk-edit-body">
                     <input type="hidden" name="id">
-                    <div class="row">
+                    <div class="rk-edit-section">
+                        <span class="rk-edit-section-title">Contact Information</span>
+                    </div>
+
+                    <div class="row rk-edit-grid">
                         <!-- Left Column -->
-                        <div class="col-sm-6 mb-3">
-                            <label for="firstName">First Name</label>
+                        <div class="col-sm-6 rk-edit-field">
+                            <label for="firstName" class="rk-edit-label">First Name</label>
                             <input type="text" id="firstName" name="first_name" class="form-control"
                                 placeholder="Enter first name" required>
                         </div>
 
                         <!-- Right Column -->
-                        <div class="col-sm-6 mb-3">
-                            <label for="lastName">Last Name</label>
+                        <div class="col-sm-6 rk-edit-field">
+                            <label for="lastName" class="rk-edit-label">Last Name</label>
                             <input type="text" id="lastName" name="last_name" class="form-control"
                                 placeholder="Enter last name" required>
                         </div>
 
                         <!-- Email -->
-                        <div class="col-sm-6 mb-3">
-                            <label for="email">Email</label>
+                        <div class="col-sm-6 rk-edit-field">
+                            <label for="email" class="rk-edit-label">Email</label>
                             <input type="email" id="email" name="email" class="form-control" placeholder="Enter email"
                                 required>
                         </div>
 
                         <!-- Phone -->
-                        <div class="col-sm-6 mb-3">
-                            <label for="phone">Phone</label>
+                        <div class="col-sm-6 rk-edit-field">
+                            <label for="phone" class="rk-edit-label">Phone</label>
                             <input type="text" id="phone" name="phone" class="form-control" placeholder="Enter phone"
                                 required>
                         </div>
 
-                        <div class="col-sm-6 mb-3">
-                            <label for="phone">Address</label>
+                        <div class="col-sm-6 rk-edit-field">
+                            <label class="rk-edit-label">Address</label>
                             <input type="text" name="address" class="form-control" placeholder="Enter Address">
                         </div>
 
-                        <div class="col-sm-6 mb-3">
-                            <label for="phone">Assigned Rep</label>
+                        <div class="col-sm-6 rk-edit-field">
+                            <label class="rk-edit-label">Assigned Rep</label>
 
                             <select name="assign_rep" class="form-control">
                                 <option value="">Select</option>
@@ -57,8 +67,8 @@
                             </select>
                         </div>
 
-                        <div class="col-sm-6 mb-3">
-                            <label for="phone">Lead Source</label>
+                        <div class="col-sm-6 rk-edit-field">
+                            <label class="rk-edit-label">Lead Source</label>
                             <select name="lead_source" class="form-control">
                                 <option value="">Select</option>
                                 @foreach($leadSource as $data)
@@ -67,12 +77,12 @@
                             </select>
                         </div>
 
-                        <div class="col-sm-3 mb-3">
+                        <div class="col-sm-6 col-lg-3 rk-edit-field">
                             @php
                             $roofTypes = ['Flat', 'Pitched', 'Hipped', 'Gabled', 'Mansard', 'Shed'];
                             @endphp
 
-                            <label for="roof_type">Roof Type</label>
+                            <label for="roof_type" class="rk-edit-label">Roof Type</label>
                             <select id="roof_type" name="roof_type" class="form-control">
                                 <option value="">-- Select Roof Type --</option>
                                 @foreach($roofTypes as $type)
@@ -81,8 +91,8 @@
                             </select>
                         </div>
 
-                        <div class="col-sm-3 mb-3">
-                            <label for="phone">Eligible for Rebate</label>
+                        <div class="col-sm-6 col-lg-3 rk-edit-field">
+                            <label class="rk-edit-label">Eligible for Rebate</label>
                             <select name="elogible_for_rebate" class="form-control">
                                 <option value="Yes">Yes</option>
                                 <option value="No">No</option>
@@ -90,8 +100,8 @@
                             </select>
                         </div>
 
-                        <div class="col-sm-3 mb-3">
-                            <label for="phone">Category</label>
+                        <div class="col-sm-6 col-lg-3 rk-edit-field">
+                            <label class="rk-edit-label">Category</label>
                             <select name="category" class="form-control category">
                                 <option value="">--Select--</option>
                                 <option value="Solar">Solar</option>
@@ -102,18 +112,18 @@
                             </select>
                         </div>
 
-                        <div class="col-sm-3 mb-3 hide solar_kw">
-                            <label for="phone">Solar KW</label>
+                        <div class="col-sm-6 col-lg-3 rk-edit-field hide solar_kw">
+                            <label class="rk-edit-label">Solar KW</label>
                             <input type="text" name="solar_kw" class="form-control" placeholder="Solar KW">
                         </div>
 
-                        <div class="col-sm-3 mb-3 hide battery_kw">
-                            <label for="phone">Battery KW</label>
+                        <div class="col-sm-6 col-lg-3 rk-edit-field hide battery_kw">
+                            <label class="rk-edit-label">Battery KW</label>
                             <input type="text" name="battery_kw" class="form-control" placeholder="Battery KW">
                         </div>
 
-                        <div class="col-sm-12 mb-6">
-                            <label for="phone">Proposal Url</label>
+                        <div class="col-sm-12 rk-edit-field">
+                            <label class="rk-edit-label">Proposal Url</label>
                             <input type="text" name="proposal_url" class="form-control" placeholder="Proposal Url" value="{{@$lead->proposal_url}}">
                         </div>
 
@@ -121,9 +131,9 @@
                 </div>
 
                 <!-- Footer inside the form -->
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary bg_s" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary bg_s">Save changes</button>
+                <div class="modal-footer rk-edit-footer">
+                    <button type="button" class="btn rk-edit-cancel" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn rk-edit-save">Save changes</button>
                 </div>
             </form>
         </div>
@@ -170,6 +180,218 @@ $(document).on("click", ".edit_lead", function() {
 <style>
 .hide {
     display: none !important;
+}
+
+.rk-edit-modal .modal-dialog {
+    max-width: 920px;
+}
+
+.rk-edit-shell {
+    overflow: hidden;
+    border: 0;
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at top left, rgba(20, 184, 166, .16), transparent 34%),
+        radial-gradient(circle at top right, rgba(56, 168, 255, .14), transparent 30%),
+        linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+    box-shadow: 0 28px 80px rgba(15, 23, 42, .28);
+    color: #172033;
+    font-size: 13px;
+}
+
+.rk-edit-header {
+    align-items: center;
+    padding: 18px 22px;
+    border: 0;
+    background: linear-gradient(135deg, #0f172a 0%, #164e63 58%, #0f766e 100%);
+    color: #fff;
+}
+
+.rk-edit-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+}
+
+.rk-edit-icon {
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, .30);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .14);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .34), 0 12px 26px rgba(0, 0, 0, .20);
+    color: #c7fff6;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.rk-edit-kicker {
+    display: block;
+    margin-bottom: 3px;
+    color: rgba(255, 255, 255, .68);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.rk-edit-header .modal-title {
+    margin: 0;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.rk-edit-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, .86);
+    opacity: 1;
+}
+
+.rk-edit-body {
+    max-height: min(70vh, 640px);
+    padding: 22px;
+    overflow-y: auto;
+}
+
+.rk-edit-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.rk-edit-section-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 11px;
+    border: 1px dashed rgba(56, 168, 255, .72);
+    border-radius: 999px;
+    background: rgba(239, 248, 255, .82);
+    color: #0f4f66;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.rk-edit-section-title::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #14b8a6;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, .13);
+}
+
+.rk-edit-grid {
+    row-gap: 14px;
+}
+
+.rk-edit-field {
+    margin-bottom: 0;
+}
+
+.rk-edit-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.rk-edit-modal .form-control,
+.rk-edit-modal select.form-control {
+    min-height: 44px;
+    border: 1px solid #d9e4ef;
+    border-radius: 11px;
+    background-color: rgba(255, 255, 255, .88);
+    color: #172033;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7);
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.rk-edit-modal .form-control:focus,
+.rk-edit-modal select.form-control:focus {
+    border-color: #14b8a6;
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, .13);
+}
+
+.rk-edit-modal select.form-control {
+    cursor: pointer;
+}
+
+.rk-edit-field.hide {
+    display: none !important;
+}
+
+.rk-edit-footer {
+    padding: 16px 22px 20px;
+    border: 0;
+    background: linear-gradient(180deg, rgba(248, 251, 255, .65), #fff);
+}
+
+.rk-edit-cancel,
+.rk-edit-save {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.rk-edit-cancel {
+    border: 1px solid rgba(100, 116, 139, .28);
+    background: #f8fafc;
+    color: #475569;
+}
+
+.rk-edit-cancel:hover {
+    border-color: rgba(100, 116, 139, .46);
+    background: #eef2f7;
+    color: #334155;
+}
+
+.rk-edit-save {
+    border: 0;
+    background: linear-gradient(135deg, #2563eb, #14b8a6);
+    box-shadow: 0 12px 24px rgba(37, 99, 235, .22);
+    color: #fff;
+}
+
+.rk-edit-save:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 30px rgba(20, 184, 166, .24);
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .rk-edit-modal .modal-dialog {
+        margin: 12px;
+    }
+
+    .rk-edit-header,
+    .rk-edit-body,
+    .rk-edit-footer {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .rk-edit-header .modal-title {
+        font-size: 16px;
+    }
 }
 </style>
 <script>
