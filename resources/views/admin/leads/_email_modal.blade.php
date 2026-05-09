@@ -5,7 +5,7 @@
             <div class="modal-header rk-email-header">
                 <div class="rk-email-title-wrap">
                     <span class="rk-email-icon">
-                        <i class="fa fa-paper-plane-o"></i>
+                        <span>✈</span>
                     </span>
                     <div>
                         <span class="rk-email-kicker">Lead communication</span>
@@ -100,6 +100,7 @@
         linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
     box-shadow: 0 28px 80px rgba(15, 23, 42, .28);
     color: #172033;
+    font-size: 13px;
 }
 
 .rk-email-header {
@@ -129,7 +130,11 @@
     background: rgba(255, 255, 255, .14);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, .34), 0 12px 26px rgba(0, 0, 0, .20);
     color: #c7fff6;
-    font-size: 18px;
+    font-size: 16px;
+}
+
+.rk-email-icon span {
+    transform: translateX(-1px);
 }
 
 .rk-email-kicker {
@@ -145,7 +150,7 @@
 .rk-email-header .modal-title {
     margin: 0;
     color: #fff;
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 600;
     line-height: 1.25;
 }
@@ -174,7 +179,7 @@
     display: block;
     margin-bottom: 7px;
     color: #334155;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
 }
 

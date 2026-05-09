@@ -1178,8 +1178,17 @@ class LeadInboxController extends Controller
 
 			->addColumn('name', function ($lead) {
 				$name = $lead->first_name . ' ' . $lead->last_name;
+				$initials = strtoupper(substr(trim($lead->first_name ?? ''), 0, 1) . substr(trim($lead->last_name ?? ''), 0, 1));
+				$initials = $initials ?: 'L';
+				$avatarTone = (int) ($lead->id % 8);
 			
-				return '<a href="' . route('admin.contactDetails', $lead->id) . '">' . e($name) . '</a>';
+				return '<a href="' . route('admin.contactDetails', $lead->id) . '" class="rk-contact-person">
+					<span class="rk-contact-avatar rk-avatar-tone-' . $avatarTone . '">' . e($initials) . '</span>
+					<span class="rk-contact-name-wrap">
+						<span class="rk-contact-name">' . e($name) . '</span>
+						<span class="rk-contact-id">ID: ' . e($lead->id) . '</span>
+					</span>
+				</a>';
 			})
 
 			->addColumn('salesRep', function ($lead) {
@@ -1209,7 +1218,7 @@ class LeadInboxController extends Controller
 				$color = $statusColors[strtolower($status ?? '')] ?? 'secondary';
 			
 				return '
-					<div class="d-flex align-items-center justify-content-end flex-wrap mb-2 gap-2">
+					<div class="d-flex align-items-center justify-content-start flex-wrap gap-2">
 						<span class="badge text-'.$color.' border border-'.$color.' rounded-pill px-2 py-1">
 							'.ucwords(strtolower($status)).'
 						</span>

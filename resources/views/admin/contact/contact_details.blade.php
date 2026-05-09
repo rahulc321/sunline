@@ -18,6 +18,22 @@ $stages = [
 // example — replace with your real status
 $currentStatus = $lead->contact->status ?? '';
 $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
+$leadName = trim(($lead->first_name ?? '') . ' ' . ($lead->last_name ?? '')) ?: 'Contact';
+$leadInitials = strtoupper(substr($lead->first_name ?? 'C', 0, 1) . substr($lead->last_name ?? '', 0, 1));
+$leadInitials = $leadInitials ?: 'C';
+$leadAddress = trim(implode(', ', array_filter([
+    $lead->address,
+    $lead->suburb,
+    $lead->state ? $lead->state . ' ' . $lead->postcode : $lead->postcode,
+])));
+$stageIcons = [
+    'Pending' => ['label' => 'P', 'class' => 'rk-contact-stage-pending'],
+    'Getting Proposal Ready' => ['label' => 'G', 'class' => 'rk-contact-stage-ready'],
+    'Proposal Sent' => ['label' => 'S', 'class' => 'rk-contact-stage-sent'],
+    'Follow Up Scheduled' => ['label' => 'F', 'class' => 'rk-contact-stage-follow'],
+    'Proposal Accepted' => ['label' => 'A', 'class' => 'rk-contact-stage-accepted'],
+    'Lost' => ['label' => 'L', 'class' => 'rk-contact-stage-lost'],
+];
 
 @endphp
 
@@ -25,11 +41,22 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
 
     <!-- header -->
     <div class="rk-overview-header">
-        <h3 class="rk-overview-title">Contact Overview #{{$lead->id}}</h3>
+        <div class="rk-contact-hero">
+            <div class="rk-contact-avatar">{{ $leadInitials }}</div>
+            <div class="rk-contact-hero-copy">
+                <span class="rk-page-kicker">Contact dossier</span>
+                <h3 class="rk-overview-title">{{ $leadName }} <span>#{{$lead->id}}</span></h3>
+                <div class="rk-hero-meta">
+                    <span><i class="fa fa-envelope-o"></i>{{ $lead->email ?? 'No email' }}</span>
+                    <span><i class="fa fa-phone"></i>{{ $lead->phone ?? 'No mobile' }}</span>
+                    <span><i class="fa fa-user-o"></i>{{ $lead->getAssignUserName->name ?? 'Not Assign Yet' }}</span>
+                </div>
+            </div>
+        </div>
         <div class="rk-action-tabs">
 
             @can('lead_email_access')
-            <button class="btn btn-outline-primary send_email_inner" data-bs-toggle="modal"
+            <button class="btn btn-outline-primary rk-action-btn send_email_inner" data-bs-toggle="modal"
                 data-bs-target="#emailModel"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                     stroke-linejoin="round" class="lucide lucide-mail h-4 w-4 mr-2"
@@ -44,7 +71,7 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
             @endcan
 
             @can('lead_call_log')
-            <button class="btn btn-outline-warning view-lead" data-bs-toggle="modal" data-bs-target="#leadDetailsModal">
+            <button class="btn btn-outline-warning rk-action-btn view-lead" data-bs-toggle="modal" data-bs-target="#leadDetailsModal">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                     class="lucide lucide-phone h-4 w-4 mr-2"
@@ -58,7 +85,7 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
                 </svg> Log Call</button>
             @endcan
 
-            <button data-lead='@json($lead)' class="btn btn-outline-danger edit_lead" data-lead='@json($lead)'
+            <button data-lead='@json($lead)' class="btn btn-outline-danger rk-action-btn edit_lead" data-lead='@json($lead)'
                 data-bs-toggle="modal" data-bs-target="#editlead">
 
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -85,7 +112,7 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
                 ?>
 
                 <a href="{{$link}}" target="_blank">
-                 <button data-lead='@json($lead)' class="btn btn-outline-success"  >
+                 <button data-lead='@json($lead)' class="btn btn-outline-success rk-action-btn"  >
 
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -123,9 +150,11 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
         <!-- ✅ HUBSPOT PIPELINE -->
         <div class="rk-pipeline">
             @foreach($stages as $stage)
+            @php($stageIcon = $stageIcons[$stage] ?? ['label' => '', 'class' => 'rk-contact-stage-default'])
             <div class="rk-stage {{ strtolower($currentStatus) == strtolower($stage) ? 'active' : '' }}"
                 onclick="changeLeadStatus('{{ $stage }}')">
-                {{ $stage }}
+                <span class="rk-stage-icon {{ $stageIcon['class'] }}">{{ $stageIcon['label'] }}</span>
+                <span class="rk-stage-text">{{ $stage }}</span>
             </div>
             @endforeach
             <form id="statusFormContact" method="POST" action="{{ route('admin.updateContactStatus1') }}">
@@ -138,6 +167,7 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
 
     <!-- body -->
     <div class="rk-overview-body">
+        <input type="hidden" class="lead_id" value="{{ $lead->id }}">
 
         <!-- left -->
         <div class="rk-summary-card">
@@ -301,19 +331,11 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
 
                 @forelse($lead->images as $file)
 
-                @php
-                // remove admin/ from path if exists
-                $fileUrl = preg_replace('/^admin\//', '', $file->image_path);
-
-                // final URL (adjust if using storage)
-                $fullUrl = asset($fileUrl);
-                @endphp
-
                 <li class="rk-attach-item">
 
                     {{-- file link --}}
-                    <a href="{{ $fullUrl }}" target="_blank" class="rk-attach-link">
-                        📎 {{ basename($file->image_path) }}
+                    <a href="{{ asset(preg_replace('/^admin\//', '', $file->image_path ?? '')) }}" target="_blank" class="rk-attach-link">
+                        📎 {{ basename($file->image_path ?? '') }}
                     </a>
 
                     {{-- delete button --}}
@@ -656,6 +678,452 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
+}
+
+/* ===== Classic contact details redesign ===== */
+.rk-overview-wrapper {
+    min-height: calc(100vh - 120px);
+    padding: 22px;
+    background:
+        linear-gradient(180deg, rgba(250, 247, 241, .94), rgba(240, 244, 248, .96)),
+        #f7f4ee;
+    color: #1f2933;
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+.rk-overview-header {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 16px;
+    padding: 22px;
+    border: 1px solid rgba(146, 117, 79, .20);
+    border-radius: 8px;
+    background:
+        linear-gradient(135deg, rgba(15, 23, 42, .96), rgba(30, 64, 175, .90)),
+        #172033;
+    box-shadow: 0 18px 42px rgba(31, 41, 51, .16);
+    color: #fff;
+}
+
+.rk-contact-hero {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+}
+
+.rk-contact-avatar {
+    display: inline-flex;
+    width: 64px;
+    height: 64px;
+    flex: 0 0 64px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, .35);
+    border-radius: 50%;
+    background: linear-gradient(135deg, #14b8a6 0%, #f59e0b 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .38), 0 12px 28px rgba(0, 0, 0, .28);
+    color: #fffdf7;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: .05em;
+}
+
+.rk-contact-hero-copy {
+    min-width: 0;
+}
+
+.rk-page-kicker {
+    display: block;
+    margin-bottom: 5px;
+    color: rgba(255, 255, 255, .68);
+    font-family: "Segoe UI", sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+
+.rk-overview-title {
+    margin: 0;
+    color: #fff;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.15;
+}
+
+.rk-overview-title span {
+    color: #bfdbfe;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.rk-hero-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+.rk-hero-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 10px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .08);
+    color: rgba(255, 255, 255, .82);
+    font-size: 12px;
+}
+
+.rk-action-tabs {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: 0;
+    flex-wrap: wrap;
+}
+
+.rk-action-tabs a {
+    text-decoration: none;
+}
+
+.rk-action-btn {
+    display: inline-flex;
+    min-height: 38px;
+    align-items: center;
+    gap: 7px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .96);
+    font-family: "Segoe UI", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, .14);
+}
+
+.rk-action-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.rk-lifecycle-box,
+.rk-summary-card,
+.rk-notes-card,
+.rk-files-card {
+    border: 1px solid rgba(146, 117, 79, .18);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .96);
+    box-shadow: 0 14px 32px rgba(31, 41, 51, .07);
+}
+
+.rk-lifecycle-box {
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.rk-lifecycle-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.rk-lifecycle-label {
+    color: #7c5f36;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.rk-lifecycle-value {
+    color: #1f2933;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.rk-pipeline {
+    display: flex;
+    overflow-x: auto;
+    padding: 8px;
+    border: 1px solid rgba(214, 173, 96, .24);
+    border-radius: 8px;
+    background: linear-gradient(180deg, #fbf7ee, #f1f6f7);
+}
+
+.rk-stage {
+    display: inline-flex;
+    position: relative;
+    min-height: 40px;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 26px 9px 14px;
+    background: #d9ebe7;
+    color: #1f3b3a;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.rk-stage::after {
+    border-top-width: 20px;
+    border-bottom-width: 20px;
+    border-left-color: #d9ebe7;
+}
+
+.rk-stage.active {
+    background: #245b57;
+    color: #fff;
+}
+
+.rk-stage.active::before {
+    display: none;
+}
+
+.rk-stage.active::after {
+    border-left-color: #245b57;
+}
+
+.rk-stage-icon {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .64);
+    color: #245b57;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.rk-stage.active .rk-stage-icon {
+    background: rgba(255, 255, 255, .18);
+    color: #fff;
+}
+
+.rk-overview-body {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+    gap: 16px;
+}
+
+.rk-summary-card {
+    overflow: hidden;
+}
+
+.rk-summary-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid #eadfce;
+    background: linear-gradient(180deg, #fbf7ef, #f5efe4);
+    color: #27323a;
+    font-family: "Segoe UI", sans-serif;
+    letter-spacing: .02em;
+}
+
+.rk-summary-content {
+    padding: 18px;
+}
+
+.rk-summary-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.rk-summary-row > div {
+    min-height: 72px;
+    padding: 12px;
+    border: 1px solid #edf0f2;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.rk-summary-row label {
+    display: block;
+    margin-bottom: 5px;
+    color: #7b8794;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+}
+
+.rk-summary-row p {
+    margin: 0;
+    color: #263238;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.45;
+    word-break: break-word;
+}
+
+.rk-link {
+    color: #8b5e34 !important;
+    font-weight: 700 !important;
+}
+
+.rk-notes-card {
+    padding: 16px;
+}
+
+.rk-note-input {
+    width: 100%;
+    height: 96px;
+    border: 1px solid #d8e0e7;
+    border-radius: 8px;
+    background: #fbfdff;
+    color: #1f2933;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 13px;
+    padding: 12px;
+    margin-bottom: 10px;
+    resize: vertical;
+}
+
+.rk-notes-card .badge {
+    border: 0;
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 12px;
+}
+
+.rk-notes-list {
+    height: 265px;
+    margin-top: 14px;
+    padding-right: 4px;
+    overflow-y: auto;
+}
+
+.rk-note-item {
+    padding: 12px;
+    border: 1px solid #edf0f2;
+    border-radius: 8px;
+    background: #fff;
+    margin-bottom: 10px;
+}
+
+.rk-note-item p {
+    margin: 0 0 8px;
+    color: #263238;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.rk-note-item span {
+    color: #7b8794;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.rk-note-empty {
+    border: 1px dashed #d8e0e7;
+    border-radius: 8px;
+    background: #fbfdff;
+}
+
+.rk-files-card {
+    margin-top: 16px;
+    padding: 16px;
+}
+
+.rk-files-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #edf0f2;
+    margin-bottom: 12px;
+}
+
+.rk-files-header h6 {
+    color: #27323a;
+    font-family: "Segoe UI", sans-serif;
+}
+
+.rk-files-header .btn {
+    border-radius: 999px;
+    font-family: "Segoe UI", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.rk-attach-list {
+    max-height: 250px;
+    padding: 0;
+}
+
+.rk-attach-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px dashed #d8e0e7;
+    font-family: "Segoe UI", sans-serif;
+}
+
+.rk-attach-link {
+    color: #245b57;
+    font-weight: 700;
+}
+
+.rk-attach-empty {
+    padding: 14px;
+    border: 1px dashed #d8e0e7;
+    border-radius: 8px;
+    color: #7b8794;
+    font-family: "Segoe UI", sans-serif;
+}
+
+@media (max-width: 1100px) {
+    .rk-overview-header,
+    .rk-overview-body {
+        grid-template-columns: 1fr;
+    }
+
+    .rk-overview-header {
+        flex-direction: column;
+    }
+
+    .rk-action-tabs {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
+    .rk-overview-wrapper {
+        padding: 14px;
+    }
+
+    .rk-contact-hero {
+        align-items: flex-start;
+    }
+
+    .rk-overview-title {
+        font-size: 22px;
+    }
+
+    .rk-summary-row {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
 

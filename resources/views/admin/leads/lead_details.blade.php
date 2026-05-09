@@ -505,7 +505,7 @@ $leadInitials = strtoupper(substr($lead->first_name ?? 'L', 0, 1) . substr($lead
     background: rgba(255, 255, 255, .94);
     box-shadow: 0 10px 22px rgba(15, 23, 42, .14);
     color: #172033;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
 }
 

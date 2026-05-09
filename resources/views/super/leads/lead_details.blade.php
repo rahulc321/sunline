@@ -13,19 +13,29 @@ $stages = [
 '3rd Attempt',
 'Under Construction',
 'Qualified',
+'Sold',
 'Lost'
 ];
 
 // example — replace with your real status
 $currentStatus = $lead->status ?? 'New';
 $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
+$leadName = trim(($lead->first_name ?? '').' '.($lead->last_name ?? '')) ?: 'Lead';
+$leadInitial = strtoupper(substr(trim($lead->first_name ?: $lead->last_name ?: $leadName), 0, 1));
 @endphp
 
 <div class="rk-overview-wrapper">
 
     <!-- header -->
     <div class="rk-overview-header">
-        <h3 class="rk-overview-title">Overview #{{$lead->id}}</h3>
+        <div class="rk-overview-title-wrap">
+            <span class="rk-lead-avatar">{{ $leadInitial }}</span>
+            <div>
+                <span class="rk-overview-kicker"><i class="ph ph-sparkle"></i> Lead workspace</span>
+                <h3 class="rk-overview-title">Overview #{{$lead->id}}</h3>
+                <p class="rk-overview-subtitle">{{ $leadName }} · {{ $lead->leadSource->source ?? 'Direct lead' }}</p>
+            </div>
+        </div>
         <div class="rk-action-tabs">
 
             @can('lead_email_access')
@@ -108,8 +118,8 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
     <!-- lifecycle -->
     <div class="rk-lifecycle-box">
         <div class="rk-lifecycle-top">
-            <span class="rk-lifecycle-label">Life-cycle stage</span>
-            <span class="rk-lifecycle-value">{{ $currentStatus }} ▼</span>
+            <span class="rk-lifecycle-label"><i class="ph ph-chart-line-up"></i> Life-cycle stage</span>
+            <span class="rk-lifecycle-value"><i class="ph ph-circle-wavy-check"></i> {{ $currentStatus }}</span>
         </div>
 
         <!-- ✅ HUBSPOT PIPELINE -->
@@ -134,7 +144,7 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
         <!-- left -->
         <div class="rk-summary-card">
             <div class="rk-summary-header">
-                <strong>Summary</strong>
+                <strong><i class="ph ph-user-circle"></i> Summary</strong>
 
             </div>
 
@@ -244,8 +254,12 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
 
         <!-- right -->
         <div class="rk-notes-card">
+            <div class="rk-notes-header">
+                <strong><i class="ph ph-note-pencil"></i> Notes</strong>
+                <span>{{ $lead->leadNotes->count() }} entries</span>
+            </div>
 
-            <form method="POST" action="{{ route('admin.noteStore') }}">
+            <form method="POST" action="{{ route('superadmin.noteStore') }}">
                 @csrf
                 <input type="hidden" name="lead_id" value="{{ $lead->id }}">
                 <textarea name="note" class="rk-note-input" placeholder="Add a note..." required></textarea>
@@ -280,10 +294,10 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
         <div class="rk-files-card">
 
             <div class="rk-files-header">
-                <h6 class="mb-0"><strong>Attachments ({{$lead->images->count()}})</strong></h6>
+                <h6 class="mb-0"><strong><i class="ph ph-paperclip"></i> Attachments ({{$lead->images->count()}})</strong></h6>
 
                 <button id="addFileBtn" class="btn btn-sm btn-outline-primary">
-                    + Add Files
+                    <i class="ph ph-upload-simple"></i> Add Files
                 </button>
 
                 <input type="file" id="fileInput" hidden>
@@ -305,7 +319,7 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
 
                     {{-- file link --}}
                     <a href="{{ $fullUrl }}" target="_blank" class="rk-attach-link">
-                        📎 {{ basename($file->image_path) }}
+                        <i class="ph ph-file"></i> {{ basename($file->image_path) }}
                     </a>
 
                     {{-- delete button --}}
@@ -334,9 +348,9 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
 
 
 </div>
-@include('admin.leads._email_modal',['emailTemplates'=>$emailTemplates])
-@include('admin.leads._edit_modal')
-@include('admin.leads.call_logs')
+@include('super.leads._email_modal',['emailTemplates'=>$emailTemplates])
+@include('super.leads._edit_modal')
+@include('super.leads.call_logs')
 <style>
 .rk-notes-list {
     height: 250px;
@@ -649,6 +663,516 @@ $leadJson = htmlspecialchars(json_encode($lead), ENT_QUOTES, 'UTF-8');
     margin-bottom: 10px;
 }
 
+/* ===== premium glossy detail refresh ===== */
+.content-inner {
+    background:
+        radial-gradient(circle at 10% 0%, rgba(81, 183, 216, 0.18), transparent 28%),
+        radial-gradient(circle at 92% 10%, rgba(54, 179, 126, 0.16), transparent 24%),
+        linear-gradient(180deg, rgba(23, 105, 170, 0.05), transparent 260px),
+        #f4f8fb;
+    padding: 12px !important;
+    max-height: calc(100vh - 3.75rem);
+    overflow-x: hidden;
+    overflow-y: auto !important;
+    scroll-behavior: smooth;
+}
+
+.content-wrapper {
+    min-height: 0;
+    overflow: hidden;
+}
+
+.rk-overview-wrapper {
+    position: relative;
+    overflow: visible;
+    padding: 0 0 18px;
+    background: transparent;
+    color: #102033;
+}
+
+.rk-overview-wrapper::before {
+    content: "";
+    position: absolute;
+    top: -80px;
+    right: 5%;
+    width: 300px;
+    height: 160px;
+    background: url("{{ asset('logo.png') }}") center/contain no-repeat;
+    opacity: 0.055;
+    filter: drop-shadow(0 0 34px rgba(23, 105, 170, 0.42));
+    pointer-events: none;
+}
+
+.rk-overview-header,
+.rk-lifecycle-box,
+.rk-summary-card,
+.rk-notes-card,
+.rk-files-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(23, 105, 170, 0.14);
+    border-radius: 8px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 252, 255, 0.98)),
+        radial-gradient(circle at 0% 0%, rgba(81, 183, 216, 0.18), transparent 30%),
+        radial-gradient(circle at 100% 8%, rgba(246, 180, 69, 0.12), transparent 24%);
+    box-shadow: 0 18px 44px rgba(16, 32, 51, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.rk-overview-header::before,
+.rk-lifecycle-box::before,
+.rk-summary-card::before,
+.rk-notes-card::before,
+.rk-files-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, #1769aa, #36b37e, #f6b445, #db2777);
+    z-index: 1;
+}
+
+.rk-overview-header {
+    min-height: 96px;
+    margin-bottom: 12px;
+    padding: 18px;
+    background:
+        linear-gradient(135deg, rgba(16, 32, 51, 0.97), rgba(23, 105, 170, 0.92) 48%, rgba(54, 179, 126, 0.9)),
+        url("{{ asset('vendor/images/demo/cover3.jpg') }}") center/cover no-repeat;
+    color: #ffffff;
+}
+
+.rk-overview-header::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 78% 48%, rgba(255, 255, 255, 0.34), transparent 24%),
+        linear-gradient(90deg, rgba(255,255,255,0.08), transparent 44%, rgba(255,255,255,0.16));
+    pointer-events: none;
+}
+
+.rk-overview-header > * {
+    position: relative;
+    z-index: 2;
+}
+
+.rk-overview-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+}
+
+.rk-lead-avatar {
+    display: inline-flex;
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #ffffff;
+    background: linear-gradient(135deg, #36b37e, #51b7d8);
+    border: 2px solid rgba(255, 255, 255, 0.55);
+    font-size: 20px;
+    font-weight: 900;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38), 0 16px 30px rgba(4, 18, 32, 0.28);
+}
+
+.rk-overview-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 3px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.rk-overview-kicker i {
+    color: #f6b445;
+}
+
+.rk-overview-title {
+    color: #ffffff;
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 0;
+}
+
+.rk-overview-subtitle {
+    margin: 4px 0 0;
+    color: rgba(255, 255, 255, 0.76);
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.rk-action-tabs {
+    justify-content: flex-end;
+    margin: 0;
+}
+
+.rk-action-tabs .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 36px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.28) !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    font-size: 12px;
+    font-weight: 850;
+    backdrop-filter: blur(8px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26), 0 10px 22px rgba(4, 18, 32, 0.16);
+}
+
+.rk-action-tabs .btn svg {
+    width: 16px;
+    height: 16px;
+    margin-right: 0 !important;
+}
+
+.rk-action-tabs .btn:hover {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.rk-lifecycle-box {
+    margin-bottom: 12px;
+    padding: 14px;
+}
+
+.rk-lifecycle-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 11px;
+}
+
+.rk-lifecycle-label,
+.rk-lifecycle-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-weight: 850;
+}
+
+.rk-lifecycle-label {
+    color: #52667c;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.rk-lifecycle-label i {
+    color: #1769aa;
+    font-size: 17px;
+}
+
+.rk-lifecycle-value {
+    min-height: 30px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(54, 179, 126, 0.22);
+    background: linear-gradient(180deg, #ffffff, #f1fbf7);
+    color: #268765;
+    font-size: 12px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 9px 20px rgba(54, 179, 126, 0.12);
+}
+
+.rk-pipeline {
+    gap: 7px;
+    padding: 7px;
+    background: rgba(232, 242, 249, 0.76);
+    border: 1px solid rgba(23, 105, 170, 0.1);
+}
+
+.rk-stage {
+    border-radius: 8px;
+    padding: 9px 13px;
+    background: linear-gradient(180deg, #ffffff, #edf7fa);
+    color: #52667c;
+    border: 1px solid rgba(23, 105, 170, 0.12);
+    font-weight: 800;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 8px 18px rgba(16, 32, 51, 0.05);
+}
+
+.rk-stage::after {
+    display: none;
+}
+
+.rk-stage:not(:first-child) {
+    margin-left: 0;
+}
+
+.rk-stage.active {
+    background: linear-gradient(135deg, #1769aa, #36b37e);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34), 0 12px 26px rgba(23, 105, 170, 0.2);
+}
+
+.rk-overview-body {
+    gap: 12px;
+}
+
+.rk-summary-card {
+    overflow: hidden;
+}
+
+.rk-summary-header,
+.rk-notes-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(216, 227, 237, 0.82);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(246, 250, 253, 0.92));
+}
+
+.rk-summary-header strong,
+.rk-notes-header strong,
+.rk-files-header strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #102033;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.rk-summary-header i,
+.rk-notes-header strong i,
+.rk-files-header strong i {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    color: #ffffff;
+    background: linear-gradient(135deg, #1769aa, #36b37e);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.36), 0 10px 20px rgba(23, 105, 170, 0.18);
+}
+
+.rk-notes-header span {
+    color: #65758b;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.rk-summary-content {
+    padding: 14px;
+}
+
+.rk-summary-row {
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.rk-summary-row > div {
+    position: relative;
+    min-height: 72px;
+    padding: 11px 12px;
+    border: 1px solid rgba(220, 230, 239, 0.88);
+    border-radius: 8px;
+    background: linear-gradient(180deg, #ffffff, #f8fcfd);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 8px 20px rgba(16, 32, 51, 0.035);
+}
+
+.rk-summary-row > div::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 12px;
+    bottom: 12px;
+    width: 3px;
+    border-radius: 0 999px 999px 0;
+    background: #1769aa;
+}
+
+.rk-summary-row > div:nth-child(2n)::before { background: #36b37e; }
+.rk-summary-row > div:nth-child(3n)::before { background: #f6b445; }
+.rk-summary-row > div:nth-child(4n)::before { background: #db2777; }
+
+.rk-summary-row label {
+    color: #65758b;
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.rk-summary-row p {
+    color: #102033;
+    font-size: 13px;
+    font-weight: 750;
+    line-height: 1.35;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.rk-notes-card {
+    padding: 0;
+}
+
+.rk-notes-card form {
+    padding: 14px;
+    border-bottom: 1px solid rgba(220, 230, 239, 0.8);
+}
+
+.rk-note-input {
+    height: 88px;
+    border: 1px solid rgba(216, 227, 237, 0.96);
+    border-radius: 8px;
+    background: linear-gradient(180deg, #ffffff, #f7fbfd);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 8px 18px rgba(16, 32, 51, 0.04);
+}
+
+.rk-notes-card .badge.bg-success {
+    border: 0;
+    border-radius: 8px;
+    padding: 8px 14px;
+    background: linear-gradient(135deg, #1769aa, #36b37e) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 10px 20px rgba(54, 179, 126, 0.18);
+}
+
+.rk-notes-list {
+    height: 250px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 10px 14px 14px;
+}
+
+.rk-note-item {
+    margin-bottom: 8px;
+    padding: 10px 11px;
+    border: 1px solid rgba(220, 230, 239, 0.82);
+    border-radius: 8px;
+    background: linear-gradient(180deg, #ffffff, #f8fcfd);
+    box-shadow: 0 8px 18px rgba(16, 32, 51, 0.035);
+}
+
+.rk-note-item p {
+    margin-bottom: 5px;
+    color: #263d55;
+    font-weight: 650;
+}
+
+.rk-files-card {
+    grid-column: 1 / -1;
+    margin-top: 0;
+    padding: 0;
+}
+
+.rk-files-header {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(216, 227, 237, 0.82);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(246, 250, 253, 0.92));
+}
+
+.rk-files-header .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border-radius: 8px;
+    border-color: rgba(23, 105, 170, 0.2);
+    background: linear-gradient(180deg, #ffffff, #f4faf9);
+    color: #1769aa;
+    font-size: 12px;
+    font-weight: 850;
+    box-shadow: 0 9px 20px rgba(23, 105, 170, 0.08);
+}
+
+.rk-attach-list {
+    padding: 12px 14px;
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.content-inner::-webkit-scrollbar,
+.rk-notes-list::-webkit-scrollbar,
+.rk-attach-list::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.content-inner::-webkit-scrollbar-track,
+.rk-notes-list::-webkit-scrollbar-track,
+.rk-attach-list::-webkit-scrollbar-track {
+    background: rgba(220, 230, 239, 0.55);
+    border-radius: 999px;
+}
+
+.content-inner::-webkit-scrollbar-thumb,
+.rk-notes-list::-webkit-scrollbar-thumb,
+.rk-attach-list::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #1769aa, #36b37e);
+    border-radius: 999px;
+}
+
+.rk-attach-item {
+    margin-bottom: 8px;
+    padding: 10px 11px;
+    border: 1px solid rgba(220, 230, 239, 0.82);
+    border-radius: 8px;
+    background: linear-gradient(180deg, #ffffff, #f8fcfd);
+    box-shadow: 0 8px 18px rgba(16, 32, 51, 0.035);
+}
+
+.rk-attach-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #1769aa;
+    font-weight: 800;
+}
+
+.rk-attach-link i {
+    color: #36b37e;
+    font-size: 16px;
+}
+
+.delete-lead-image {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 800;
+}
+
+@media (max-width: 991.98px) {
+    .rk-overview-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .rk-action-tabs {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .content-inner {
+        padding: 8px !important;
+    }
+
+    .rk-overview-title {
+        font-size: 22px;
+    }
+
+    .rk-lead-avatar {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+    }
+}
+
 </style>
 
 @endsection
@@ -691,7 +1215,7 @@ $(function() {
         formData.append('_token', '{{ csrf_token() }}');
 
         $.ajax({
-            url: '{{ route("admin.leadImages") }}',
+            url: '{{ route("superadmin.leadImages") }}',
             type: 'POST',
             data: formData,
             processData: false,

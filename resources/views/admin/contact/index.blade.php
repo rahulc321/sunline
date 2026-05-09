@@ -4,25 +4,349 @@
 
 @section('content')
 <style>
-.d-flex.justify-content-between {
-    color: color: hsl(215, 16%, 47%);
-    color: hsl(215, 16%, 47%);
-    font-size: 16px;
-
-}
-
-.epf {
-    font-weight: 500;
-    padding: 2px;
-}
-
-b,
-strong {
+.rk-contact-page {
+    min-height: calc(100vh - 120px);
+    padding: 24px;
+    overflow-x: hidden;
+    border-radius: 0;
+    background:
+        radial-gradient(circle at top left, rgba(16, 185, 129, .14), transparent 34%),
+        radial-gradient(circle at top right, rgba(37, 99, 235, .12), transparent 30%),
+        linear-gradient(180deg, #f8fbff 0%, #eef4f8 100%);
+    color: #172033;
+    font-family: Inter, "Segoe UI", sans-serif;
+    font-size: 14px;
     font-weight: 500;
 }
 
-.d-flex.justify-content-between.epf {
-    border-bottom: 1px solid #f3f3f3;
+.rk-contact-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 18px;
+    padding: 22px;
+    border: 1px solid rgba(148, 163, 184, .22);
+    border-radius: 8px;
+    background:
+        linear-gradient(135deg, rgba(15, 23, 42, .96), rgba(30, 64, 175, .90)),
+        #172033;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, .13);
+    color: #fff;
+}
+
+.rk-contact-hero-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+}
+
+.rk-contact-hero-icon {
+    display: inline-flex;
+    width: 58px;
+    height: 58px;
+    flex: 0 0 58px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, .28);
+    border-radius: 8px;
+    background: linear-gradient(135deg, #14b8a6, #f59e0b);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 14px 30px rgba(0, 0, 0, .22);
+    color: #fff;
+    font-size: 20px;
+}
+
+.rk-contact-kicker {
+    display: block;
+    margin-bottom: 4px;
+    color: rgba(255, 255, 255, .70);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.rk-contact-title {
+    margin: 0;
+    color: #fff;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.18;
+}
+
+.rk-contact-subtitle {
+    margin: 8px 0 0;
+    color: rgba(255, 255, 255, .78);
+    font-size: 13px;
+}
+
+.rk-contact-filter-card {
+    margin-bottom: 18px;
+    padding: 16px;
+    border: 1px solid rgba(148, 163, 184, .24);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .86);
+    box-shadow: 0 16px 35px rgba(15, 23, 42, .07);
+    backdrop-filter: blur(10px);
+}
+
+.rk-contact-filter-card label {
+    display: block;
+    margin-bottom: 7px;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.rk-contact-filter-card .form-control {
+    min-height: 42px;
+    border: 1px solid #d9e4ef;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, .88);
+    color: #172033;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7);
+}
+
+.rk-contact-filter-card .form-control:focus {
+    border-color: #14b8a6;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, .13);
+}
+
+.rk-contact-filter-actions {
+    align-items: end;
+}
+
+.rk-contact-apply,
+.rk-contact-load {
+    border: 0;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #2563eb, #14b8a6);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, .18);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.rk-contact-apply:hover,
+.rk-contact-load:hover {
+    transform: translateY(-1px);
+    color: #fff;
+}
+
+.rk-contact-reset {
+    border: 1px solid rgba(100, 116, 139, .28);
+    border-radius: 8px;
+    background: #fff;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.rk-contact-card {
+    position: relative;
+    margin-bottom: 16px;
+    overflow: hidden;
+    border: 0;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 16px 35px rgba(15, 23, 42, .07);
+}
+
+.rk-contact-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background:
+        repeating-linear-gradient(90deg, #38a8ff 0 4px, transparent 4px 8px) top left / 100% 1px no-repeat,
+        repeating-linear-gradient(90deg, #38a8ff 0 4px, transparent 4px 8px) bottom left / 100% 1px no-repeat,
+        repeating-linear-gradient(180deg, #38a8ff 0 4px, transparent 4px 8px) top left / 1px 100% no-repeat,
+        repeating-linear-gradient(180deg, #38a8ff 0 4px, transparent 4px 8px) top right / 1px 100% no-repeat;
+    opacity: .82;
+    pointer-events: none;
+}
+
+.rk-contact-card-inner {
+    position: relative;
+    z-index: 1;
+    padding: 18px;
+}
+
+.rk-contact-card-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.rk-contact-person {
+    display: flex;
+    gap: 13px;
+    min-width: 0;
+}
+
+.rk-contact-avatar {
+    display: inline-flex;
+    width: 58px;
+    height: 58px;
+    flex: 0 0 58px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #14b8a6, #f59e0b);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.rk-contact-name {
+    margin: 0 0 9px;
+    color: #0f172a;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.rk-contact-meta,
+.rk-contact-footnote {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.rk-contact-meta span,
+.rk-contact-footnote span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 28px;
+    padding: 6px 9px;
+    border-radius: 999px;
+    background: #f8fbff;
+    color: #475569;
+}
+
+.rk-contact-side {
+    display: flex;
+    flex: 0 0 230px;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.rk-contact-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: #e9fbf7;
+    color: #0f766e;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.rk-contact-owner {
+    text-align: right;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.rk-contact-owner strong {
+    display: block;
+    margin-top: 2px;
+    color: #172033;
+    font-weight: 600;
+}
+
+.rk-contact-specs {
+    margin-top: 16px;
+    padding: 14px;
+    border: 1px solid #eef2f7;
+    border-radius: 8px;
+    background: #fbfdff;
+}
+
+.rk-contact-specs .row {
+    row-gap: 12px;
+}
+
+.rk-contact-spec-label {
+    display: block;
+    margin-bottom: 4px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.rk-contact-spec-value {
+    color: #172033;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.rk-contact-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.rk-contact-actions .btn {
+    display: inline-flex;
+    min-height: 34px;
+    align-items: center;
+    gap: 6px;
+    border-radius: 8px;
+    border: 1px solid rgba(148, 163, 184, .28);
+    background: #fff;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, .05);
+    color: #172033;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.rk-contact-actions .btn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(20, 184, 166, .45);
+    color: #0f766e;
+}
+
+.rk-contact-empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 220px;
+}
+
+.rk-contact-empty-card {
+    max-width: 380px;
+    width: 100%;
+    padding: 28px;
+    border: 1px dashed rgba(56, 168, 255, .72);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .92);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, .07);
+    color: #475569;
+    text-align: center;
+}
+
+.rk-contact-empty-icon {
+    display: inline-flex;
+    width: 56px;
+    height: 56px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    background: #fff7ed;
+    color: #f97316;
+    font-size: 26px;
 }
 
 .log-item {
@@ -32,15 +356,49 @@ strong {
     border-radius: 10px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
+
+@media (max-width: 991px) {
+    .rk-contact-page {
+        padding: 16px;
+    }
+
+    .rk-contact-hero,
+    .rk-contact-card-top {
+        flex-direction: column;
+    }
+
+    .rk-contact-side {
+        flex: 0 0 auto;
+        align-items: flex-start;
+    }
+
+    .rk-contact-owner {
+        text-align: left;
+    }
+}
+
+@media (max-width: 576px) {
+    .rk-contact-title {
+        font-size: 22px;
+    }
+
+    .rk-contact-actions {
+        justify-content: flex-start;
+    }
+}
 </style>
 <!-- Page header -->
-<div class="page-header">
+<div class="page-header rk-contact-page">
     <div class="page-header-content d-lg-flex">
-        <div class="d-flex w-100">
+        <div class="rk-contact-hero w-100">
             <!-- Title + subtitle stacked -->
-            <div class="d-flex flex-column">
-                <h4 class="page-title mb-0 crm_c" style="font-size: 1.875rem">Qualified Contacts</h4>
-                <p class="mb-0 txt_1">Manage qualified leads and track proposal engagement</p>
+            <div class="rk-contact-hero-main">
+                <span class="rk-contact-hero-icon"><i class="ph-address-book"></i></span>
+                <div>
+                    <span class="rk-contact-kicker">Contact pipeline</span>
+                    <h4 class="page-title rk-contact-title">Qualified Contacts</h4>
+                    <p class="rk-contact-subtitle">Manage qualified leads and track proposal engagement</p>
+                </div>
             </div>
 
             <div class="col-md-3 ms-auto d-none">
@@ -56,7 +414,7 @@ strong {
     <section class="content">
 
 
-        <div class="card p-3 form_1">
+        <div class="card form_1 rk-contact-filter-card">
             <form class="row align-items-end">
 
                 <!-- From Date -->
@@ -88,9 +446,9 @@ strong {
                 </div>
 
                 <!-- Buttons -->
-                <div class="col-md-2 d-flex gap-2">
-                    <button type="button" class="btn btn-primary bg_s apply">Apply</button>
-                    <button type="reset" class="btn btn-outline-secondary">Reset</button>
+                <div class="col-md-2 d-flex gap-2 rk-contact-filter-actions">
+                    <button type="button" class="btn rk-contact-apply apply">Apply</button>
+                    <button type="reset" class="btn rk-contact-reset">Reset</button>
                 </div>
 
             </form>
@@ -144,7 +502,7 @@ strong {
         <div id="leads-container"></div>
 
         <div class="text-center mt-3">
-            <button id="load-more" class="btn btn-primary px-4 bg_s">Load More</button>
+            <button id="load-more" class="btn rk-contact-load px-4">Load More</button>
         </div>
 
     </section>
@@ -160,6 +518,8 @@ strong {
 
     <!-- Follow-up Modal -->
     <!-- Follow-up Modal -->
+
+    </div>
 
     @endsection
 
@@ -246,39 +606,37 @@ strong {
         };
 
         let color = statusColors[contract.status] || "secondary"; // fallback
+        const name = `${lead.first_name ?? ''} ${lead.last_name ?? ''}`.trim();
+        const initials = `${(lead.first_name ?? 'C').charAt(0)}${(lead.last_name ?? '').charAt(0)}`.toUpperCase();
+        const address = [lead.address, lead.suburb, [lead.state, lead.postcode].filter(Boolean).join(' ')].filter(Boolean).join(', ');
 
 
         return `
-<div class="card shadow-sm rounded-3 p-4 mb-3 form_1" id="lead-${lead.id}">
-    <div class="d-flex justify-content-between align-items-start">
-        <div class="flex-grow-1">
-            <h5 class="fw-bold mb-1 lead">
-                #${contract.id ?? ''} - ${lead.first_name ?? ''} ${lead.last_name ?? ''}
-            </h5>
-            <div class="text-muted mb-1">
-                <i class="ph-phone me-1"></i> ${lead.phone ?? ''} &nbsp;
-                <i class="ph-envelope me-1"></i> ${lead.email ?? ''}
-            </div>
-            <div class="text-muted mb-2">
-                <i class="ph-map-pin me-1"></i> ${[lead.address, lead.suburb, [lead.state, lead.postcode].filter(Boolean).join(' ')].filter(Boolean).join(', ')}
-            </div>
-
-            <div class="text-muted mb-2">
-                Created At :
-                 ${lead.created_at ?? ''}
-            </div>
-        </div>
-        <div class="d-flex flex-column align-items-end">
-            <div class="d-flex align-items-center mb-2">
-                <span class="badge text-${color} border border-${color} rounded-pill px-1 py-1 me-2">
-                    ${contract.status ?? ''}
-                </span>
-                <div class="text-end">
-                    <small class="text-muted">Assigned to:</small><br>
-                    <strong class="text-dark">${lead.get_assign_user_name?.name ?? ''}</strong>
+<div class="card form_1 rk-contact-card" id="lead-${lead.id}">
+    <div class="rk-contact-card-inner">
+        <div class="rk-contact-card-top">
+            <div class="rk-contact-person">
+                <span class="rk-contact-avatar">${initials || 'C'}</span>
+                <div class="flex-grow-1">
+                    <h5 class="rk-contact-name lead">
+                        #${contract.id ?? ''} - ${name || 'Unnamed Contact'}
+                    </h5>
+                    <div class="rk-contact-meta">
+                        <span><i class="ph-phone"></i> ${lead.phone ?? 'No phone'}</span>
+                        <span><i class="ph-envelope"></i> ${lead.email ?? 'No email'}</span>
+                        <span><i class="ph-map-pin"></i> ${address || 'No address'}</span>
+                        <span><i class="ph-calendar"></i> Created: ${lead.created_at ?? '-'}</span>
+                    </div>
                 </div>
             </div>
-            <div>
+            <div class="rk-contact-side">
+                <span class="rk-contact-status text-${color}">
+                    <i class="ph-check-circle"></i> ${contract.status ?? 'No status'}
+                </span>
+                <div class="rk-contact-owner">
+                    <span>Assigned to</span>
+                    <strong>${lead.get_assign_user_name?.name ?? 'Unassigned'}</strong>
+                </div>
                 <button class="btn btn-sm btn-warning me-1 custom-btn send_email1 d-none"
                     data-lead='${JSON.stringify(lead)}'
                     data-bs-toggle="modal" data-bs-target="#emailModel">
@@ -294,47 +652,46 @@ strong {
                 </button>
             </div>
         </div>
-    </div>
 
-    <!-- FULL WIDTH SECTION -->
-    <div class="bg-light text-muted small rounded px-3 py-3 mt-3">
+        <!-- FULL WIDTH SECTION -->
+        <div class="rk-contact-specs">
         <div class="row">
             <div class="col-md-3">
-                <strong>Property</strong><br>
-                ${contract.property ?? ''}
+                    <span class="rk-contact-spec-label">Property</span>
+                    <span class="rk-contact-spec-value">${contract.property ?? '-'}</span>
             </div>
             <div class="col-md-3">
-                <strong>Phases</strong><br>
-               ${contract.phase ?? ''}
+                    <span class="rk-contact-spec-label">Phases</span>
+                    <span class="rk-contact-spec-value">${contract.phase ?? '-'}</span>
             </div>
             <div class="col-md-3">
-                <strong>Switchboard</strong><br>
-                ${contract.switchboard ?? ''}
+                    <span class="rk-contact-spec-label">Switchboard</span>
+                    <span class="rk-contact-spec-value">${contract.switchboard ?? '-'}</span>
             </div>
             <div class="col-md-3">
-                <strong>Bill Size</strong><br>
-                 ${contract.bill_size ?? ''}
+                    <span class="rk-contact-spec-label">Bill Size</span>
+                    <span class="rk-contact-spec-value">${contract.bill_size ?? '-'}</span>
             </div>
         </div>
-    </div>
+        </div>
 
-    <div class="text-muted mt-2">
-        Source: <strong class="text-dark">${lead.lead_source?.source ?? ''}</strong> &nbsp;|&nbsp;
-        Follow-ups: <strong class="text-dark">${contract.follow_up_count ?? 0}</strong> &nbsp;|&nbsp;
-        Storeys: <strong class="text-dark">${lead.storeys ?? ''}</strong> &nbsp;|&nbsp;
-        Roof: <strong class="text-dark">${lead.roof_type ?? ''}</strong> &nbsp;|&nbsp;
-         Category: <strong class="text-dark">${lead.category ?? ''}</strong>
+        <div class="rk-contact-footnote mt-3">
+            <span>Source: <strong>${lead.lead_source?.source ?? '-'}</strong></span>
+            <span>Follow-ups: <strong>${contract.follow_up_count ?? 0}</strong></span>
+            <span>Storeys: <strong>${lead.storeys ?? '-'}</strong></span>
+            <span>Roof: <strong>${lead.roof_type ?? '-'}</strong></span>
+            <span>Category: <strong>${lead.category ?? '-'}</strong>
                     ${(lead.category === 'Solar' || lead.category === 'Solar+Battery') && lead.solar_kw
-                        ? ` &nbsp;|&nbsp; Solar KW: <strong class="text-dark">${lead.solar_kw}</strong>` 
+                        ? ` | Solar KW: <strong>${lead.solar_kw}</strong>` 
                         : ''}
                     ${(lead.category === 'Battery' || lead.category === 'Solar+Battery') && lead.battery_kw
-                        ? ` &nbsp;|&nbsp; Battery KW: <strong class="text-dark">${lead.battery_kw}</strong>` 
-                        : ''}  &nbsp;|&nbsp;
-        Rebate: <strong class="text-dark">${lead.elogible_for_rebate ?? ''}</strong>
-    </div>
+                        ? ` | Battery KW: <strong>${lead.battery_kw}</strong>` 
+                        : ''}</span>
+            <span>Rebate: <strong>${lead.elogible_for_rebate ?? '-'}</strong></span>
+        </div>
 
-    <!-- BUTTONS AT BOTTOM RIGHT -->
-    <div class="d-flex justify-content-end mt-3">
+        <!-- BUTTONS AT BOTTOM RIGHT -->
+        <div class="rk-contact-actions">
         @can('contact_proposal')
         <a  href="${lead.project_id ? `https://app.opensolar.com/projects/${lead.project_id}/design` : '#'}"
  target="_blank" class="btn btn-outline-secondary btn-sm me-2 view_proposal" data-contract='${JSON.stringify(contract)}'>
@@ -365,6 +722,7 @@ strong {
                     <i class="ph-pencil-line me-1"></i> Edit
                 </button>
         @endcan
+        </div>
     </div>
 </div>`;
 
@@ -440,27 +798,13 @@ strong {
 
     function showNoData() {
         $('#leads-container').html(`
-        <div style="display:flex; justify-content:center; align-items:center; height:220px; margin:0;">
-            <div style="text-align:center; padding:20px; border:1px dashed #ccc; border-radius:12px; background:#fff; max-width:350px; width:100%; margin:0; animation: fadeIn 0.6s;">
-                <div style="font-size:48px; color:#f39c12; margin:0 0 10px 0; line-height:1; animation: pulse 1.5s infinite;">
-                    ⚠️
-                </div>
-                <p style="margin:0; font-size:18px; font-weight:600; color:#555;">
-                    Warning: No Data Found!
-                </p>
+        <div class="rk-contact-empty">
+            <div class="rk-contact-empty-card">
+                <span class="rk-contact-empty-icon">⌕</span>
+                <h5 class="mb-1">No contacts found</h5>
+                <p class="mb-0">Try adjusting the search, sales rep, or lead source filters.</p>
             </div>
         </div>
-        <style>
-            @keyframes fadeIn {
-                from {opacity: 0; transform: scale(0.95);}
-                to {opacity: 1; transform: scale(1);}
-            }
-            @keyframes pulse {
-                0% { transform: scale(1); }
-                50% { transform: scale(1.15); }
-                100% { transform: scale(1); }
-            }
-        </style>
     `);
 
         hasMore = false;

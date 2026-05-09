@@ -133,11 +133,7 @@
                             <!-- <div class="fw-bold text-dark">Sunline Energy</div>
                             <small class="text-muted">CRM Platform</small> -->
 
-                            <img src="{{ url('/') }}/logo.png" style=" 
-    left: 42%;
-    width: 71%;
-    position: absolute;
-    transform: translate(-50%, -50%);" alt="Logo">
+                            <img src="{{ url('/') }}/logo.png" style="width: 150px; max-width: 100%; height: auto;" alt="Logo">
                         </div>
                     </div>
 
