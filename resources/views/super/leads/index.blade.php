@@ -648,7 +648,7 @@
 </div>
 
 @include('admin.leads._add_lead_modal')
-@include('admin.leads._edit_modal')
+@include('super.leads._edit_modal')
 @include('admin.leads._view_lead_modal')
 @include('admin.leads._followup_lead_modal')
 @include('admin.leads._sync_modal')

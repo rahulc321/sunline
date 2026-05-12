@@ -1,22 +1,20 @@
-<div class="modal fade rk-edit-modal" id="editlead" tabindex="-1" aria-labelledby="editlead" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content rk-edit-shell">
+<div class="offcanvas offcanvas-end rk-edit-modal rk-edit-shell" id="editlead" tabindex="-1" aria-labelledby="editleadLabel">
 
-            <div class="modal-header rk-edit-header">
+            <div class="offcanvas-header rk-edit-header">
                 <div class="rk-edit-title-wrap">
                     <span class="rk-edit-icon">✎</span>
                     <div>
                         <span class="rk-edit-kicker">Lead profile</span>
-                        <h5 class="modal-title" id="popupFormLabel">Edit Lead</h5>
+                        <h5 class="offcanvas-title modal-title" id="editleadLabel">Edit Lead</h5>
                     </div>
                 </div>
-                <button type="button" class="btn-close rk-edit-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close rk-edit-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
 
             <!-- Start form -->
             <form action="{{route('admin.updateStore')}}" method="post" class="rk-edit-form">
                 @csrf
-                <div class="modal-body rk-edit-body">
+                <div class="offcanvas-body rk-edit-body">
                     <input type="hidden" name="id">
                     <div class="rk-edit-section">
                         <span class="rk-edit-section-title">Contact Information</span>
@@ -131,13 +129,11 @@
                 </div>
 
                 <!-- Footer inside the form -->
-                <div class="modal-footer rk-edit-footer">
-                    <button type="button" class="btn rk-edit-cancel" data-bs-dismiss="modal">Close</button>
+                <div class="rk-edit-footer">
+                    <button type="button" class="btn rk-edit-cancel" data-bs-dismiss="offcanvas">Close</button>
                     <button type="submit" class="btn rk-edit-save">Save changes</button>
                 </div>
             </form>
-        </div>
-    </div>
 </div>
 <script>
 $(document).on("click", ".edit_lead", function() {
@@ -148,33 +144,44 @@ $(document).on("click", ".edit_lead", function() {
         lead = JSON.parse(lead);
     }
 
+    const panel = $("#editlead");
+
     // fill inputs
-    $("input[name='id']").val(lead.id || "");
-    $("input[name='first_name']").val(lead.first_name || "");
-    $("input[name='last_name']").val(lead.last_name || "");
-    $("input[name='email']").val(lead.email || "");
-    $("input[name='phone']").val(lead.phone || "");
-    $("input[name='address']").val(lead.address || "");
+    panel.find("input[name='id']").val(lead.id || "");
+    panel.find("input[name='first_name']").val(lead.first_name || "");
+    panel.find("input[name='last_name']").val(lead.last_name || "");
+    panel.find("input[name='email']").val(lead.email || "");
+    panel.find("input[name='phone']").val(lead.phone || "");
+    panel.find("input[name='address']").val(lead.address || "");
+    panel.find("input[name='proposal_url']").val(lead.proposal_url || "");
 
     // select values
-    $("select[name='assign_rep']").val(lead.get_assign_user_name?.id || "").trigger("change");
-    $("select[name='lead_source']").val(lead.lead_source?.id || "").trigger("change");
-    $("select[name='roof_type']").val(lead.roof_type || "").trigger("change");
-    $("select[name='elogible_for_rebate']").val(lead.elogible_for_rebate || "No").trigger("change");
+    panel.find("select[name='assign_rep']").val(lead.get_assign_user_name?.id || "").trigger("change");
+    panel.find("select[name='lead_source']").val(lead.lead_source?.id || "").trigger("change");
+    panel.find("select[name='roof_type']").val(lead.roof_type || "").trigger("change");
+    panel.find("select[name='elogible_for_rebate']").val(lead.elogible_for_rebate || "No").trigger("change");
 
     // category logic
     let category = lead.category || "";
-    $("select[name='category']").val(category);
+    panel.find("select[name='category']").val(category);
 
     // wait for DOM update, then trigger change to show/hide solar_kw / battery_kw
     setTimeout(() => {
-        $("select[name='category']").trigger("change");
+        panel.find("select[name='category']").trigger("change");
     }, 100);
 
     // fill kw fields if present
-    $("input[name='solar_kw']").val(lead.solar_kw || "");
-    $("input[name='battery_kw']").val(lead.battery_kw || "");
+    panel.find("input[name='solar_kw']").val(lead.solar_kw || "");
+    panel.find("input[name='battery_kw']").val(lead.battery_kw || "");
 });
+
+document.addEventListener('click', function(event) {
+    const trigger = event.target.closest('[data-bs-target="#editlead"]');
+    if (trigger && trigger.getAttribute('data-bs-toggle') === 'modal') {
+        trigger.setAttribute('data-bs-toggle', 'offcanvas');
+        trigger.setAttribute('aria-controls', 'editlead');
+    }
+}, true);
 </script>
 
 <style>
@@ -182,14 +189,11 @@ $(document).on("click", ".edit_lead", function() {
     display: none !important;
 }
 
-.rk-edit-modal .modal-dialog {
-    max-width: 920px;
-}
-
 .rk-edit-shell {
+    width: min(760px, 100vw) !important;
     overflow: hidden;
     border: 0;
-    border-radius: 18px;
+    border-radius: 18px 0 0 18px;
     background:
         radial-gradient(circle at top left, rgba(20, 184, 166, .16), transparent 34%),
         radial-gradient(circle at top right, rgba(56, 168, 255, .14), transparent 30%),
@@ -197,6 +201,13 @@ $(document).on("click", ".edit_lead", function() {
     box-shadow: 0 28px 80px rgba(15, 23, 42, .28);
     color: #172033;
     font-size: 13px;
+}
+
+.rk-edit-form {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
 }
 
 .rk-edit-header {
@@ -257,7 +268,8 @@ $(document).on("click", ".edit_lead", function() {
 }
 
 .rk-edit-body {
-    max-height: min(70vh, 640px);
+    flex: 1 1 auto;
+    max-height: none;
     padding: 22px;
     overflow-y: auto;
 }
@@ -335,6 +347,9 @@ $(document).on("click", ".edit_lead", function() {
 }
 
 .rk-edit-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
     padding: 16px 22px 20px;
     border: 0;
     background: linear-gradient(180deg, rgba(248, 251, 255, .65), #fff);
@@ -378,10 +393,6 @@ $(document).on("click", ".edit_lead", function() {
 }
 
 @media (max-width: 768px) {
-    .rk-edit-modal .modal-dialog {
-        margin: 12px;
-    }
-
     .rk-edit-header,
     .rk-edit-body,
     .rk-edit-footer {
