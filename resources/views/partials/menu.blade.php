@@ -413,7 +413,12 @@ div#jsGrid1_filter {
             </li>
             @endcan
 
-           
+            <!-- <li class="nav-item">
+                <a href="{{ route('admin.dialer.index') }}"
+                    class="nav-link {{ request()->is('admin/dialer') || request()->is('admin/dialer/*') ? 'active' : '' }}">
+                    <i class="ph-phone-call"></i><span>Dialer</span>
+                </a>
+            </li> -->
 
             @can('sale_access')
             <li class="nav-item">
