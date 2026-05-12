@@ -1,0 +1,20 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches:
+      - dev_stable
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: HOSTINGER_WEBHOOK_URL
+
+    steps:
+      - name: Call Hostinger Webhook
+        env:
+          HOSTINGER_WEBHOOK_URL: ${{ secrets.HOSTINGER_WEBHOOK_URL }}
+        run: |
+          curl -X POST "$HOSTINGER_WEBHOOK_URL"
