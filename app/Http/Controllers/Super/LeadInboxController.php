@@ -1069,8 +1069,8 @@ class LeadInboxController extends Controller
 		]);
 	}
 
-	public function saveComplianceMeta(Request $request)
-	{
+		public function saveComplianceMeta(Request $request)
+		{
 		$request->validate([
 			'lead_id' => 'required|integer|exists:leads,id',
 			'status' => 'required|string|in:COMPLIANCE NOT APPLIED,COMPLIANCE AWAITING APPROVAL',
@@ -1160,14 +1160,109 @@ class LeadInboxController extends Controller
 		$lead->status = $request->status;
 		$lead->save();
 
-		return response()->json([
-			'status' => true,
-			'message' => 'Compliance check saved successfully.',
-		]);
-	}
+			return response()->json([
+				'status' => true,
+				'message' => 'Compliance check saved successfully.',
+			]);
+		}
+
+		public function saveBookInstallationMeta(Request $request)
+		{
+			$request->validate([
+				'lead_id' => 'required|integer|exists:leads,id',
+				'status' => 'required|string|in:BOOK INSTALLATION,INSTALLATION BOOKED,STOCK ORDERING',
+				'installation_date' => 'required|date',
+				'installation_time' => 'required|string|max:100',
+				'installer_name' => 'required|string|max:255',
+				'invoice_link' => 'nullable|url|max:500',
+				'invoice_due_date' => 'nullable|date',
+				'stock_ordered' => 'required|in:yes,no',
+				'stock_status' => 'required|in:pending,ordered,arranged',
+				'supplier' => 'required_if:stock_ordered,yes|nullable|string|max:255',
+				'order_number' => 'nullable|string|max:120',
+				'delivery_cost' => 'required_if:stock_ordered,yes|nullable|numeric|min:0',
+				'expected_delivery_date' => 'nullable|date',
+				'delivery_time' => 'required_if:stock_ordered,yes|nullable|string|max:255',
+				'delivery_notes' => 'nullable|string',
+				'notes' => 'nullable|string',
+				'sales_order_file' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+				'customer_documents.*' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+			]);
+
+			$lead = Lead::findOrFail($request->lead_id);
+			$documentDir = public_path('uploads/leads/book-installation');
+			if (!is_dir($documentDir)) {
+				mkdir($documentDir, 0775, true);
+			}
+
+			$salesOrderFileUrl = null;
+			if ($request->hasFile('sales_order_file')) {
+				$file = $request->file('sales_order_file');
+				$fileName = time().'_'.$lead->id.'_sales_order.'.$file->getClientOriginalExtension();
+				$file->move($documentDir, $fileName);
+				$salesOrderFileUrl = asset('uploads/leads/book-installation/'.$fileName);
+			}
+
+			$customerDocumentUrls = json_decode(LeadMeta::where('lead_id', $lead->id)->where('meta_key', 'book_uploaded_documents')->value('meta_value') ?: '[]', true);
+			$customerDocumentUrls = is_array($customerDocumentUrls) ? $customerDocumentUrls : [];
+			if ($request->hasFile('customer_documents')) {
+				foreach ($request->file('customer_documents') as $index => $file) {
+					$fileName = time().'_'.$lead->id.'_document_'.$index.'.'.$file->getClientOriginalExtension();
+					$file->move($documentDir, $fileName);
+					$customerDocumentUrls[] = asset('uploads/leads/book-installation/'.$fileName);
+				}
+			}
+
+			$metaData = [
+				'book_installation_date' => $request->installation_date,
+				'book_installation_time' => $request->installation_time,
+				'book_installer_team' => $request->installer_name,
+				'book_installer_name' => $request->installer_name,
+				'book_invoice_link' => $request->invoice_link ?? '',
+				'book_invoice_due_date' => $request->invoice_due_date ?? '',
+				'book_stock_ordered' => $request->stock_ordered,
+				'book_stock_status' => $request->stock_status,
+				'book_supplier' => $request->supplier ?? '',
+				'book_order_number' => $request->order_number ?? '',
+				'book_delivery_cost' => $request->delivery_cost ?? '',
+				'book_expected_delivery_date' => $request->expected_delivery_date ?? '',
+				'book_delivery_time' => $request->delivery_time ?? '',
+				'book_delivery_notes' => $request->delivery_notes ?? '',
+				'book_installation_notes' => $request->notes ?? '',
+			];
+
+			if ($salesOrderFileUrl) {
+				$metaData['book_sales_order_file'] = $salesOrderFileUrl;
+			}
+
+			if ($request->hasFile('customer_documents')) {
+				$metaData['book_uploaded_documents'] = json_encode($customerDocumentUrls);
+			}
+
+			foreach ($metaData as $metaKey => $metaValue) {
+				LeadMeta::updateOrCreate(
+					[
+						'lead_id' => $lead->id,
+						'meta_key' => $metaKey,
+					],
+					[
+						'meta_value' => $metaValue,
+						'meta_type' => 'text',
+					]
+				);
+			}
+
+			$lead->status = $request->status;
+			$lead->save();
+
+			return response()->json([
+				'status' => true,
+				'message' => 'Book installation data saved successfully.',
+			]);
+		}
 
 
-	// /////////////////////////////For Salse ///////////////////////////
+		// /////////////////////////////For Salse ///////////////////////////
 	public function sales(Request $request)
 	{
 		$this->data = $this->commonLeadData();

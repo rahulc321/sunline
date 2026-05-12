@@ -1,15 +1,16 @@
-<div class="modal fade" id="leadDetailsModal" tabindex="-1">
-    <div class="modal-dialog modal-md modal-dialog-centered">
-        <div class="modal-content rk-call-modal">
+<div class="offcanvas offcanvas-end rk-call-offcanvas" id="leadDetailsModal" tabindex="-1" aria-labelledby="leadDetailsModalLabel">
 
             <!-- header -->
-            <div class="modal-header py-2">
-                <h6 class="modal-title fw-bold">Call Logs</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="offcanvas-header rk-call-header">
+                <div>
+                    <span class="rk-call-kicker"><i class="ph ph-phone-call"></i> Lead activity</span>
+                    <h6 class="offcanvas-title fw-bold" id="leadDetailsModalLabel">Call Logs</h6>
+                </div>
+                <button type="button" class="btn-close rk-call-close" data-bs-dismiss="offcanvas"></button>
             </div>
 
             <!-- body -->
-            <div class="modal-body pt-2">
+            <div class="offcanvas-body rk-call-body">
 
                 <div class="call-logs">
 
@@ -41,30 +42,70 @@
                 </div>
 
             </div>
-        </div>
-    </div>
 </div>
 <style>
-    /* modal */
-.rk-call-modal {
-    border-radius: 10px;
+.rk-call-offcanvas {
+    width: min(520px, 100vw) !important;
+    border: 0;
+    background:
+        radial-gradient(circle at 12% 0%, rgba(47, 128, 237, .18), transparent 30%),
+        linear-gradient(180deg, #ffffff 0%, #f6fbff 100%);
+    box-shadow: -20px 0 60px rgba(15, 23, 42, .22);
+}
+
+.rk-call-header {
+    align-items: flex-start;
+    padding: 22px;
+    border: 0;
+    background: linear-gradient(135deg, #0b376d, #1769aa 55%, #16a085);
+    color: #fff;
+}
+
+.rk-call-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 7px;
+    color: rgba(255, 255, 255, .72);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.rk-call-header h6 {
+    margin: 0;
+    color: #fff;
+    font-size: 20px;
+}
+
+.rk-call-close {
+    filter: invert(1) grayscale(1) brightness(2);
+    opacity: .9;
+}
+
+.rk-call-body {
+    padding: 20px;
 }
 
 /* scroll */
 .call-logs {
-    max-height: 340px;
+    max-height: none;
     overflow-y: auto;
 }
 
 /* grey rounded card */
 .rk-call-card {
-    background: #e9edf5;
+    border: 1px solid rgba(47, 128, 237, .12);
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, .95), rgba(239, 248, 255, .88));
     border-radius: 10px;
     padding: 12px 14px;
     margin-bottom: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 12px 26px rgba(15, 23, 42, .08);
 }
 
 /* left side */
@@ -127,3 +168,12 @@
 
 
 </style>
+<script>
+document.addEventListener('click', function(event) {
+    const trigger = event.target.closest('[data-bs-target="#leadDetailsModal"]');
+    if (trigger && trigger.getAttribute('data-bs-toggle') === 'modal') {
+        trigger.setAttribute('data-bs-toggle', 'offcanvas');
+        trigger.setAttribute('aria-controls', 'leadDetailsModal');
+    }
+}, true);
+</script>

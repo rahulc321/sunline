@@ -88,5 +88,6 @@ Route::prefix('superadmin')->name('superadmin.')->middleware(['superadmin.auth']
     Route::post('saveDistributorApprovalMeta', [App\Http\Controllers\Super\LeadInboxController::class, 'saveDistributorApprovalMeta'])->name('saveDistributorApprovalMeta');
     Route::post('saveVicRebateMeta', [App\Http\Controllers\Super\LeadInboxController::class, 'saveVicRebateMeta'])->name('saveVicRebateMeta');
     Route::post('saveComplianceMeta', [App\Http\Controllers\Super\LeadInboxController::class, 'saveComplianceMeta'])->name('saveComplianceMeta');
+    Route::post('saveBookInstallationMeta', [App\Http\Controllers\Super\LeadInboxController::class, 'saveBookInstallationMeta'])->name('saveBookInstallationMeta');
 });
 

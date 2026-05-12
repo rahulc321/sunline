@@ -1,8 +1,6 @@
-<div class="modal fade rk-email-modal" id="emailModel" tabindex="-1" aria-labelledby="emailModelLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content rk-email-shell">
+<div class="offcanvas offcanvas-end rk-email-modal rk-email-shell" id="emailModel" tabindex="-1" aria-labelledby="emailModelLabel">
 
-            <div class="modal-header rk-email-header">
+            <div class="offcanvas-header rk-email-header">
                 <div class="rk-email-title-wrap">
                     <span class="rk-email-icon">
                         <span>✈</span>
@@ -12,13 +10,13 @@
                         <h5 class="modal-title" id="emailModelLabel">Send Email to <span class="lead_name">{{@$lead->first_name.' '.@$lead->last_name}}</span></h5>
                     </div>
                 </div>
-                <button type="button" class="btn-close rk-email-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close rk-email-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
 
-            <form action="{{ route('admin.sendEmail') }}" method="post">
+            <form action="{{ route('admin.sendEmail') }}" method="post" class="rk-email-form">
                 @csrf
                 <input type="hidden" class="form-control lead_id" name="lead_id" value="{{@$lead->id}}">
-                <div class="modal-body rk-email-body">
+                <div class="offcanvas-body rk-email-body">
 
                     <!-- Recipient -->
                     <div class="rk-email-field rk-recipient-field">
@@ -65,8 +63,8 @@
 
                 </div>
 
-                <div class="modal-footer rk-email-footer">
-                    <button type="button" class="btn rk-email-cancel" data-bs-dismiss="modal">Cancel</button>
+                <div class="rk-email-footer">
+                    <button type="button" class="btn rk-email-cancel" data-bs-dismiss="offcanvas">Cancel</button>
                     <button type="submit" class="btn rk-email-send"><svg xmlns="http://www.w3.org/2000/svg"
                             width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -82,18 +80,13 @@
                         </svg> Send Email</button>
                 </div>
             </form>
-        </div>
-    </div>
 </div>
 <style>
-.rk-email-modal .modal-dialog {
-    max-width: 860px;
-}
-
 .rk-email-shell {
+    width: min(880px, 100vw) !important;
     overflow: hidden;
     border: 0;
-    border-radius: 18px;
+    border-radius: 18px 0 0 18px;
     background:
         radial-gradient(circle at top left, rgba(20, 184, 166, .18), transparent 34%),
         radial-gradient(circle at top right, rgba(56, 168, 255, .16), transparent 32%),
@@ -101,6 +94,13 @@
     box-shadow: 0 28px 80px rgba(15, 23, 42, .28);
     color: #172033;
     font-size: 13px;
+}
+
+.rk-email-form {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
 }
 
 .rk-email-header {
@@ -168,7 +168,9 @@
 }
 
 .rk-email-body {
+    flex: 1 1 auto;
     padding: 22px;
+    overflow-y: auto;
 }
 
 .rk-email-field {
@@ -272,6 +274,9 @@
 }
 
 .rk-email-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
     padding: 16px 22px 20px;
     border: 0;
     background: linear-gradient(180deg, rgba(248, 251, 255, .65), #fff);
@@ -321,10 +326,6 @@
 }
 
 @media (max-width: 768px) {
-    .rk-email-modal .modal-dialog {
-        margin: 12px;
-    }
-
     .rk-email-header,
     .rk-email-body,
     .rk-email-footer {
@@ -338,6 +339,14 @@
 }
 </style>
 <script>
+document.addEventListener('click', function(event) {
+    const trigger = event.target.closest('[data-bs-target="#emailModel"]');
+    if (trigger && trigger.getAttribute('data-bs-toggle') === 'modal') {
+        trigger.setAttribute('data-bs-toggle', 'offcanvas');
+        trigger.setAttribute('aria-controls', 'emailModel');
+    }
+}, true);
+
 $(document).on('change', '#templateSelect', function() {
     let selected = $(this).find(':selected').data('email');
 

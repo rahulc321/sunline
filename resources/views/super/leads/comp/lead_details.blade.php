@@ -1,661 +1,5 @@
-@extends('layouts.super')
-
-@section('title', 'Leads')
-
-@section('content')
-
-@php
-
-
-$lead->status = $lead->status == 'Sold' ? 'Not Applied' : $lead->status;
-
-// example — replace with your real status
-$currentStatus = $lead->status ?? 'New';
-$approvalRequiredValue = $leadMeta['distributor_approval_required'] ?? 'Yes';
-$distributorNameValue = $leadMeta['distributor_name'] ?? '';
-$existingSystemValue = $leadMeta['existing_system'] ?? '';
-$meterNumberValue = $leadMeta['meter_number'] ?? '';
-$nmiNumberValue = $leadMeta['nmi_number'] ?? '';
-$photosRequiredValue = $leadMeta['photos_required'] ?? '';
-$approvalFileUrl = $leadMeta['distributor_approval_file'] ?? '';
-$approvalFileName = $approvalFileUrl ? basename(parse_url($approvalFileUrl, PHP_URL_PATH)) : 'No file selected';
-$hasPreviousDistributorData = $approvalRequiredValue !== '' || $distributorNameValue !== '' || $existingSystemValue !== '' || $meterNumberValue !== '' || $nmiNumberValue !== '' || $photosRequiredValue !== '' || $approvalFileUrl !== '';
-$complianceJobTypeValue = $leadMeta['compliance_job_type'] ?? ($lead->category === 'Solar+Battery' ? 'Solar + Battery' : ($lead->category === 'Battery' ? 'Battery Only' : 'Solar Only'));
-$complianceBillCopyValue = $leadMeta['compliance_bill_copy_received'] ?? '';
-$compliancePhaseTypeValue = $leadMeta['compliance_phase_type'] ?? '';
-$complianceCouplingTypeValue = $leadMeta['compliance_coupling_type'] ?? '';
-$complianceBatteryAccessValue = $leadMeta['compliance_battery_access_photo'] ?? '';
-$compliancePivotSlabValue = $leadMeta['compliance_pivot_slab_required'] ?? '';
-$complianceBatteryInstallValue = $leadMeta['compliance_battery_install_photo'] ?? '';
-$complianceBackupValue = $leadMeta['compliance_backup_requirement'] ?? '';
-$compliancePlanViewValue = $leadMeta['compliance_plan_view_photo'] ?? '';
-$complianceStoreyValue = $leadMeta['compliance_storey_type'] ?? '';
-$complianceNotesValue = $leadMeta['compliance_notes'] ?? '';
-$complianceRfiMessageValue = $leadMeta['compliance_rfi_message'] ?? '';
-$vicWorkflowStatuses = [
-    'COMPLIANCE NOT APPLIED' => 'Not Applied',
-    'COMPLIANCE AWAITING APPROVAL' => 'Awaiting Approval',
-];
-
-if (!empty($lead->status) && !array_key_exists($lead->status, $vicWorkflowStatuses)) {
-    $vicWorkflowStatuses[$lead->status] = ucwords(strtolower(str_replace('_', ' ', $lead->status)));
-}
-
-$currentVicWorkflowStatus = !empty($lead->status)
-    ? $lead->status
-    : 'COMPLIANCE NOT APPLIED';
-$activeVicPane = $currentVicWorkflowStatus === 'COMPLIANCE AWAITING APPROVAL' ? 'documents' : 'checklist';
-@endphp
-
-@php
-$stages = $vicWorkflowStatuses;
-
-@endphp
-
-<div class="rk-overview-wrapper">
-
-    <!-- header -->
-    <div class="rk-overview-header">
-        <h3 class="rk-overview-title">Overview #{{$lead->id}}</h3>
-        <div class="rk-action-tabs">
-
-            @can('lead_email_access')
-            <button class="btn btn-outline-primary send_email_inner" data-bs-toggle="modal"
-                data-bs-target="#emailModel"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round" class="lucide lucide-mail h-4 w-4 mr-2"
-                    data-lov-id="src/components/leads/LeadDetailModal.tsx:226:14" data-lov-name="Mail"
-                    data-component-path="src/components/leads/LeadDetailModal.tsx" data-component-line="226"
-                    data-component-file="LeadDetailModal.tsx" data-component-name="Mail"
-                    data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D">
-                    <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                </svg> Send Email</button>
-
-            @endcan
-
-            @can('lead_call_log')
-            <button class="btn btn-outline-warning view-lead" data-bs-toggle="modal" data-bs-target="#leadDetailsModal">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-phone h-4 w-4 mr-2"
-                    data-lov-id="src/components/leads/LeadDetailModal.tsx:238:14" data-lov-name="Phone"
-                    data-component-path="src/components/leads/LeadDetailModal.tsx" data-component-line="238"
-                    data-component-file="LeadDetailModal.tsx" data-component-name="Phone"
-                    data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D">
-                    <path
-                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
-                    </path>
-                </svg> Log Call</button>
-            @endcan
-            @can('lead_generate_quote')
-            @if(!$lead->project_id)
-            <button class="btn btn-outline-success generateQuote"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text h-4 w-4 mr-2"
-                    data-lov-id="src/components/leads/LeadDetailModal.tsx:245:14" data-lov-name="FileText"
-                    data-component-path="src/components/leads/LeadDetailModal.tsx" data-component-line="245"
-                    data-component-file="LeadDetailModal.tsx" data-component-name="FileText"
-                    data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D">
-                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
-                    <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
-                    <path d="M10 9H8"></path>
-                    <path d="M16 13H8"></path>
-                    <path d="M16 17H8"></path>
-                </svg> Generate Quote</button>
-            @endif
-            @endcan
-            <button data-lead='@json($lead)' class="btn btn-outline-danger edit_lead"
-                data-bs-toggle="modal" data-bs-target="#editlead">
-
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-file-text h-4 w-4 mr-2"
-                    data-lov-id="src/components/leads/LeadDetailModal.tsx:245:14" data-lov-name="FileText"
-                    data-component-path="src/components/leads/LeadDetailModal.tsx" data-component-line="245"
-                    data-component-file="LeadDetailModal.tsx" data-component-name="FileText"
-                    data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D">
-                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
-                    <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
-                    <path d="M10 9H8"></path>
-                    <path d="M16 13H8"></path>
-                    <path d="M16 17H8"></path>
-                </svg>Edit Lead</button>
-
-            <button type="button" class="btn btn-outline-primary vic-workflow-trigger"
-                data-bs-toggle="modal" data-bs-target="#vicWorkflowModal">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-git-branch h-4 w-4 mr-2">
-                    <path d="M6 3v12"></path>
-                    <path d="M18 9a3 3 0 1 0-3-3"></path>
-                    <path d="M6 15a3 3 0 1 0 3 3"></path>
-                    <path d="M18 6V5"></path>
-                    <path d="M6 15c0-3 2-5 5-5h7"></path>
-                </svg>Move Step</button>
-
-            <!-- <div class="rk-action-tab">
-                <a href="javascript:;" class="edit_lead" data-lead='@json($lead)' data-bs-toggle="modal"
-                    data-bs-target="#editlead">Edit Lead</a>
-            </div> -->
-
-            <!-- <div class="rk-action-tab">
-                <a href="javascript:;" class="edit_lead" data-lead='@json($lead)' data-bs-toggle="modal"
-                    data-bs-target="#editlead">Generate Quote</a>
-            </div> -->
-        </div>
-    </div>
-
-    <!-- lifecycle -->
-    <div class="rk-lifecycle-box">
-        <div class="rk-lifecycle-top">
-            <span class="rk-lifecycle-label">Life-cycle stage</span>
-            <span class="rk-lifecycle-value">{{ $vicWorkflowStatuses[$currentVicWorkflowStatus] ?? $currentStatus }} ▼</span>
-        </div>
-
-        <!-- ✅ HUBSPOT PIPELINE -->
-        <div class="rk-pipeline">
-            @foreach($stages as $stageValue => $stageLabel)
-            <div class="rk-stage {{ $currentVicWorkflowStatus == $stageValue ? 'active' : '' }}"
-                onclick="changeLeadStatus('{{ $stageValue }}')">
-                {{ $stageLabel }}
-            </div>
-            @endforeach
-            <form id="statusForm" method="POST" action="{{ route('superadmin.updateLeadStatusNew') }}">
-                @csrf
-                <input type="hidden" name="id" value="{{ $lead->id }}">
-                <input type="hidden" name="status" id="statusInput">
-            </form>
-        </div>
-    </div>
-
-    <!-- body -->
-    <div class="rk-overview-body rk-overview-body-comp">
-
-        <div class="rk-column-stack rk-column-stack-full">
-            <div class="row g-3">
-                <div class="col-sm-6">
-                    <div class="rk-summary-card h-100">
-                <div class="rk-summary-header">
-                    <strong>Summary</strong>
-
-                </div>
-
-                <div class="rk-summary-content">
-                    <div class="rk-summary-row">
-                        <div>
-                            <label>Name</label>
-                            <p>{{ $lead->first_name.' '.$lead->last_name}}</p>
-                        </div>
-
-
-                        <div>
-                            <label>Email</label>
-                            <p>{{ $lead->email ?? '—' }}</p>
-                        </div>
-
-                        <div>
-                            <label>Mobile</label>
-                            <p>{{ $lead->phone ?? '—' }}</p>
-                        </div>
-                    </div>
-
-                    <div class="rk-summary-row">
-                        <div>
-                            <label>Address</label>
-                            <p>{{ trim(implode(', ', array_filter([
-    					$lead->address,
-    					$lead->suburb,
-    					$lead->state ? $lead->state . ' ' . $lead->postcode : $lead->postcode,
-    				]))); }}</p>
-                        </div>
-
-
-                        <div>
-                            <label>Roof Type</label>
-                            <p>{{ $lead->roof_type ?? '-' }}</p>
-                            <!-- <p class="rk-link">Click to add</p> -->
-                        </div>
-
-                        <div>
-                            <label>Eligible for Rebate</label>
-                            <p>{{ $lead->elogible_for_rebate ?? '-' }}</p>
-                            <!-- <p class="rk-link">Click to add</p> -->
-                        </div>
-
-                        <div>
-                            <label>Source</label>
-                            <p>{{ $lead->leadSource->source ?? '-' }}</p>
-                        </div>
-
-                        <div>
-                            <label>Category</label>
-                            <?php
-                            $html = '<strong class="text-dark">'.($lead->category ?? '').'</strong>';
-    			
-                            // Solar KW condition
-                            if (
-                                in_array($lead->category, ['Solar', 'Solar+Battery']) &&
-                                !empty($lead->solar_kw)
-                            ) {
-                                $html .= ' &nbsp;|&nbsp; Solar KW: 
-                                    <strong class="text-dark">'.$lead->solar_kw.'</strong>';
-                            }
-                        
-                            // Battery KW condition
-                            if (
-                                in_array($lead->category, ['Battery', 'Solar+Battery']) &&
-                                !empty($lead->battery_kw)
-                            ) {
-                                $html .= ' &nbsp;|&nbsp; Battery KW: 
-                                    <strong class="text-dark">'.$lead->battery_kw.'</strong>';
-                            }
-
-                            ?>
-                            <p>{!! $html ?? '-' !!}</p>
-                        </div>
-
-
-                        <div>
-                            <label>Rejection Url</label>
-
-                            @if(!empty($lead->rejection_url))
-                            <a href="{{ $lead->rejection_url }}" target="_blank" onclick="return confirm('Are you sure?');">
-                                <p class="rk-link" style="color:red">Rejection Url</p>
-                            </a>
-                            @else
-                            <p class="text-muted">—</p>
-                            @endif
-                        </div>
-                    </div>
-
-                    <div class="rk-summary-row">
-                        <div>
-                            <label>Sales owner</label>
-                            <p>{{ $lead->getAssignUserName->name ?? 'Not Assign Yet' }}</p>
-                        </div>
-
-                        <div>
-                            <label>Created At</label>
-                            <p>{{ $lead->created_at}}</p>
-                        </div>
-                    </div>
-
-
-                </div>
-                    </div>
-                </div>
-
-                @if($hasPreviousDistributorData)
-                <div class="col-sm-6">
-                    <div class="rk-summary-card h-100">
-                <div class="rk-summary-header">
-                    <strong>Distributor & VIC Rebate Details</strong>
-                </div>
-
-                <div class="rk-summary-content">
-                    <div class="rk-summary-row">
-                        <div>
-                            <label>Approval Required</label>
-                            <p>{{ $approvalRequiredValue ?: '-' }}</p>
-                        </div>
-
-                        <div>
-                            <label>Distributor</label>
-                            <p>{{ $distributorNameValue ?: '-' }}</p>
-                        </div>
-
-                        <div>
-                            <label>Existing System</label>
-                            <p>{{ $existingSystemValue ?: '-' }}</p>
-                        </div>
-                    </div>
-
-                    <div class="rk-summary-row">
-                        <div>
-                            <label>Meter Number</label>
-                            <p>{{ $meterNumberValue ?: '-' }}</p>
-                        </div>
-
-                        <div>
-                            <label>NMI Number</label>
-                            <p>{{ $nmiNumberValue ?: '-' }}</p>
-                        </div>
-
-                        <!-- <div>
-                            <label>Photos Required</label>
-                            <p>{{ $photosRequiredValue ?: '-' }}</p>
-                        </div> -->
-                    </div>
-
-                    <div class="rk-summary-row">
-                        <!-- <div>
-                            <label>Distributor Step</label>
-                            <p>Applied</p>
-                        </div> -->
-
-                        <div>
-                            <label>Approval File</label>
-                            @if($approvalFileUrl)
-                            <a href="{{ $approvalFileUrl }}" target="_blank" class="rk-link">{{ $approvalFileName }}</a>
-                            @else
-                            <p>—</p>
-                            @endif
-                        </div>
-                    </div>
-
-                    <div class="rk-mini-bordered-box">
-                        <div class="rk-mini-bordered-title">Compliance Details</div>
-                        <div class="rk-summary-row mb-0">
-                            <div>
-                                <label>Job Type</label>
-                                <p>{{ $complianceJobTypeValue ?: '-' }}</p>
-                            </div>
-
-                            <div>
-                                <label>Phase Type</label>
-                                <p>{{ $compliancePhaseTypeValue ?: '-' }}</p>
-                            </div>
-
-                            <div>
-                                <label>Storey Type</label>
-                                <p>{{ $complianceStoreyValue ?: '-' }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                    </div>
-                </div>
-                @endif
-
-                <div class="col-sm-6">
-                    <div class="rk-notes-card h-100">
-
-                    <form method="POST" action="{{ route('admin.noteStore') }}">
-                        @csrf
-                        <input type="hidden" name="lead_id" value="{{ $lead->id }}">
-                        <textarea name="note" class="rk-note-input" placeholder="Add a note..." required></textarea>
-                        <button type="submit" class="badge bg-success me-1">Save</button>
-                    </form>
-
-                    <div class="rk-notes-list">
-
-
-                        @forelse($lead->leadNotes as $note)
-                        <div class="rk-note-item">
-                            <p>{{ $note->note }}</p>
-                            <span>
-                                {{ @$note->creator->name ?? 'System' }} ·
-                                {{ optional($note->created_at)->format('D d M, Y') }}
-                            </span>
-                        </div>
-                        @empty
-                        <div class="rk-note-empty">
-                            <p>No notes found</p>
-                        </div>
-                        @endforelse
-
-
-
-
-
-                    </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- ================= ATTACHMENTS ================= --}}
-            <div class="col-sm-6">
-            <div class="rk-files-card card rk-attachments-card h-100">
-            <div class="rk-files-header">
-                <h6 class="mb-0"><strong>Attachments ({{$lead->images->count()}})</strong></h6>
-
-                <div class="d-flex align-items-center gap-2">
-                    <button id="addFileBtn" type="button" class="btn btn-sm btn-outline-primary">
-                        + Add Files
-                    </button>
-                </div>
-
-                <input type="file" id="fileInput" hidden>
-            </div>
-            <div class="px-3 pt-2">
-                <small class="text-muted selected-file-name">No file selected</small>
-            </div>
-
-            <ul class="rk-attach-list">
-
-                @forelse($lead->images as $file)
-
-                @php
-                // remove admin/ from path if exists
-                $fileUrl = preg_replace('/^admin\//', '', $file->image_path);
-
-                // final URL (adjust if using storage)
-                $fullUrl = asset($fileUrl);
-                @endphp
-
-                <li class="rk-attach-item">
-
-                    {{-- file link --}}
-                    <a href="{{ $fullUrl }}" target="_blank" class="rk-attach-link">
-                        📎 {{ basename($file->image_path) }}
-                    </a>
-
-                    {{-- delete button --}}
-                    <a href="javascript:void(0)" class="text-danger delete-lead-image" data-id="{{ $file->id }}"
-                        data-tble="lead_images" title="Delete">
-                        <i class="fa fa-trash"></i> Delete
-                    </a>
-
-                </li>
-
-                @empty
-
-                <li class="rk-attach-empty">
-                    No attachments found
-                </li>
-
-                @endforelse
-
-            </ul>
-            </div>
-            </div>
-        </div>
-    </div>
-
-
-</div>
-<div class="modal fade" id="vicWorkflowModal" tabindex="-1" aria-labelledby="vicWorkflowModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content rk-vic-modal">
-            <div class="modal-header rk-vic-modal-header">
-                <div>
-                    <h4 class="modal-title" id="vicWorkflowModalLabel">Compliance Check - Job #{{ $lead->id }}</h4>
-                    <p>{{ trim(($lead->first_name ?? '').' '.($lead->last_name ?? '')) ?: 'Customer' }}</p>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <div class="modal-body rk-vic-modal-body">
-                <div class="rk-vic-modal-top">
-                    <div class="rk-vic-steps">
-                        <button type="button" class="rk-vic-step {{ $activeVicPane === 'checklist' ? 'active' : '' }}" data-step="checklist">Checklist</button>
-                        <button type="button" class="rk-vic-step {{ $activeVicPane === 'documents' ? 'active' : '' }}" data-step="documents">Documents</button>
-                        <button type="button" class="rk-vic-step {{ $activeVicPane === 'rfi' ? 'active' : '' }}" data-step="rfi">RFI</button>
-                    </div>
-                </div>
-
-                <div class="rk-vic-pane {{ $activeVicPane === 'checklist' ? 'active' : '' }}" data-pane="checklist">
-                    <div class="rk-vic-info-card">
-                        <div class="rk-vic-info-icon">!</div>
-                        <div>
-                            <h5>Compliance Check</h5>
-                            <p>Review the key job details captured in the preview popup and mark this lead ready for compliance processing.</p>
-                        </div>
-                    </div>
-
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="rk-vic-field-group mb-0">
-                                <label for="complianceJobType">Job Type *</label>
-                                <select id="complianceJobType" class="form-select rk-vic-select-focus">
-                                    <option value="Solar Only" {{ $complianceJobTypeValue === 'Solar Only' ? 'selected' : '' }}>Solar Only</option>
-                                    <option value="Battery Only" {{ $complianceJobTypeValue === 'Battery Only' ? 'selected' : '' }}>Battery Only</option>
-                                    <option value="Solar + Battery" {{ $complianceJobTypeValue === 'Solar + Battery' ? 'selected' : '' }}>Solar + Battery</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6 rk-compliance-field rk-compliance-common-field">
-                            <div class="rk-vic-field-group mb-0">
-                                <label for="complianceBillCopy">Electricity Bill Copy or NMI received?</label>
-                                <select id="complianceBillCopy" class="form-select">
-                                    <option value="">Select</option>
-                                    <option value="Yes" {{ $complianceBillCopyValue === 'Yes' ? 'selected' : '' }}>Yes</option>
-                                    <option value="No" {{ $complianceBillCopyValue === 'No' ? 'selected' : '' }}>No</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6 rk-compliance-field rk-compliance-common-field">
-                            <div class="rk-vic-field-group mb-0">
-                                <label for="compliancePhaseType">Single Phase or Three Phase *</label>
-                                <select id="compliancePhaseType" class="form-select">
-                                    <option value="">Select</option>
-                                    <option value="Single Phase" {{ $compliancePhaseTypeValue === 'Single Phase' ? 'selected' : '' }}>Single Phase</option>
-                                    <option value="Three Phase" {{ $compliancePhaseTypeValue === 'Three Phase' ? 'selected' : '' }}>Three Phase</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6 rk-compliance-field rk-compliance-battery-field">
-                            <div class="rk-vic-field-group mb-0">
-                                <label for="complianceCouplingType">Job is AC Couple or DC Couple *</label>
-                                <select id="complianceCouplingType" class="form-select">
-                                    <option value="">Select</option>
-                                    <option value="AC Couple" {{ $complianceCouplingTypeValue === 'AC Couple' ? 'selected' : '' }}>AC Couple</option>
-                                    <option value="DC Couple" {{ $complianceCouplingTypeValue === 'DC Couple' ? 'selected' : '' }}>DC Couple</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6 rk-compliance-field rk-compliance-battery-field">
-                            <div class="rk-vic-field-group mb-0">
-                                <label for="complianceBatteryAccess">Photo of area showing clear access to battery location</label>
-                                <select id="complianceBatteryAccess" class="form-select">
-                                    <option value="">Select</option>
-                                    <option value="Yes" {{ $complianceBatteryAccessValue === 'Yes' ? 'selected' : '' }}>Yes</option>
-                                    <option value="No" {{ $complianceBatteryAccessValue === 'No' ? 'selected' : '' }}>No</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6 rk-compliance-field rk-compliance-battery-field">
-                            <div class="rk-vic-field-group mb-0">
-                                <label for="compliancePivotSlab">Pivot Slab required? *</label>
-                                <select id="compliancePivotSlab" class="form-select">
-                                    <option value="">Select</option>
-                                    <option value="Yes" {{ $compliancePivotSlabValue === 'Yes' ? 'selected' : '' }}>Yes</option>
-                                    <option value="No" {{ $compliancePivotSlabValue === 'No' ? 'selected' : '' }}>No</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6 rk-compliance-field rk-compliance-battery-field">
-                            <div class="rk-vic-field-group mb-0">
-                                <label for="complianceBatteryInstall">Photo of area where battery is going to be installed</label>
-                                <select id="complianceBatteryInstall" class="form-select">
-                                    <option value="">Select</option>
-                                    <option value="Yes" {{ $complianceBatteryInstallValue === 'Yes' ? 'selected' : '' }}>Yes</option>
-                                    <option value="No" {{ $complianceBatteryInstallValue === 'No' ? 'selected' : '' }}>No</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6 rk-compliance-field rk-compliance-battery-field">
-                            <div class="rk-vic-field-group mb-0">
-                                <label for="complianceBackupRequirement">What backup they require? *</label>
-                                <input type="text" id="complianceBackupRequirement" class="form-control" value="{{ $complianceBackupValue }}" placeholder="Enter backup requirement">
-                            </div>
-                        </div>
-                        <div class="col-md-6 rk-compliance-field rk-compliance-common-field">
-                            <div class="rk-vic-field-group mb-0">
-                                <label for="compliancePlanView">Photo of a plan view (from above)</label>
-                                <select id="compliancePlanView" class="form-select">
-                                    <option value="">Select</option>
-                                    <option value="Yes" {{ $compliancePlanViewValue === 'Yes' ? 'selected' : '' }}>Yes</option>
-                                    <option value="No" {{ $compliancePlanViewValue === 'No' ? 'selected' : '' }}>No</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6 rk-compliance-field rk-compliance-common-field">
-                            <div class="rk-vic-field-group mb-0">
-                                <label for="complianceStoreyType">Single Storey or Double Storey *</label>
-                                <select id="complianceStoreyType" class="form-select">
-                                    <option value="">Select</option>
-                                    <option value="Single Storey" {{ $complianceStoreyValue === 'Single Storey' ? 'selected' : '' }}>Single Storey</option>
-                                    <option value="Double Storey" {{ $complianceStoreyValue === 'Double Storey' ? 'selected' : '' }}>Double Storey</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="rk-compliance-dynamic-hint" id="complianceJobTypeHint"></div>
-
-                    <div class="rk-vic-field-group">
-                        <label for="complianceNotes">Notes</label>
-                        <textarea id="complianceNotes" class="form-control rk-vic-textarea" rows="4" placeholder="Add any compliance notes for this job">{{ $complianceNotesValue }}</textarea>
-                    </div>
-                </div>
-
-                <div class="rk-vic-pane {{ $activeVicPane === 'documents' ? 'active' : '' }}" data-pane="documents">
-                    <div class="rk-vic-doc-card">
-                        <div>
-                            <h5>Upload Documents</h5>
-                            <p>Use the same lead attachments area for compliance files like plans, photos, electricity bills, and supporting paperwork.</p>
-                            <small class="text-muted selected-file-name d-block">No file selected</small>
-                        </div>
-                        <button type="button" class="rk-vic-primary-btn rk-vic-inline-btn" id="complianceUploadBtn">Upload Documents</button>
-                    </div>
-
-                    <div class="rk-vic-doc-grid">
-                        <div class="rk-vic-action-card">
-                            <div>
-                                <strong>Uploaded Documents</strong>
-                                <p>{{ $lead->images->count() }} file(s) currently attached to this lead.</p>
-                            </div>
-                            <span class="badge bg-light text-dark">{{ $lead->images->count() }} files</span>
-                        </div>
-
-                        <div class="rk-vic-action-card">
-                            <div>
-                                <strong>Suggested Uploads</strong>
-                                <p>Electricity bill, plan view, battery area photos, switchboard photos, and any installer notes.</p>
-                            </div>
-                            <span class="badge bg-light text-dark">Checklist</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="rk-vic-pane {{ $activeVicPane === 'rfi' ? 'active' : '' }}" data-pane="rfi">
-                    <div class="rk-vic-info-card rk-vic-rfi-card">
-                        <div class="rk-vic-info-icon">!</div>
-                        <div>
-                            <h5>Request For Information</h5>
-                            <p>Send a Request for Information (RFI) to the sales rep if any documents or information is missing.</p>
-                        </div>
-                    </div>
-
-                    <div class="rk-vic-field-group">
-                        <label for="complianceRfiMessage">RFI Message</label>
-                        <textarea id="complianceRfiMessage" class="form-control rk-vic-textarea" rows="6" placeholder="Describe the missing information or documents">{{ $complianceRfiMessageValue }}</textarea>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer rk-vic-modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveVicWorkflowBtn">Mark as Complete</button>
-            </div>
-        </div>
-    </div>
-</div>
-@include('admin.leads._email_modal',['emailTemplates'=>$emailTemplates])
-@include('admin.leads._edit_modal')
-@include('admin.leads.call_logs')
+@section('styles')
+@parent
 <style>
 .rk-notes-list {
     height: 250px;
@@ -1303,7 +647,1162 @@ $stages = $vicWorkflowStatuses;
     }
 }
 
+/* ===== common glossy detail layout ===== */
+.content-inner {
+    background:
+        radial-gradient(circle at 10% 0%, rgba(81, 183, 216, 0.18), transparent 28%),
+        radial-gradient(circle at 92% 10%, rgba(54, 179, 126, 0.16), transparent 24%),
+        linear-gradient(180deg, rgba(23, 105, 170, 0.05), transparent 260px),
+        #f4f8fb;
+    padding: 12px !important;
+    max-height: calc(100vh - 3.75rem);
+    overflow-x: hidden;
+    overflow-y: auto !important;
+    scroll-behavior: smooth;
+}
+
+.content-wrapper {
+    min-height: 0;
+    overflow: hidden;
+}
+
+.rk-overview-wrapper {
+    position: relative;
+    overflow: visible;
+    padding: 0 0 18px;
+    background: transparent;
+    color: #102033;
+}
+
+.rk-overview-wrapper::before {
+    content: "";
+    position: absolute;
+    top: -80px;
+    right: 5%;
+    width: 300px;
+    height: 160px;
+    background: url("{{ asset('logo.png') }}") center/contain no-repeat;
+    opacity: 0.055;
+    filter: drop-shadow(0 0 34px rgba(23, 105, 170, 0.42));
+    pointer-events: none;
+}
+
+.rk-overview-header,
+.rk-lifecycle-box,
+.rk-summary-card,
+.rk-notes-card,
+.rk-files-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(23, 105, 170, 0.14);
+    border-radius: 8px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 252, 255, 0.98)),
+        radial-gradient(circle at 0% 0%, rgba(81, 183, 216, 0.18), transparent 30%),
+        radial-gradient(circle at 100% 8%, rgba(246, 180, 69, 0.12), transparent 24%);
+    box-shadow: 0 18px 44px rgba(16, 32, 51, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.rk-overview-header::before,
+.rk-lifecycle-box::before,
+.rk-summary-card::before,
+.rk-notes-card::before,
+.rk-files-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, #1769aa, #36b37e, #f6b445, #db2777);
+    z-index: 1;
+}
+
+.rk-overview-header {
+    min-height: 96px;
+    gap: 16px;
+    margin-bottom: 12px;
+    padding: 18px;
+    border-radius: 8px;
+    background:
+        linear-gradient(135deg, rgba(16, 32, 51, 0.97), rgba(23, 105, 170, 0.92) 48%, rgba(54, 179, 126, 0.9)),
+        url("{{ asset('vendor/images/demo/cover3.jpg') }}") center/cover no-repeat;
+    color: #ffffff;
+}
+
+.rk-overview-header::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 78% 48%, rgba(255, 255, 255, 0.34), transparent 24%),
+        linear-gradient(90deg, rgba(255,255,255,0.08), transparent 44%, rgba(255,255,255,0.16));
+    pointer-events: none;
+}
+
+.rk-overview-header > * {
+    position: relative;
+    z-index: 2;
+}
+
+.rk-overview-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+}
+
+.rk-lead-avatar {
+    display: inline-flex;
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #ffffff;
+    background: linear-gradient(135deg, #36b37e, #51b7d8);
+    border: 2px solid rgba(255, 255, 255, 0.55);
+    font-size: 20px;
+    font-weight: 900;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38), 0 16px 30px rgba(4, 18, 32, 0.28);
+}
+
+.rk-overview-kicker,
+.rk-overview-subtitle,
+.rk-overview-title {
+    color: #fff;
+}
+
+.rk-overview-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 3px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.rk-overview-kicker i {
+    color: #f6b445;
+}
+
+.rk-overview-title {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 0;
+}
+
+.rk-overview-subtitle {
+    margin: 4px 0 0;
+    color: rgba(255, 255, 255, 0.76);
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.rk-action-tabs {
+    justify-content: flex-end;
+    margin: 0;
+}
+
+.rk-action-tabs .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 36px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.28) !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    font-size: 12px;
+    font-weight: 850;
+    backdrop-filter: blur(8px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26), 0 10px 22px rgba(4, 18, 32, 0.16);
+}
+
+.rk-action-tabs .btn svg {
+    width: 16px;
+    height: 16px;
+    margin-right: 0 !important;
+}
+
+.rk-action-tabs .btn:hover {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.rk-lifecycle-box {
+    margin-bottom: 12px;
+    padding: 14px;
+}
+
+.rk-lifecycle-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 11px;
+}
+
+.rk-lifecycle-label,
+.rk-lifecycle-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-weight: 850;
+}
+
+.rk-lifecycle-label {
+    color: #52667c;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.rk-lifecycle-label i {
+    color: #1769aa;
+    font-size: 17px;
+}
+
+.rk-lifecycle-value {
+    min-height: 30px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(54, 179, 126, 0.22);
+    background: linear-gradient(180deg, #ffffff, #f1fbf7);
+    color: #268765;
+    font-size: 12px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 9px 20px rgba(54, 179, 126, 0.12);
+}
+
+.rk-pipeline {
+    gap: 7px;
+    padding: 7px;
+    background: rgba(232, 242, 249, 0.76);
+    border: 1px solid rgba(23, 105, 170, 0.1);
+}
+
+.rk-stage {
+    border-radius: 8px;
+    padding: 9px 13px;
+    background: linear-gradient(180deg, #ffffff, #edf7fa);
+    color: #52667c;
+    border: 1px solid rgba(23, 105, 170, 0.12);
+    font-weight: 800;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 8px 18px rgba(16, 32, 51, 0.05);
+}
+
+.rk-stage::after {
+    display: none;
+}
+
+.rk-stage:not(:first-child) {
+    margin-left: 0;
+}
+
+.rk-stage.active {
+    background: linear-gradient(135deg, #1769aa, #36b37e);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34), 0 12px 26px rgba(23, 105, 170, 0.2);
+}
+
+.rk-summary-header,
+.rk-notes-header,
+.rk-files-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 46px;
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(23, 105, 170, 0.1);
+    background: linear-gradient(135deg, rgba(232, 246, 255, 0.78), rgba(232, 250, 246, 0.76));
+}
+
+.rk-summary-header strong,
+.rk-notes-header strong,
+.rk-files-header strong {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #102033;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.rk-summary-row > div {
+    min-height: 74px;
+    padding: 12px;
+    border: 1px solid rgba(23, 105, 170, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.84);
+}
+
+.rk-summary-row label {
+    display: block;
+    margin-bottom: 5px;
+    color: #7a8ea3;
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.rk-summary-row p {
+    margin: 0;
+    color: #102033;
+    font-size: 13px;
+    font-weight: 850;
+}
+
+.rk-notes-card {
+    padding: 0;
+}
+
+.rk-notes-card form {
+    padding: 14px;
+}
+
+.rk-note-input {
+    min-height: 86px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.76);
+}
+
+.rk-notes-list {
+    height: 260px;
+    padding: 0 14px 14px;
+}
+
+.rk-note-item {
+    margin-bottom: 8px;
+    padding: 12px;
+    border: 1px solid rgba(23, 105, 170, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.72);
+}
+
+.rk-files-card {
+    margin-top: 0;
+}
+
+.rk-attachments-card {
+    padding: 0;
+}
+
+.rk-attach-list {
+    max-height: 280px;
+    padding: 12px 14px;
+}
+
+.rk-attach-item {
+    padding: 10px 0;
+    border-bottom: 1px dashed rgba(23, 105, 170, 0.16);
+}
+
+.rk-attach-link {
+    color: #102033;
+    font-weight: 750;
+}
+
+.rk-vic-modal {
+    width: min(820px, 100vw) !important;
+    border: 0;
+    border-radius: 0;
+    color: #102033;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 252, 255, 0.96)),
+        radial-gradient(circle at 12% 0%, rgba(45, 133, 255, 0.18), transparent 28%);
+    box-shadow: -24px 0 70px rgba(13, 44, 82, 0.24);
+}
+
+.rk-vic-modal:before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 12% 4%, rgba(255, 255, 255, 0.92), transparent 16%),
+        radial-gradient(circle at 90% 12%, rgba(43, 130, 255, 0.2), transparent 24%),
+        linear-gradient(135deg, rgba(22, 105, 170, 0.08), rgba(54, 179, 126, 0.08));
+}
+
+.rk-vic-modal-header {
+    position: relative;
+    padding: 28px 30px 24px;
+    color: #fff;
+    background: linear-gradient(135deg, #0b376d 0%, #1769aa 48%, #16a085 100%);
+    box-shadow: 0 16px 34px rgba(23, 105, 170, 0.22);
+}
+
+.rk-vic-modal-header:after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(120deg, rgba(255, 255, 255, 0.22), transparent 34%),
+        radial-gradient(circle at 88% 18%, rgba(255, 214, 102, 0.28), transparent 24%);
+    pointer-events: none;
+}
+
+.rk-vic-modal-header > *,
+.rk-vic-modal-body,
+.rk-vic-modal-footer {
+    position: relative;
+    z-index: 1;
+}
+
+.rk-vic-offcanvas-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 10px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.rk-vic-modal-header h4 {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.rk-vic-modal-header p {
+    color: rgba(255, 255, 255, 0.76);
+}
+
+.rk-vic-offcanvas-close {
+    filter: invert(1) grayscale(1) brightness(2);
+    opacity: 0.9;
+}
+
+.rk-vic-modal-body {
+    padding: 24px 30px;
+}
+
+.rk-vic-steps,
+.rk-vic-info-card,
+.rk-vic-doc-card,
+.rk-vic-action-card,
+.rk-compliance-dynamic-hint {
+    border: 1px solid rgba(23, 105, 170, 0.12);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(248, 252, 255, 0.92));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 12px 26px rgba(16, 32, 51, 0.06);
+}
+
+.rk-vic-step.active,
+.rk-vic-primary-btn,
+.rk-vic-modal-footer .btn-primary {
+    background: linear-gradient(135deg, #1769aa, #36b37e);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 12px 24px rgba(23, 105, 170, 0.18);
+}
+
+.rk-vic-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 30px 24px;
+    border-top: 1px solid rgba(23, 105, 170, 0.12);
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(12px);
+}
+
+@media (max-width: 768px) {
+    .rk-overview-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .rk-action-tabs {
+        justify-content: flex-start;
+        width: 100%;
+    }
+}
+
 </style>
+@endsection
+
+@extends('layouts.super')
+
+@section('title', 'Leads')
+
+@section('content')
+
+@php
+
+
+$lead->status = $lead->status == 'Sold' ? 'Not Applied' : $lead->status;
+
+// example — replace with your real status
+$currentStatus = $lead->status ?? 'New';
+$leadName = trim(($lead->first_name ?? '').' '.($lead->last_name ?? '')) ?: 'Lead';
+$leadInitial = strtoupper(substr(trim($lead->first_name ?: $lead->last_name ?: $leadName), 0, 1));
+$approvalRequiredValue = $leadMeta['distributor_approval_required'] ?? 'Yes';
+$distributorNameValue = $leadMeta['distributor_name'] ?? '';
+$existingSystemValue = $leadMeta['existing_system'] ?? '';
+$meterNumberValue = $leadMeta['meter_number'] ?? '';
+$nmiNumberValue = $leadMeta['nmi_number'] ?? '';
+$photosRequiredValue = $leadMeta['photos_required'] ?? '';
+$approvalFileUrl = $leadMeta['distributor_approval_file'] ?? '';
+$approvalFileName = $approvalFileUrl ? basename(parse_url($approvalFileUrl, PHP_URL_PATH)) : 'No file selected';
+$hasPreviousDistributorData = $approvalRequiredValue !== '' || $distributorNameValue !== '' || $existingSystemValue !== '' || $meterNumberValue !== '' || $nmiNumberValue !== '' || $photosRequiredValue !== '' || $approvalFileUrl !== '';
+$complianceJobTypeValue = $leadMeta['compliance_job_type'] ?? ($lead->category === 'Solar+Battery' ? 'Solar + Battery' : ($lead->category === 'Battery' ? 'Battery Only' : 'Solar Only'));
+$complianceBillCopyValue = $leadMeta['compliance_bill_copy_received'] ?? '';
+$compliancePhaseTypeValue = $leadMeta['compliance_phase_type'] ?? '';
+$complianceCouplingTypeValue = $leadMeta['compliance_coupling_type'] ?? '';
+$complianceBatteryAccessValue = $leadMeta['compliance_battery_access_photo'] ?? '';
+$compliancePivotSlabValue = $leadMeta['compliance_pivot_slab_required'] ?? '';
+$complianceBatteryInstallValue = $leadMeta['compliance_battery_install_photo'] ?? '';
+$complianceBackupValue = $leadMeta['compliance_backup_requirement'] ?? '';
+$compliancePlanViewValue = $leadMeta['compliance_plan_view_photo'] ?? '';
+$complianceStoreyValue = $leadMeta['compliance_storey_type'] ?? '';
+$complianceNotesValue = $leadMeta['compliance_notes'] ?? '';
+$complianceRfiMessageValue = $leadMeta['compliance_rfi_message'] ?? '';
+$vicWorkflowStatuses = [
+    'COMPLIANCE NOT APPLIED' => 'Not Applied',
+    'COMPLIANCE AWAITING APPROVAL' => 'Awaiting Approval',
+];
+
+if (!empty($lead->status) && !array_key_exists($lead->status, $vicWorkflowStatuses)) {
+    $vicWorkflowStatuses[$lead->status] = ucwords(strtolower(str_replace('_', ' ', $lead->status)));
+}
+
+$currentVicWorkflowStatus = !empty($lead->status)
+    ? $lead->status
+    : 'COMPLIANCE NOT APPLIED';
+$activeVicPane = $currentVicWorkflowStatus === 'COMPLIANCE AWAITING APPROVAL' ? 'documents' : 'checklist';
+@endphp
+
+@php
+$stages = $vicWorkflowStatuses;
+
+@endphp
+
+<div class="rk-overview-wrapper">
+
+    <!-- header -->
+    <div class="rk-overview-header">
+        <div class="rk-overview-title-wrap">
+            <span class="rk-lead-avatar">{{ $leadInitial }}</span>
+            <div>
+                <span class="rk-overview-kicker"><i class="ph ph-shield-check"></i> Compliance check</span>
+                <h3 class="rk-overview-title">Overview #{{$lead->id}}</h3>
+                <p class="rk-overview-subtitle">{{ $leadName }} · {{ $lead->leadSource->source ?? 'Direct lead' }}</p>
+            </div>
+        </div>
+        <div class="rk-action-tabs">
+
+            @can('lead_email_access')
+            <button class="btn btn-outline-primary send_email_inner" data-bs-toggle="offcanvas"
+                data-bs-target="#emailModel" aria-controls="emailModel"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" class="lucide lucide-mail h-4 w-4 mr-2"
+                    data-lov-id="src/components/leads/LeadDetailModal.tsx:226:14" data-lov-name="Mail"
+                    data-component-path="src/components/leads/LeadDetailModal.tsx" data-component-line="226"
+                    data-component-file="LeadDetailModal.tsx" data-component-name="Mail"
+                    data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D">
+                    <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                </svg> Send Email</button>
+
+            @endcan
+
+            @can('lead_call_log')
+            <button class="btn btn-outline-warning view-lead" data-bs-toggle="offcanvas" data-bs-target="#leadDetailsModal" aria-controls="leadDetailsModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-phone h-4 w-4 mr-2"
+                    data-lov-id="src/components/leads/LeadDetailModal.tsx:238:14" data-lov-name="Phone"
+                    data-component-path="src/components/leads/LeadDetailModal.tsx" data-component-line="238"
+                    data-component-file="LeadDetailModal.tsx" data-component-name="Phone"
+                    data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D">
+                    <path
+                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                    </path>
+                </svg> Log Call</button>
+            @endcan
+            @can('lead_generate_quote')
+            @if(!$lead->project_id)
+            <button class="btn btn-outline-success generateQuote"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text h-4 w-4 mr-2"
+                    data-lov-id="src/components/leads/LeadDetailModal.tsx:245:14" data-lov-name="FileText"
+                    data-component-path="src/components/leads/LeadDetailModal.tsx" data-component-line="245"
+                    data-component-file="LeadDetailModal.tsx" data-component-name="FileText"
+                    data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D">
+                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                    <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                    <path d="M10 9H8"></path>
+                    <path d="M16 13H8"></path>
+                    <path d="M16 17H8"></path>
+                </svg> Generate Quote</button>
+            @endif
+            @endcan
+            <button data-lead='@json($lead)' class="btn btn-outline-danger edit_lead"
+                data-bs-toggle="offcanvas" data-bs-target="#editlead" aria-controls="editlead">
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-file-text h-4 w-4 mr-2"
+                    data-lov-id="src/components/leads/LeadDetailModal.tsx:245:14" data-lov-name="FileText"
+                    data-component-path="src/components/leads/LeadDetailModal.tsx" data-component-line="245"
+                    data-component-file="LeadDetailModal.tsx" data-component-name="FileText"
+                    data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D">
+                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                    <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                    <path d="M10 9H8"></path>
+                    <path d="M16 13H8"></path>
+                    <path d="M16 17H8"></path>
+                </svg>Edit Lead</button>
+
+            <button type="button" class="btn btn-outline-primary vic-workflow-trigger"
+                data-bs-toggle="offcanvas" data-bs-target="#vicWorkflowModal" aria-controls="vicWorkflowModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-git-branch h-4 w-4 mr-2">
+                    <path d="M6 3v12"></path>
+                    <path d="M18 9a3 3 0 1 0-3-3"></path>
+                    <path d="M6 15a3 3 0 1 0 3 3"></path>
+                    <path d="M18 6V5"></path>
+                    <path d="M6 15c0-3 2-5 5-5h7"></path>
+                </svg>Compliance</button>
+
+            <!-- <div class="rk-action-tab">
+                <a href="javascript:;" class="edit_lead" data-lead='@json($lead)' data-bs-toggle="offcanvas"
+                    data-bs-target="#editlead">Edit Lead</a>
+            </div> -->
+
+            <!-- <div class="rk-action-tab">
+                <a href="javascript:;" class="edit_lead" data-lead='@json($lead)' data-bs-toggle="offcanvas"
+                    data-bs-target="#editlead">Generate Quote</a>
+            </div> -->
+        </div>
+    </div>
+
+    <!-- lifecycle -->
+    <div class="rk-lifecycle-box">
+        <div class="rk-lifecycle-top">
+            <span class="rk-lifecycle-label"><i class="ph ph-chart-line-up"></i> Life-cycle stage</span>
+            <span class="rk-lifecycle-value"><i class="ph ph-circle-wavy-check"></i> {{ $vicWorkflowStatuses[$currentVicWorkflowStatus] ?? $currentStatus }}</span>
+        </div>
+
+        <!-- ✅ HUBSPOT PIPELINE -->
+        <div class="rk-pipeline">
+            @foreach($stages as $stageValue => $stageLabel)
+            <div class="rk-stage {{ $currentVicWorkflowStatus == $stageValue ? 'active' : '' }}"
+                onclick="changeLeadStatus('{{ $stageValue }}')">
+                {{ $stageLabel }}
+            </div>
+            @endforeach
+            <form id="statusForm" method="POST" action="{{ route('superadmin.updateLeadStatusNew') }}">
+                @csrf
+                <input type="hidden" name="id" value="{{ $lead->id }}">
+                <input type="hidden" name="status" id="statusInput">
+            </form>
+        </div>
+    </div>
+
+    <!-- body -->
+    <div class="rk-overview-body rk-overview-body-comp">
+
+        <div class="rk-column-stack rk-column-stack-full">
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <div class="rk-summary-card h-100">
+                <div class="rk-summary-header">
+                    <strong><i class="ph ph-user-circle"></i> Summary</strong>
+
+                </div>
+
+                <div class="rk-summary-content">
+                    <div class="rk-summary-row">
+                        <div>
+                            <label>Name</label>
+                            <p>{{ $lead->first_name.' '.$lead->last_name}}</p>
+                        </div>
+
+
+                        <div>
+                            <label>Email</label>
+                            <p>{{ $lead->email ?? '—' }}</p>
+                        </div>
+
+                        <div>
+                            <label>Mobile</label>
+                            <p>{{ $lead->phone ?? '—' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="rk-summary-row">
+                        <div>
+                            <label>Address</label>
+                            <p>{{ trim(implode(', ', array_filter([
+    					$lead->address,
+    					$lead->suburb,
+    					$lead->state ? $lead->state . ' ' . $lead->postcode : $lead->postcode,
+    				]))); }}</p>
+                        </div>
+
+
+                        <div>
+                            <label>Roof Type</label>
+                            <p>{{ $lead->roof_type ?? '-' }}</p>
+                            <!-- <p class="rk-link">Click to add</p> -->
+                        </div>
+
+                        <div>
+                            <label>Eligible for Rebate</label>
+                            <p>{{ $lead->elogible_for_rebate ?? '-' }}</p>
+                            <!-- <p class="rk-link">Click to add</p> -->
+                        </div>
+
+                        <div>
+                            <label>Source</label>
+                            <p>{{ $lead->leadSource->source ?? '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label>Category</label>
+                            <?php
+                            $html = '<strong class="text-dark">'.($lead->category ?? '').'</strong>';
+    			
+                            // Solar KW condition
+                            if (
+                                in_array($lead->category, ['Solar', 'Solar+Battery']) &&
+                                !empty($lead->solar_kw)
+                            ) {
+                                $html .= ' &nbsp;|&nbsp; Solar KW: 
+                                    <strong class="text-dark">'.$lead->solar_kw.'</strong>';
+                            }
+                        
+                            // Battery KW condition
+                            if (
+                                in_array($lead->category, ['Battery', 'Solar+Battery']) &&
+                                !empty($lead->battery_kw)
+                            ) {
+                                $html .= ' &nbsp;|&nbsp; Battery KW: 
+                                    <strong class="text-dark">'.$lead->battery_kw.'</strong>';
+                            }
+
+                            ?>
+                            <p>{!! $html ?? '-' !!}</p>
+                        </div>
+
+
+                        <div>
+                            <label>Rejection Url</label>
+
+                            @if(!empty($lead->rejection_url))
+                            <a href="{{ $lead->rejection_url }}" target="_blank" onclick="return confirm('Are you sure?');">
+                                <p class="rk-link" style="color:red">Rejection Url</p>
+                            </a>
+                            @else
+                            <p class="text-muted">—</p>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="rk-summary-row">
+                        <div>
+                            <label>Sales owner</label>
+                            <p>{{ $lead->getAssignUserName->name ?? 'Not Assign Yet' }}</p>
+                        </div>
+
+                        <div>
+                            <label>Created At</label>
+                            <p>{{ $lead->created_at}}</p>
+                        </div>
+                    </div>
+
+
+                </div>
+                    </div>
+                </div>
+
+                @if($hasPreviousDistributorData)
+                <div class="col-sm-6">
+                    <div class="rk-summary-card h-100">
+                <div class="rk-summary-header">
+                    <strong>Distributor & VIC Rebate Details</strong>
+                </div>
+
+                <div class="rk-summary-content">
+                    <div class="rk-summary-row">
+                        <div>
+                            <label>Approval Required</label>
+                            <p>{{ $approvalRequiredValue ?: '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label>Distributor</label>
+                            <p>{{ $distributorNameValue ?: '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label>Existing System</label>
+                            <p>{{ $existingSystemValue ?: '-' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="rk-summary-row">
+                        <div>
+                            <label>Meter Number</label>
+                            <p>{{ $meterNumberValue ?: '-' }}</p>
+                        </div>
+
+                        <div>
+                            <label>NMI Number</label>
+                            <p>{{ $nmiNumberValue ?: '-' }}</p>
+                        </div>
+
+                        <!-- <div>
+                            <label>Photos Required</label>
+                            <p>{{ $photosRequiredValue ?: '-' }}</p>
+                        </div> -->
+                    </div>
+
+                    <div class="rk-summary-row">
+                        <!-- <div>
+                            <label>Distributor Step</label>
+                            <p>Applied</p>
+                        </div> -->
+
+                        <div>
+                            <label>Approval File</label>
+                            @if($approvalFileUrl)
+                            <a href="{{ $approvalFileUrl }}" target="_blank" class="rk-link">{{ $approvalFileName }}</a>
+                            @else
+                            <p>—</p>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="rk-mini-bordered-box">
+                        <div class="rk-mini-bordered-title">Compliance Details</div>
+                        <div class="rk-summary-row mb-0">
+                            <div>
+                                <label>Job Type</label>
+                                <p>{{ $complianceJobTypeValue ?: '-' }}</p>
+                            </div>
+
+                            <div>
+                                <label>Phase Type</label>
+                                <p>{{ $compliancePhaseTypeValue ?: '-' }}</p>
+                            </div>
+
+                            <div>
+                                <label>Storey Type</label>
+                                <p>{{ $complianceStoreyValue ?: '-' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+                </div>
+                @endif
+
+            </div>
+            <div class="row g-3 mt-0">
+
+                <div class="col-sm-6">
+                    <div class="rk-notes-card h-100">
+                    <div class="rk-notes-header">
+                        <strong><i class="ph ph-note-pencil"></i> Notes</strong>
+                        <span>{{ $lead->leadNotes->count() }} entries</span>
+                    </div>
+
+                    <form method="POST" action="{{ route('admin.noteStore') }}">
+                        @csrf
+                        <input type="hidden" name="lead_id" value="{{ $lead->id }}">
+                        <textarea name="note" class="rk-note-input" placeholder="Add a note..." required></textarea>
+                        <button type="submit" class="badge bg-success me-1">Save</button>
+                    </form>
+
+                    <div class="rk-notes-list">
+
+
+                        @forelse($lead->leadNotes as $note)
+                        <div class="rk-note-item">
+                            <p>{{ $note->note }}</p>
+                            <span>
+                                {{ @$note->creator->name ?? 'System' }} ·
+                                {{ optional($note->created_at)->format('D d M, Y') }}
+                            </span>
+                        </div>
+                        @empty
+                        <div class="rk-note-empty">
+                            <p>No notes found</p>
+                        </div>
+                        @endforelse
+
+
+
+
+
+                    </div>
+                    </div>
+                </div>
+
+            {{-- ================= ATTACHMENTS ================= --}}
+            <div class="col-sm-6">
+            <div class="rk-files-card card rk-attachments-card h-100">
+            <div class="rk-files-header">
+                <h6 class="mb-0"><strong><i class="ph ph-paperclip"></i> Attachments ({{$lead->images->count()}})</strong></h6>
+
+                <div class="d-flex align-items-center gap-2">
+                    <button id="addFileBtn" type="button" class="btn btn-sm btn-outline-primary">
+                        <i class="ph ph-upload-simple"></i> Add Files
+                    </button>
+                </div>
+
+                <input type="file" id="fileInput" hidden>
+            </div>
+            <div class="px-3 pt-2">
+                <small class="text-muted selected-file-name">No file selected</small>
+            </div>
+
+            <ul class="rk-attach-list">
+
+                @forelse($lead->images as $file)
+
+                @php
+                // remove admin/ from path if exists
+                $fileUrl = preg_replace('/^admin\//', '', $file->image_path);
+
+                // final URL (adjust if using storage)
+                $fullUrl = asset($fileUrl);
+                @endphp
+
+                <li class="rk-attach-item">
+
+                    {{-- file link --}}
+                    <a href="{{ $fullUrl }}" target="_blank" class="rk-attach-link">
+                        <i class="ph ph-file"></i> {{ basename($file->image_path) }}
+                    </a>
+
+                    {{-- delete button --}}
+                    <a href="javascript:void(0)" class="text-danger delete-lead-image" data-id="{{ $file->id }}"
+                        data-tble="lead_images" title="Delete">
+                        <i class="fa fa-trash"></i> Delete
+                    </a>
+
+                </li>
+
+                @empty
+
+                <li class="rk-attach-empty">
+                    No attachments found
+                </li>
+
+                @endforelse
+
+            </ul>
+            </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+<div class="offcanvas offcanvas-end rk-vic-modal" id="vicWorkflowModal" tabindex="-1" aria-labelledby="vicWorkflowModalLabel">
+            <div class="offcanvas-header rk-vic-modal-header">
+                <div>
+                    <span class="rk-vic-offcanvas-kicker"><i class="ph ph-shield-check"></i> Workflow</span>
+                    <h4 class="offcanvas-title" id="vicWorkflowModalLabel">Compliance Check - Job #{{ $lead->id }}</h4>
+                    <p>{{ trim(($lead->first_name ?? '').' '.($lead->last_name ?? '')) ?: 'Customer' }}</p>
+                </div>
+                <button type="button" class="btn-close rk-vic-offcanvas-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+
+            <div class="offcanvas-body rk-vic-modal-body">
+                <div class="rk-vic-modal-top">
+                    <div class="rk-vic-steps">
+                        <button type="button" class="rk-vic-step {{ $activeVicPane === 'checklist' ? 'active' : '' }}" data-step="checklist">Checklist</button>
+                        <button type="button" class="rk-vic-step {{ $activeVicPane === 'documents' ? 'active' : '' }}" data-step="documents">Documents</button>
+                        <button type="button" class="rk-vic-step {{ $activeVicPane === 'rfi' ? 'active' : '' }}" data-step="rfi">RFI</button>
+                    </div>
+                </div>
+
+                <div class="rk-vic-pane {{ $activeVicPane === 'checklist' ? 'active' : '' }}" data-pane="checklist">
+                    <div class="rk-vic-info-card">
+                        <div class="rk-vic-info-icon">!</div>
+                        <div>
+                            <h5>Compliance Check</h5>
+                            <p>Review the key job details captured in the preview popup and mark this lead ready for compliance processing.</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="rk-vic-field-group mb-0">
+                                <label for="complianceJobType">Job Type *</label>
+                                <select id="complianceJobType" class="form-select rk-vic-select-focus">
+                                    <option value="Solar Only" {{ $complianceJobTypeValue === 'Solar Only' ? 'selected' : '' }}>Solar Only</option>
+                                    <option value="Battery Only" {{ $complianceJobTypeValue === 'Battery Only' ? 'selected' : '' }}>Battery Only</option>
+                                    <option value="Solar + Battery" {{ $complianceJobTypeValue === 'Solar + Battery' ? 'selected' : '' }}>Solar + Battery</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 rk-compliance-field rk-compliance-common-field">
+                            <div class="rk-vic-field-group mb-0">
+                                <label for="complianceBillCopy">Electricity Bill Copy or NMI received?</label>
+                                <select id="complianceBillCopy" class="form-select">
+                                    <option value="">Select</option>
+                                    <option value="Yes" {{ $complianceBillCopyValue === 'Yes' ? 'selected' : '' }}>Yes</option>
+                                    <option value="No" {{ $complianceBillCopyValue === 'No' ? 'selected' : '' }}>No</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 rk-compliance-field rk-compliance-common-field">
+                            <div class="rk-vic-field-group mb-0">
+                                <label for="compliancePhaseType">Single Phase or Three Phase *</label>
+                                <select id="compliancePhaseType" class="form-select">
+                                    <option value="">Select</option>
+                                    <option value="Single Phase" {{ $compliancePhaseTypeValue === 'Single Phase' ? 'selected' : '' }}>Single Phase</option>
+                                    <option value="Three Phase" {{ $compliancePhaseTypeValue === 'Three Phase' ? 'selected' : '' }}>Three Phase</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 rk-compliance-field rk-compliance-battery-field">
+                            <div class="rk-vic-field-group mb-0">
+                                <label for="complianceCouplingType">Job is AC Couple or DC Couple *</label>
+                                <select id="complianceCouplingType" class="form-select">
+                                    <option value="">Select</option>
+                                    <option value="AC Couple" {{ $complianceCouplingTypeValue === 'AC Couple' ? 'selected' : '' }}>AC Couple</option>
+                                    <option value="DC Couple" {{ $complianceCouplingTypeValue === 'DC Couple' ? 'selected' : '' }}>DC Couple</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 rk-compliance-field rk-compliance-battery-field">
+                            <div class="rk-vic-field-group mb-0">
+                                <label for="complianceBatteryAccess">Photo of area showing clear access to battery location</label>
+                                <select id="complianceBatteryAccess" class="form-select">
+                                    <option value="">Select</option>
+                                    <option value="Yes" {{ $complianceBatteryAccessValue === 'Yes' ? 'selected' : '' }}>Yes</option>
+                                    <option value="No" {{ $complianceBatteryAccessValue === 'No' ? 'selected' : '' }}>No</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 rk-compliance-field rk-compliance-battery-field">
+                            <div class="rk-vic-field-group mb-0">
+                                <label for="compliancePivotSlab">Pivot Slab required? *</label>
+                                <select id="compliancePivotSlab" class="form-select">
+                                    <option value="">Select</option>
+                                    <option value="Yes" {{ $compliancePivotSlabValue === 'Yes' ? 'selected' : '' }}>Yes</option>
+                                    <option value="No" {{ $compliancePivotSlabValue === 'No' ? 'selected' : '' }}>No</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 rk-compliance-field rk-compliance-battery-field">
+                            <div class="rk-vic-field-group mb-0">
+                                <label for="complianceBatteryInstall">Photo of area where battery is going to be installed</label>
+                                <select id="complianceBatteryInstall" class="form-select">
+                                    <option value="">Select</option>
+                                    <option value="Yes" {{ $complianceBatteryInstallValue === 'Yes' ? 'selected' : '' }}>Yes</option>
+                                    <option value="No" {{ $complianceBatteryInstallValue === 'No' ? 'selected' : '' }}>No</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 rk-compliance-field rk-compliance-battery-field">
+                            <div class="rk-vic-field-group mb-0">
+                                <label for="complianceBackupRequirement">What backup they require? *</label>
+                                <input type="text" id="complianceBackupRequirement" class="form-control" value="{{ $complianceBackupValue }}" placeholder="Enter backup requirement">
+                            </div>
+                        </div>
+                        <div class="col-md-6 rk-compliance-field rk-compliance-common-field">
+                            <div class="rk-vic-field-group mb-0">
+                                <label for="compliancePlanView">Photo of a plan view (from above)</label>
+                                <select id="compliancePlanView" class="form-select">
+                                    <option value="">Select</option>
+                                    <option value="Yes" {{ $compliancePlanViewValue === 'Yes' ? 'selected' : '' }}>Yes</option>
+                                    <option value="No" {{ $compliancePlanViewValue === 'No' ? 'selected' : '' }}>No</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 rk-compliance-field rk-compliance-common-field">
+                            <div class="rk-vic-field-group mb-0">
+                                <label for="complianceStoreyType">Single Storey or Double Storey *</label>
+                                <select id="complianceStoreyType" class="form-select">
+                                    <option value="">Select</option>
+                                    <option value="Single Storey" {{ $complianceStoreyValue === 'Single Storey' ? 'selected' : '' }}>Single Storey</option>
+                                    <option value="Double Storey" {{ $complianceStoreyValue === 'Double Storey' ? 'selected' : '' }}>Double Storey</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rk-compliance-dynamic-hint" id="complianceJobTypeHint"></div>
+
+                    <div class="rk-vic-field-group">
+                        <label for="complianceNotes">Notes</label>
+                        <textarea id="complianceNotes" class="form-control rk-vic-textarea" rows="4" placeholder="Add any compliance notes for this job">{{ $complianceNotesValue }}</textarea>
+                    </div>
+                </div>
+
+                <div class="rk-vic-pane {{ $activeVicPane === 'documents' ? 'active' : '' }}" data-pane="documents">
+                    <div class="rk-vic-doc-card">
+                        <div>
+                            <h5>Upload Documents</h5>
+                            <p>Use the same lead attachments area for compliance files like plans, photos, electricity bills, and supporting paperwork.</p>
+                            <small class="text-muted selected-file-name d-block">No file selected</small>
+                        </div>
+                        <button type="button" class="rk-vic-primary-btn rk-vic-inline-btn" id="complianceUploadBtn">Upload Documents</button>
+                    </div>
+
+                    <div class="rk-vic-doc-grid">
+                        <div class="rk-vic-action-card">
+                            <div>
+                                <strong>Uploaded Documents</strong>
+                                <p>{{ $lead->images->count() }} file(s) currently attached to this lead.</p>
+                            </div>
+                            <span class="badge bg-light text-dark">{{ $lead->images->count() }} files</span>
+                        </div>
+
+                        <div class="rk-vic-action-card">
+                            <div>
+                                <strong>Suggested Uploads</strong>
+                                <p>Electricity bill, plan view, battery area photos, switchboard photos, and any installer notes.</p>
+                            </div>
+                            <span class="badge bg-light text-dark">Checklist</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rk-vic-pane {{ $activeVicPane === 'rfi' ? 'active' : '' }}" data-pane="rfi">
+                    <div class="rk-vic-info-card rk-vic-rfi-card">
+                        <div class="rk-vic-info-icon">!</div>
+                        <div>
+                            <h5>Request For Information</h5>
+                            <p>Send a Request for Information (RFI) to the sales rep if any documents or information is missing.</p>
+                        </div>
+                    </div>
+
+                    <div class="rk-vic-field-group">
+                        <label for="complianceRfiMessage">RFI Message</label>
+                        <textarea id="complianceRfiMessage" class="form-control rk-vic-textarea" rows="6" placeholder="Describe the missing information or documents">{{ $complianceRfiMessageValue }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rk-vic-modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="offcanvas">Close</button>
+                <button type="button" class="btn btn-primary" id="saveVicWorkflowBtn">Mark as Complete</button>
+            </div>
+</div>
+@include('admin.leads._email_modal',['emailTemplates'=>$emailTemplates])
+@include('super.leads._edit_modal')
+@include('admin.leads.call_logs')
+
 
 @endsection
 
@@ -1349,6 +1848,45 @@ function setPendingFileState(file) {
 }
 
 $(function() {
+    function showWorkflowAlert(icon, title, message) {
+        if (window.Swal) {
+            return Swal.fire({
+                icon: icon,
+                title: title,
+                text: message,
+                confirmButtonText: 'OK',
+                customClass: {
+                    confirmButton: 'btn btn-primary'
+                },
+                buttonsStyling: false
+            });
+        }
+
+        alert(message);
+        return $.Deferred().resolve().promise();
+    }
+
+    function reloadWithSuccess(message) {
+        if (window.Swal) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: message,
+                timer: 1300,
+                showConfirmButton: false,
+                customClass: {
+                    popup: 'rk-swal-success'
+                }
+            }).then(function() {
+                location.reload();
+            });
+            return;
+        }
+
+        alert(message);
+        location.reload();
+    }
+
     function getComplianceJobTypeConfig(jobType) {
         const isBatteryJob = jobType === 'Battery Only' || jobType === 'Solar + Battery';
 
@@ -1437,17 +1975,17 @@ $(function() {
                 contentType: false,
                 success: function() {
                     resetPendingFileState();
-                    location.reload();
+                    reloadWithSuccess('Compliance document uploaded successfully.');
                 },
                 error: function() {
                     $btn.prop('disabled', false).text('Mark as Complete');
-                    alert('Upload failed!');
+                    showWorkflowAlert('error', 'Upload failed', 'Please try uploading the compliance document again.');
                 }
             });
         };
 
         if (activePane === 'documents' && !pendingFile) {
-            alert('Please select a file first.');
+            showWorkflowAlert('warning', 'Required', 'Please select a file first.');
             return;
         }
 
@@ -1479,10 +2017,10 @@ $(function() {
                     return;
                 }
 
-                location.reload();
+                reloadWithSuccess('Compliance check saved successfully.');
             },
             error: function(xhr) {
-                alert(xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Failed to save compliance check.');
+                showWorkflowAlert('error', 'Failed', xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Failed to save compliance check.');
                 updateComplianceActionLabel(activePane);
                 $btn.prop('disabled', false);
             }
