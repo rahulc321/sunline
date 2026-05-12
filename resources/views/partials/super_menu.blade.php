@@ -425,12 +425,7 @@ div#jsGrid1_filter {
                 <div class="sidebar-section-title sidebar-resize-hide">Manage Modules</div>
             </li>
 
-            <!-- <li class="nav-item">
-                <a href="{{ route('admin.dialer.index') }}"
-                    class="nav-link {{ request()->is('admin/dialer') || request()->is('admin/dialer/*') ? 'active' : '' }}">
-                    <i class="ph-phone-call"></i><span>Dialer</span>
-                </a>
-            </li> -->
+           
 
             @can('RFI_access')
             <li class="nav-item">
