@@ -200,7 +200,7 @@ div#jsGrid1_filter {
     z-index: 0;
     border-right: 0;
     background:
-        radial-gradient(circle at 0% 0%, rgba(255, 221, 109, .34) 0%, rgba(255, 221, 109, .15) 22%, transparent 46%),
+        radial-gradient(circle at 0% 0%, rgba(96, 165, 250, .34) 0%, rgba(34, 211, 238, .13) 22%, transparent 46%),
         linear-gradient(180deg, #081426 0%, #0b2349 45%, #0c3670 100%);
     padding: 0 12px 18px;
     color: #f4f8ff;
@@ -211,7 +211,7 @@ div#jsGrid1_filter {
     overflow-x: hidden;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 221, 109, .55) rgba(255, 255, 255, .08);
+    scrollbar-color: rgba(96, 165, 250, .62) rgba(255, 255, 255, .08);
 }
 
 .sidebar-content::-webkit-scrollbar {
@@ -224,11 +224,11 @@ div#jsGrid1_filter {
 
 .sidebar-content::-webkit-scrollbar-thumb {
     border-radius: 999px;
-    background: linear-gradient(180deg, rgba(255, 231, 150, .78), rgba(93, 173, 255, .62));
+    background: linear-gradient(180deg, rgba(125, 211, 252, .78), rgba(96, 165, 250, .62));
 }
 
 .sidebar-content::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, rgba(255, 237, 174, .92), rgba(119, 190, 255, .78));
+    background: linear-gradient(180deg, rgba(165, 243, 252, .90), rgba(147, 197, 253, .78));
 }
 
 .sidebar-content::before {
@@ -251,7 +251,7 @@ div#jsGrid1_filter {
     height: 230px;
     z-index: -1;
     pointer-events: none;
-    background: radial-gradient(circle, rgba(255, 226, 124, .70) 0%, rgba(255, 226, 124, .22) 38%, transparent 70%);
+    background: radial-gradient(circle, rgba(96, 165, 250, .68) 0%, rgba(34, 211, 238, .20) 38%, transparent 70%);
     filter: blur(8px);
 }
 
@@ -265,7 +265,7 @@ div#jsGrid1_filter {
     border-right: 0;
     border-bottom: 1px solid rgba(255, 255, 255, .12);
     background:
-        radial-gradient(circle at 0% 0%, rgba(255, 226, 124, .34), transparent 44%),
+        radial-gradient(circle at 0% 0%, rgba(96, 165, 250, .34), transparent 44%),
         linear-gradient(180deg, #071223 0%, #0b2349 100%) !important;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, .15),
@@ -322,7 +322,7 @@ div#jsGrid1_filter {
 }
 
 .sidebar-content .nav-item-header .sidebar-section-title {
-    color: rgba(255, 236, 176, 0.66);
+    color: rgba(191, 219, 254, 0.74);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: .18em;
@@ -383,12 +383,44 @@ div#jsGrid1_filter {
     width: 17px;
     min-width: 17px;
     margin-right: 0;
-    color: rgba(255, 215, 106, .88);
+    color: #7dd3fc;
     background: none;
-    -webkit-text-fill-color: initial;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     font-size: 15px;
     transform: none !important;
     filter: none !important;
+}
+
+.sidebar-content .nav-sidebar > .nav-item:nth-of-type(6n+1) > .nav-link i,
+.sidebar-content .nav-group-sub > .nav-item:nth-of-type(6n+1) > .nav-link i {
+    background-image: linear-gradient(135deg, #38bdf8, #2563eb);
+}
+
+.sidebar-content .nav-sidebar > .nav-item:nth-of-type(6n+2) > .nav-link i,
+.sidebar-content .nav-group-sub > .nav-item:nth-of-type(6n+2) > .nav-link i {
+    background-image: linear-gradient(135deg, #22c55e, #14b8a6);
+}
+
+.sidebar-content .nav-sidebar > .nav-item:nth-of-type(6n+3) > .nav-link i,
+.sidebar-content .nav-group-sub > .nav-item:nth-of-type(6n+3) > .nav-link i {
+    background-image: linear-gradient(135deg, #f97316, #ef4444);
+}
+
+.sidebar-content .nav-sidebar > .nav-item:nth-of-type(6n+4) > .nav-link i,
+.sidebar-content .nav-group-sub > .nav-item:nth-of-type(6n+4) > .nav-link i {
+    background-image: linear-gradient(135deg, #a855f7, #ec4899);
+}
+
+.sidebar-content .nav-sidebar > .nav-item:nth-of-type(6n+5) > .nav-link i,
+.sidebar-content .nav-group-sub > .nav-item:nth-of-type(6n+5) > .nav-link i {
+    background-image: linear-gradient(135deg, #06b6d4, #6366f1);
+}
+
+.sidebar-content .nav-sidebar > .nav-item:nth-of-type(6n+6) > .nav-link i,
+.sidebar-content .nav-group-sub > .nav-item:nth-of-type(6n+6) > .nav-link i {
+    background-image: linear-gradient(135deg, #84cc16, #0ea5e9);
 }
 
 .sidebar-content .nav-link:hover {
@@ -415,15 +447,15 @@ div#jsGrid1_filter {
 
 .sidebar-content .nav-link.active {
     color: #ffffff;
-    border-color: rgba(255, 221, 109, .62);
+    border-color: rgba(125, 211, 252, .62);
     background:
-        linear-gradient(135deg, rgba(255, 219, 102, .30), rgba(67, 145, 255, .24)),
+        linear-gradient(135deg, rgba(56, 189, 248, .28), rgba(67, 145, 255, .24)),
         rgba(255, 255, 255, 0.09);
     box-shadow:
-        inset 3px 0 0 #ffd75f,
+        inset 3px 0 0 #38bdf8,
         inset 0 1px 0 rgba(255, 255, 255, .22),
         0 10px 22px rgba(2, 13, 40, 0.22),
-        0 0 18px rgba(255, 218, 94, .14);
+        0 0 18px rgba(56, 189, 248, .16);
 }
 
 .sidebar-content .nav-link.active::before {
@@ -432,13 +464,13 @@ div#jsGrid1_filter {
 
 .sidebar-content .nav-link.active i,
 .sidebar-content .nav-link:hover i {
-    color: #fff0a8;
+    filter: brightness(1.18) saturate(1.18) !important;
 }
 
 .sidebar-content .nav-group-sub {
     margin: 3px 0 7px 15px;
     padding: 3px 0 3px 10px;
-    border-left: 1px solid rgba(255, 221, 109, 0.16);
+    border-left: 1px solid rgba(125, 211, 252, 0.18);
 }
 
 .sidebar-content .nav-group-sub .nav-link {
