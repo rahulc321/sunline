@@ -1,17 +1,18 @@
-<div class="modal fade" id="editModel" tabindex="-1" aria-labelledby="editModel" aria-hidden="true">
-    <div class="modal-dialog modal-md">
-        <div class="modal-content">
+<div class="offcanvas offcanvas-end rk-contact-offcanvas rk-contact-edit-offcanvas" id="editModel" tabindex="-1" aria-labelledby="addTaskModalLabel">
 
             <!-- Header -->
-            <div class="modal-header py-2">
-                <h5 class="modal-title fw-bold" id="addTaskModalLabel">Edit Contract </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="offcanvas-header rk-contact-offcanvas-header">
+                <div>
+                    <span class="rk-contact-offcanvas-kicker">Contract</span>
+                    <h5 class="offcanvas-title modal-title fw-bold" id="addTaskModalLabel">Edit Contract</h5>
+                </div>
+                <button type="button" class="btn-close rk-contact-offcanvas-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
 
             <!-- Form -->
-            <form action="{{ route('admin.updateContact') }}" method="POST">
+            <form action="{{ route('admin.updateContact') }}" method="POST" class="rk-contact-offcanvas-form">
                 @csrf
-                <div class="modal-body py-3">
+                <div class="offcanvas-body rk-contact-offcanvas-body">
                     <div class="row g-2">
                         <!-- g-2 gives tighter gap -->
                          <input type="hidden" name="id" >
@@ -89,13 +90,11 @@
                 </div>
 
                 <!-- Footer -->
-                <div class="modal-footer py-2">
-                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancel</button>
+                <div class="rk-contact-offcanvas-footer">
+                    <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="offcanvas">Cancel</button>
                     <button type="submit" class="btn btn-primary btn-sm bg_s">Update Contact</button>
                 </div>
             </form>
-        </div>
-    </div>
 </div>
 
 <style>

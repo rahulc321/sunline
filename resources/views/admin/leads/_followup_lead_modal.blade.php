@@ -1,20 +1,21 @@
-<div class="modal fade" id="createFollowUpModal" tabindex="-1" aria-labelledby="createFollowUpModal"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+<div class="offcanvas offcanvas-end rk-lead-form-offcanvas" id="createFollowUpModal" tabindex="-1" aria-labelledby="followUpManagementLabel">
 
                 <!-- Header -->
-                <div class="modal-header d-flex justify-content-between align-items-center">
-                    <h5 class="modal-title fw-bold" id="followUpManagementLabel">
-                        <span class="leadName"></span> - Follow-ups
-                    </h5>
+                <div class="offcanvas-header rk-lead-form-header">
+                    <div>
+                        <span class="rk-lead-form-kicker">Lead activity</span>
+                        <h5 class="offcanvas-title modal-title fw-bold" id="followUpManagementLabel">
+                            <span class="leadName"></span> - Follow-ups
+                        </h5>
+                    </div>
+                    <button type="button" class="btn-close rk-lead-form-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
 
                 <!-- Body -->
-                <form id="followUpForm" action="{{route('admin.leadFollowUps')}}" method="post">
+                <form id="followUpForm" action="{{route('admin.leadFollowUps')}}" method="post" class="rk-lead-form">
                     @csrf
                     <!-- ✅ single form -->
-                    <div class="modal-body">
+                    <div class="offcanvas-body rk-lead-form-body">
                         <h6 class="fw-bold mb-3">Follow-up Management</h6>
                         <input type="hidden" name="lead_id" class="lead_id">
 
@@ -58,12 +59,10 @@
                     </div>
 
                     <!-- Footer -->
-                    <div class="modal-footer">
+                    <div class="rk-lead-form-footer">
                         <button type="submit" class="btn btn-primary bg_s">Save Follow-up</button>
-                        <button type="button" class="btn btn-secondary bg_s" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-secondary bg_s" data-bs-dismiss="offcanvas">Cancel</button>
                     </div>
                 </form>
 
-            </div>
-        </div>
     </div>

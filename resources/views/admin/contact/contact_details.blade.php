@@ -56,8 +56,8 @@ $stageIcons = [
         <div class="rk-action-tabs">
 
             @can('lead_email_access')
-            <button class="btn btn-outline-primary rk-action-btn send_email_inner" data-bs-toggle="modal"
-                data-bs-target="#emailModel"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+            <button class="btn btn-outline-primary rk-action-btn send_email_inner" data-bs-toggle="offcanvas"
+                data-bs-target="#emailModel" aria-controls="emailModel"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                     stroke-linejoin="round" class="lucide lucide-mail h-4 w-4 mr-2"
                     data-lov-id="src/components/leads/LeadDetailModal.tsx:226:14" data-lov-name="Mail"
@@ -71,7 +71,7 @@ $stageIcons = [
             @endcan
 
             @can('lead_call_log')
-            <button class="btn btn-outline-warning rk-action-btn view-lead" data-bs-toggle="modal" data-bs-target="#leadDetailsModal">
+            <button class="btn btn-outline-warning rk-action-btn view-lead" data-bs-toggle="offcanvas" data-bs-target="#leadDetailsModal" aria-controls="leadDetailsModal">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                     class="lucide lucide-phone h-4 w-4 mr-2"
@@ -86,7 +86,7 @@ $stageIcons = [
             @endcan
 
             <button data-lead='@json($lead)' class="btn btn-outline-danger rk-action-btn edit_lead" data-lead='@json($lead)'
-                data-bs-toggle="modal" data-bs-target="#editlead">
+                data-bs-toggle="offcanvas" data-bs-target="#editlead" aria-controls="editlead">
 
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -129,12 +129,12 @@ $stageIcons = [
                 </svg>View Proposal</button></a>
 
             <!-- <div class="rk-action-tab">
-                <a href="javascript:;" class="edit_lead" data-lead='@json($lead)' data-bs-toggle="modal"
+                <a href="javascript:;" class="edit_lead" data-lead='@json($lead)' data-bs-toggle="offcanvas"
                     data-bs-target="#editlead">Edit Lead</a>
             </div> -->
 
             <!-- <div class="rk-action-tab">
-                <a href="javascript:;" class="edit_lead" data-lead='@json($lead)' data-bs-toggle="modal"
+                <a href="javascript:;" class="edit_lead" data-lead='@json($lead)' data-bs-toggle="offcanvas"
                     data-bs-target="#editlead">Generate Quote</a>
             </div> -->
         </div>

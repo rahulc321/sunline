@@ -630,7 +630,7 @@ $unassigned = $leads->whereNull('assign_rep')
             <p class="hero-copy">Assign, filter, and track incoming opportunities across the sales pipeline.</p>
         </div>
         @can('lead_add')
-        <a class="btn btn-add-lead" data-bs-toggle="modal" data-bs-target="#addLeadModal">
+        <a class="btn btn-add-lead" data-bs-toggle="offcanvas" data-bs-target="#addLeadModal" aria-controls="addLeadModal">
             <i class="ph-plus"></i> Add Lead
         </a>
         @endcan
@@ -670,7 +670,7 @@ $unassigned = $leads->whereNull('assign_rep')
             </div>
             @endforeach
 
-            <div class="rk-stage-item rk-clickable" data-bs-toggle="modal" data-bs-target="#followUpModal">
+            <div class="rk-stage-item rk-clickable" data-bs-toggle="offcanvas" data-bs-target="#followUpModal" aria-controls="followUpModal">
                 <div class="rk-stage-label">
                     <span class="stage-icon stage-icon-follow-up"><i class="ph-clock-clockwise"></i></span>
                     <span class="stage-name">Follow Up</span>
@@ -1210,24 +1210,27 @@ $unassigned = $leads->whereNull('assign_rep')
                     @can('lead_email_access')
                         <button class="btn btn-sm btn-warning custom-btn send_email"
                             data-lead='${JSON.stringify(lead)}' 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#emailModel">
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#emailModel"
+                            aria-controls="emailModel">
                             <i class="ph-envelope-simple"></i>
                         </button>
                     @endcan
 
                     <button class="btn btn-sm btn-primary view-lead"
                         data-lead='${JSON.stringify(lead)}' 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#leadDetailsModal">
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#leadDetailsModal"
+                        aria-controls="leadDetailsModal">
                         <i class="ph-eye"></i>
                     </button>
 
                     @can('lead_edit')
                         <button class="btn btn-sm btn-outline-secondary edit_lead"
                             data-lead='${JSON.stringify(lead)}' 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#editlead">
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#editlead"
+                            aria-controls="editlead">
                             <i class="ph-pencil-line"></i>
                         </button>
                     @endcan

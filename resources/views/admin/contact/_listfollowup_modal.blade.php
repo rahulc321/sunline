@@ -1,4 +1,4 @@
-<div class="modal-body" style="max-height: 600px; overflow-y: auto;">
+<div class="rk-contact-followup-list" style="max-height: 600px; overflow-y: auto;">
 
 
 <!-- Upcoming Follow-ups -->

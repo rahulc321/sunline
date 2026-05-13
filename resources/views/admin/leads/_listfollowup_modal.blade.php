@@ -1,18 +1,18 @@
-<div class="modal fade" id="followUpModal" tabindex="-1" aria-labelledby="followUpLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+<div class="offcanvas offcanvas-end rk-lead-form-offcanvas rk-followup-list-offcanvas" id="followUpModal" tabindex="-1" aria-labelledby="followUpLabel">
 
             <!-- Header -->
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="followUpLabel">
-                    Follow-up Management
-
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="offcanvas-header rk-lead-form-header">
+                <div>
+                    <span class="rk-lead-form-kicker">Schedule</span>
+                    <h5 class="offcanvas-title modal-title fw-bold" id="followUpLabel">
+                        Follow-up Management
+                    </h5>
+                </div>
+                <button type="button" class="btn-close rk-lead-form-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
 
             <!-- Body -->
-            <div class="modal-body" style="max-height: 600px; overflow-y: auto;">
+            <div class="offcanvas-body rk-lead-form-body">
 
 
                 <!-- Upcoming Follow-ups -->
@@ -77,10 +77,7 @@
                 @endforelse
 
 
-            </div><!-- End modal body -->
-
-        </div>
-    </div>
+            </div><!-- End offcanvas body -->
 </div>
 <script>
 $(document).on('click', '.mark_complete', function() {

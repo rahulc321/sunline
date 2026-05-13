@@ -88,6 +88,16 @@
     padding: 20px;
 }
 
+.rk-call-empty {
+    border: 1px dashed rgba(47, 128, 237, .24);
+    background: rgba(255, 255, 255, .72);
+    border-radius: 10px;
+    padding: 18px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+}
+
 /* scroll */
 .call-logs {
     max-height: none;
@@ -158,6 +168,13 @@
     color: #fff;
 }
 
+.rk-play-btn:disabled,
+.rk-play-btn:disabled:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+    color: #94a3b8;
+}
+
 .log-item {
     background: #e8edf9;
     padding: 12px 15px;
@@ -168,12 +185,3 @@
 
 
 </style>
-<script>
-document.addEventListener('click', function(event) {
-    const trigger = event.target.closest('[data-bs-target="#leadDetailsModal"]');
-    if (trigger && trigger.getAttribute('data-bs-toggle') === 'modal') {
-        trigger.setAttribute('data-bs-toggle', 'offcanvas');
-        trigger.setAttribute('aria-controls', 'leadDetailsModal');
-    }
-}, true);
-</script>

@@ -1,16 +1,17 @@
-<div class="modal fade" id="addLeadModal" tabindex="-1" aria-labelledby="addLeadModal" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+<div class="offcanvas offcanvas-end rk-lead-form-offcanvas rk-add-lead-offcanvas" id="addLeadModal" tabindex="-1" aria-labelledby="addLeadModalLabel">
 
-            <div class="modal-header">
-                <h5 class="modal-title" id="popupFormLabel">Add Lead</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="offcanvas-header rk-lead-form-header">
+                <div>
+                    <span class="rk-lead-form-kicker">Lead profile</span>
+                    <h5 class="offcanvas-title modal-title" id="addLeadModalLabel">Add Lead</h5>
+                </div>
+                <button type="button" class="btn-close rk-lead-form-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
 
             <!-- Start form -->
-            <form action="{{route('admin.leadStore')}}" method="post">
+            <form action="{{route('admin.leadStore')}}" method="post" class="rk-lead-form">
                 @csrf
-                <div class="modal-body">
+                <div class="offcanvas-body rk-lead-form-body">
                     <div class="row">
                         <!-- Left Column -->
                         <div class="col-sm-6 mb-3">
@@ -116,17 +117,77 @@
                 </div>
 
                 <!-- Footer inside the form -->
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="rk-lead-form-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">Close</button>
                     <button type="submit" class="btn btn-primary">Save changes</button>
                 </div>
             </form>
-        </div>
-    </div>
 </div>
 <style>
 .hide {
     display: none !important;
+}
+
+.rk-lead-form-offcanvas {
+    width: min(760px, 100vw) !important;
+    overflow: hidden;
+    border: 0;
+    border-radius: 18px 0 0 18px;
+    background:
+        radial-gradient(circle at top left, rgba(20, 184, 166, .16), transparent 34%),
+        radial-gradient(circle at top right, rgba(56, 168, 255, .14), transparent 30%),
+        linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+    box-shadow: 0 28px 80px rgba(15, 23, 42, .28);
+}
+
+.rk-lead-form-header {
+    align-items: flex-start;
+    padding: 20px 22px;
+    border: 0;
+    background: linear-gradient(135deg, #0f172a 0%, #164e63 58%, #0f766e 100%);
+    color: #fff;
+}
+
+.rk-lead-form-header .modal-title {
+    margin: 0;
+    color: #fff;
+}
+
+.rk-lead-form-kicker {
+    display: block;
+    margin-bottom: 4px;
+    color: rgba(255, 255, 255, .68);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.rk-lead-form-close {
+    filter: invert(1) grayscale(1) brightness(2);
+    opacity: .9;
+}
+
+.rk-lead-form {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+}
+
+.rk-lead-form-body {
+    flex: 1 1 auto;
+    padding: 22px;
+    overflow-y: auto;
+}
+
+.rk-lead-form-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 22px;
+    border-top: 1px solid rgba(148, 163, 184, .25);
+    background: rgba(248, 250, 252, .88);
 }
 </style>
 <script>
