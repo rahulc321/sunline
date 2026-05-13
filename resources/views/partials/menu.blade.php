@@ -196,11 +196,95 @@ div#jsGrid1_filter {
 }
 
 .sidebar-content {
+    position: relative;
+    z-index: 0;
     border-right: 0;
-    background: linear-gradient(145deg, #0f172a 0%, #092575 55%, #0b38b6 100%);
-    padding: 0 10px 16px;
-    color: #e8efff;
-    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.08);
+    background:
+        radial-gradient(circle at 0% 0%, rgba(255, 221, 109, .34) 0%, rgba(255, 221, 109, .15) 22%, transparent 46%),
+        linear-gradient(180deg, #081426 0%, #0b2349 45%, #0c3670 100%);
+    padding: 0 12px 18px;
+    color: #f4f8ff;
+    box-shadow:
+        inset -1px 0 0 rgba(255, 255, 255, 0.13),
+        14px 0 36px rgba(9, 29, 77, .16);
+    max-height: calc(100vh - 4.5rem);
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 221, 109, .55) rgba(255, 255, 255, .08);
+}
+
+.sidebar-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, .06);
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(255, 231, 150, .78), rgba(93, 173, 255, .62));
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(255, 237, 174, .92), rgba(119, 190, 255, .78));
+}
+
+.sidebar-content::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        linear-gradient(130deg, rgba(255, 255, 255, .16) 0%, transparent 28%),
+        linear-gradient(180deg, rgba(255, 255, 255, .07), transparent 34%);
+}
+
+.sidebar-content::after {
+    content: "";
+    position: absolute;
+    top: -90px;
+    left: -80px;
+    width: 230px;
+    height: 230px;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(255, 226, 124, .70) 0%, rgba(255, 226, 124, .22) 38%, transparent 70%);
+    filter: blur(8px);
+}
+
+.sidebar-main {
+    background: linear-gradient(180deg, #0b1832 0%, #0d55b8 100%);
+}
+
+.sidebar-logo {
+    position: relative;
+    overflow: hidden;
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, .12);
+    background:
+        radial-gradient(circle at 0% 0%, rgba(255, 226, 124, .34), transparent 44%),
+        linear-gradient(180deg, #071223 0%, #0b2349 100%) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .15),
+        inset 0 -1px 0 rgba(255, 255, 255, .08);
+}
+
+.sidebar-logo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(112deg, transparent 0 20%, rgba(255, 255, 255, .14) 21%, transparent 38%);
+}
+
+.sidebar-logo .btn {
+    border: 1px solid rgba(255, 255, 255, .16) !important;
+    background: rgba(255, 255, 255, .12) !important;
+    color: #fff !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18);
 }
 
 .sidebar-section {
@@ -209,9 +293,12 @@ div#jsGrid1_filter {
 
 .sidebar-user-block {
     padding: 14px 12px 12px;
-    margin: 0 -10px 8px;
+    margin: 0 -12px 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.10);
-    background: rgba(4, 14, 42, 0.18);
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, .03)),
+        rgba(4, 14, 42, 0.12);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .10);
 }
 
 .sidebar-user-block .hello {
@@ -226,16 +313,16 @@ div#jsGrid1_filter {
 }
 
 .sidebar-content .nav-sidebar {
-    padding: 0;
+    padding: 2px 0 14px;
 }
 
 .sidebar-content .nav-item-header {
-    padding: 13px 2px 6px;
+    padding: 15px 4px 7px;
     margin: 0;
 }
 
 .sidebar-content .nav-item-header .sidebar-section-title {
-    color: rgba(190, 205, 255, 0.62);
+    color: rgba(255, 236, 176, 0.66);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: .18em;
@@ -244,18 +331,48 @@ div#jsGrid1_filter {
 }
 
 .sidebar-content .nav-link {
+    position: relative;
+    overflow: hidden;
     display: flex;
     align-items: center;
-    gap: 10px;
-    min-height: 36px;
-    margin: 2px 0;
-    padding: 9px 10px;
+    gap: 11px;
+    min-height: 38px;
+    margin: 3px 0;
+    padding: 9px 11px;
     border-radius: 8px;
-    color: rgba(237, 243, 255, 0.86);
+    border: 1px solid transparent;
+    color: rgba(244, 248, 255, 0.82);
     font-size: 13px;
     font-weight: 500;
     letter-spacing: 0;
-    transition: background .18s ease, color .18s ease, box-shadow .18s ease;
+    text-shadow: 0 1px 1px rgba(3, 10, 28, .28);
+    transition: background .18s ease, color .18s ease, box-shadow .18s ease, transform .18s ease, border-color .18s ease;
+}
+
+.sidebar-content .nav-link::before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    border-radius: 7px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, .12), transparent 46%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .18s ease;
+}
+
+.sidebar-content .nav-item:not(.nav-item-submenu) > .nav-link::after,
+.sidebar-content .nav-group-sub .nav-link::after {
+    content: "";
+    position: absolute;
+    top: -55%;
+    left: -42%;
+    width: 38%;
+    height: 210%;
+    background: linear-gradient(105deg, transparent, rgba(255, 255, 255, .24), transparent);
+    transform: rotate(12deg);
+    opacity: 0;
+    pointer-events: none;
+    transition: left .35s ease, opacity .22s ease;
 }
 
 .sidebar-content .nav-link span {
@@ -266,7 +383,7 @@ div#jsGrid1_filter {
     width: 17px;
     min-width: 17px;
     margin-right: 0;
-    color: #7cc7ff;
+    color: rgba(255, 215, 106, .88);
     background: none;
     -webkit-text-fill-color: initial;
     font-size: 15px;
@@ -276,24 +393,52 @@ div#jsGrid1_filter {
 
 .sidebar-content .nav-link:hover {
     color: #ffffff;
-    background: rgba(255, 255, 255, 0.08);
+    border-color: transparent;
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, .03)),
+        rgba(255, 255, 255, 0.06);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .12),
+        0 6px 14px rgba(2, 13, 40, 0.13);
+    transform: translateX(1px);
+}
+
+.sidebar-content .nav-link:hover::before {
+    opacity: 1;
+}
+
+.sidebar-content .nav-item:not(.nav-item-submenu) > .nav-link:hover::after,
+.sidebar-content .nav-group-sub .nav-link:hover::after {
+    left: 105%;
+    opacity: 1;
 }
 
 .sidebar-content .nav-link.active {
     color: #ffffff;
-    background: rgba(50, 103, 223, 0.72);
-    box-shadow: inset 3px 0 0 #26a8ff, 0 8px 22px rgba(2, 13, 40, 0.20);
+    border-color: rgba(255, 221, 109, .62);
+    background:
+        linear-gradient(135deg, rgba(255, 219, 102, .30), rgba(67, 145, 255, .24)),
+        rgba(255, 255, 255, 0.09);
+    box-shadow:
+        inset 3px 0 0 #ffd75f,
+        inset 0 1px 0 rgba(255, 255, 255, .22),
+        0 10px 22px rgba(2, 13, 40, 0.22),
+        0 0 18px rgba(255, 218, 94, .14);
+}
+
+.sidebar-content .nav-link.active::before {
+    opacity: 1;
 }
 
 .sidebar-content .nav-link.active i,
 .sidebar-content .nav-link:hover i {
-    color: #a9dcff;
+    color: #fff0a8;
 }
 
 .sidebar-content .nav-group-sub {
-    margin: 2px 0 6px 15px;
-    padding: 3px 0 3px 9px;
-    border-left: 1px solid rgba(255, 255, 255, 0.11);
+    margin: 3px 0 7px 15px;
+    padding: 3px 0 3px 10px;
+    border-left: 1px solid rgba(255, 221, 109, 0.16);
 }
 
 .sidebar-content .nav-group-sub .nav-link {

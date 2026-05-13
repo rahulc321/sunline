@@ -402,7 +402,7 @@
             </div>
 
             <div class="col-md-3 ms-auto d-none">
-                <a class="btn btn-primary bg_s mt-5" data-bs-toggle="modal" data-bs-target="#addLeadModal"
+                <a class="btn btn-primary bg_s mt-5" data-bs-toggle="offcanvas" data-bs-target="#addLeadModal" aria-controls="addLeadModal"
                     style="float:right">
                     <i class="ph-plus"></i>&nbsp;&nbsp;Add Lead
                 </a>
@@ -639,7 +639,7 @@
                 </div>
                 <button class="btn btn-sm btn-warning me-1 custom-btn send_email1 d-none"
                     data-lead='${JSON.stringify(lead)}'
-                    data-bs-toggle="modal" data-bs-target="#emailModel">
+                    data-bs-toggle="offcanvas" data-bs-target="#emailModel" aria-controls="emailModel">
                     <i class="ph-envelope-simple"></i> Email
                 </button>
 
@@ -647,7 +647,7 @@
 
                 <button class="btn btn-sm btn-primary bg_s px-4 py-2 view-lead1 d-none"
                     data-lead='${JSON.stringify(lead)}'
-                    data-bs-toggle="modal" data-bs-target="#leadDetailsModal">
+                    data-bs-toggle="offcanvas" data-bs-target="#leadDetailsModal" aria-controls="leadDetailsModal">
                     View
                 </button>
             </div>
@@ -701,24 +701,24 @@
 
         @can('contact_send_email')
         <button class="btn btn-warning btn-sm me-2 send_email" data-lead='${JSON.stringify(lead)}'
-            data-bs-toggle="modal" data-bs-target="#emailModel">
+            data-bs-toggle="offcanvas" data-bs-target="#emailModel" aria-controls="emailModel">
             <i class="ph-envelope-simple me-1"></i> Send Email
         </button>
         @endcan
         @can('contact_follow_up')
-        <button class="btn btn-info btn-sm me-2 follow_up" data-contract='${JSON.stringify(contract)}' data-lead='${JSON.stringify(lead)}' data-bs-toggle="modal" data-bs-target="#fUP">
+        <button class="btn btn-info btn-sm me-2 follow_up" data-contract='${JSON.stringify(contract)}' data-lead='${JSON.stringify(lead)}' data-bs-toggle="offcanvas" data-bs-target="#fUP" aria-controls="fUP">
             <i class="ph-repeat me-1"></i> Follow-up
         </button>
         @endcan
         @can('contact_details')
         <button class="btn btn-primary btn-sm view-lead" data-lead='${JSON.stringify(lead)}'
-            data-bs-toggle="modal" data-bs-target="#leadDetailsModal">
+            data-bs-toggle="offcanvas" data-bs-target="#leadDetailsModal" aria-controls="leadDetailsModal">
             <i class="ph-list me-1"></i> Details
         </button>
         @endcan
         @can('contact_edit')
         &nbsp;&nbsp;
-        <button class="btn btn-sm btn-outline-secondary me-2 edit_contract" data-contract='${JSON.stringify(contract)}' data-bs-toggle="modal" data-bs-target="#editModel">
+        <button class="btn btn-sm btn-outline-secondary me-2 edit_contract" data-contract='${JSON.stringify(contract)}' data-bs-toggle="offcanvas" data-bs-target="#editModel" aria-controls="editModel">
                     <i class="ph-pencil-line me-1"></i> Edit
                 </button>
         @endcan

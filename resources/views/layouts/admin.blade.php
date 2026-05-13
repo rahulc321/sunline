@@ -738,13 +738,18 @@ $(document).on('click', '.delete-lead-image', function () {
 });
 
 
-// when the modal is shown
-$('#leadDetailsModal').on('shown.bs.modal', function() {
+// when the lead detail modal/offcanvas is shown
+$(document).on('shown.bs.modal shown.bs.offcanvas', '#leadDetailsModal', function() {
     let leadId = $('.lead_id').val(); // get lead ID from hidden input
     //alert(leadId);
 
+    if (!leadId) {
+        $(".call-logs").html('<div class="rk-call-empty text-danger">Lead details are missing.</div>');
+        return;
+    }
+
     // show loading message
-    $(".call-logs").html('<li class="text-info">Loading call logs...</li>');
+    $(".call-logs").html('<div class="rk-call-empty text-info">Loading call logs...</div>');
 
     $.ajax({
         url: '/admin/zoomRecordings/' + leadId,
@@ -753,11 +758,11 @@ $('#leadDetailsModal').on('shown.bs.modal', function() {
             if (response.success) {
                 renderCallLogs(response.logs);
             } else {
-                $(".call-logs").html('<li class="text-danger">No call logs found.</li>');
+                $(".call-logs").html('<div class="rk-call-empty text-danger">No call logs found.</div>');
             }
         },
         error: function() {
-            $(".call-logs").html('<li class="text-danger">Error fetching logs.</li>');
+            $(".call-logs").html('<div class="rk-call-empty text-danger">Error fetching logs.</div>');
         }
     });
 });
@@ -765,8 +770,10 @@ $('#leadDetailsModal').on('shown.bs.modal', function() {
 
 // Render logs into the <ul>
 function renderCallLogs(logs) {
+    logs = Array.isArray(logs) ? logs : [];
+
     if (logs.length === 0) {
-        $(".call-logs").html('<li class="text-muted">No call logs available</li>');
+        $(".call-logs").html('<div class="rk-call-empty text-muted">No call logs available</div>');
         return;
     }
     // alert(logs.length);
@@ -778,7 +785,8 @@ function renderCallLogs(logs) {
         else statusClass = 'text-warning';
 
         // direction: already provided by API
-        let direction = log.direction.charAt(0).toUpperCase() + log.direction.slice(1); // Inbound/Outbound
+        let rawDirection = (log.direction || '').toString();
+        let direction = rawDirection ? rawDirection.charAt(0).toUpperCase() + rawDirection.slice(1) : 'Unknown'; // Inbound/Outbound
 
         // show other party number
         let phoneNumber = direction === 'Inbound' ? log.caller_number : log.callee_number;
@@ -791,30 +799,33 @@ function renderCallLogs(logs) {
         // recording button
         let btn = log.download_url ?
         `<div class="audio-item">
-            <button class="btn btn-sm btn-outline-primary play-btn"
+            <button class="btn btn-sm btn-outline-primary play-btn rk-play-btn"
                     onclick="playRecording('${log.download_url}', '${log.recording_id}', this)">
                 🎵 Play
             </button>
             <audio class="zoom-player" controls style="display:none;"></audio>
         </div>` :
         `<div class="audio-item">
-            <button class="btn btn-sm btn-outline-secondary" disabled>
+            <button class="btn btn-sm btn-outline-secondary rk-play-btn" disabled>
                 No Recording
             </button>
             <audio class="zoom-player" controls style="display:none;"></audio>
         </div>`;
         
         html += `
-        <li class="log-item" style="list-style: none;">
-            <div class="d-flex justify-content-between align-items-center">
-               <div class="small">
-                    <span class="me-2 ${statusClass}">📞</span>
-                    <strong>${new Date(log.start_time).toLocaleString()}</strong> ${durationFormatted}
-                    <div class="text-info">${direction} • ${phoneNumber}</div>
+        <div class="rk-call-card">
+            <div class="rk-call-left">
+                <span class="rk-call-icon ${statusClass}">📞</span>
+                <div>
+                    <div class="rk-call-time">
+                        <strong>${new Date(log.start_time).toLocaleString()}</strong>
+                        <span class="rk-duration">${durationFormatted}</span>
+                    </div>
+                    <div class="rk-call-type">${direction} • ${phoneNumber || 'N/A'}</div>
                 </div>
-                ${btn}
             </div>
-        </li>
+            ${btn}
+        </div>
     `;
     });
 

@@ -1,17 +1,18 @@
-<div class="modal fade" id="leadDetailsModal" tabindex="-1" aria-labelledby="leadDetailsLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+<div class="offcanvas offcanvas-end rk-contact-offcanvas" id="leadDetailsModal" tabindex="-1" aria-labelledby="leadDetailsLabel">
 
             <!-- Header -->
-            <div class="modal-header">
-                <h5 class="modal-title" id="leadDetailsLabel">Lead Details - <span id="leadName"></span></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="offcanvas-header rk-contact-offcanvas-header">
+                <div>
+                    <span class="rk-contact-offcanvas-kicker">Lead profile</span>
+                    <h5 class="offcanvas-title modal-title" id="leadDetailsLabel">Lead Details - <span id="leadName"></span></h5>
+                </div>
+                <button type="button" class="btn-close rk-contact-offcanvas-close" data-bs-dismiss="offcanvas"></button>
             </div>
             <input type="hidden" name="lead_id" class="lead_id">
             <input type="hidden" name="send_email_view" class="send_email_view">
             <!-- Body -->
              
-            <div class="modal-body">
+            <div class="offcanvas-body rk-contact-offcanvas-body">
                 <!-- Contact Info -->
                 <div class="mb-0 position-relative">
                     <!-- Contact Info -->
@@ -143,8 +144,8 @@
             </div>
 
             <!-- Footer -->
-            <div class="modal-footer d-none">
-                <button class="btn btn-outline-primary send_email_inner" data-bs-toggle="modal" data-bs-target="#emailModel"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+            <div class="rk-contact-offcanvas-footer d-none">
+                <button class="btn btn-outline-primary send_email_inner" data-bs-toggle="offcanvas" data-bs-target="#emailModel" aria-controls="emailModel"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" class="lucide lucide-mail h-4 w-4 mr-2"
                         data-lov-id="src/components/leads/LeadDetailModal.tsx:226:14" data-lov-name="Mail"
@@ -154,8 +155,8 @@
                         <rect width="20" height="16" x="2" y="4" rx="2"></rect>
                         <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
                     </svg> Send Email</button>
-                <button class="btn btn-outline-secondary follow_up" data-bs-toggle="modal"
-                    data-bs-target="#createFollowUpModal"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                <button class="btn btn-outline-secondary follow_up" data-bs-toggle="offcanvas"
+                    data-bs-target="#createFollowUpModal" aria-controls="createFollowUpModal"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" class="lucide lucide-plus h-4 w-4 mr-2"
                         data-lov-id="src/components/leads/LeadDetailModal.tsx:230:14" data-lov-name="Plus"
@@ -204,8 +205,6 @@
                         <path d="M16 17H8"></path>
                     </svg> Generate Quote</button>
             </div>
-        </div>
-    </div>
 </div>
 <script>
 $(document).on('change', '.lead_status', function() {

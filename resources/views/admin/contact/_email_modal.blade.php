@@ -1,16 +1,17 @@
-<div class="modal fade" id="emailModel" tabindex="-1" aria-labelledby="emailModelLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+<div class="offcanvas offcanvas-end rk-contact-offcanvas" id="emailModel" tabindex="-1" aria-labelledby="emailModelLabel">
 
-            <div class="modal-header">
-                <h5 class="modal-title" id="emailModelLabel">Send Email to <span class="lead_name"></span></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="offcanvas-header rk-contact-offcanvas-header">
+                <div>
+                    <span class="rk-contact-offcanvas-kicker">Lead communication</span>
+                    <h5 class="offcanvas-title modal-title" id="emailModelLabel">Send Email to <span class="lead_name"></span></h5>
+                </div>
+                <button type="button" class="btn-close rk-contact-offcanvas-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
 
-            <form action="{{ route('admin.sendEmail') }}" method="post">
+            <form action="{{ route('admin.sendEmail') }}" method="post" class="rk-contact-offcanvas-form">
                 @csrf
                 <input type="hidden" class="form-control lead_id" name="lead_id">
-                <div class="modal-body">
+                <div class="offcanvas-body rk-contact-offcanvas-body">
 
                     <!-- Recipient -->
                     <div class="mb-3 d-flex align-items-center">
@@ -54,8 +55,8 @@
 
                 </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-warning" data-bs-dismiss="modal">Cancel</button>
+                <div class="rk-contact-offcanvas-footer">
+                    <button type="button" class="btn btn-outline-warning" data-bs-dismiss="offcanvas">Cancel</button>
                     <button type="submit" class="btn btn-primary bg_s"><svg xmlns="http://www.w3.org/2000/svg"
                             width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -71,8 +72,6 @@
                         </svg> Send Email</button>
                 </div>
             </form>
-        </div>
-    </div>
 </div>
 <script>
 $(document).on('change', '#templateSelect', function() {

@@ -1,16 +1,17 @@
-<div class="modal fade" id="leadDetailsModal" tabindex="-1" aria-labelledby="leadDetailsLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+<div class="offcanvas offcanvas-end rk-lead-view-offcanvas" id="leadDetailsModal" tabindex="-1" aria-labelledby="leadDetailsLabel">
 
             <!-- Header -->
-            <div class="modal-header">
-                <h5 class="modal-title" id="leadDetailsLabel">Lead Details - <span id="leadName"></span></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="offcanvas-header rk-lead-view-header">
+                <div>
+                    <span class="rk-lead-view-kicker">Lead profile</span>
+                    <h5 class="offcanvas-title modal-title" id="leadDetailsLabel">Lead Details - <span id="leadName"></span></h5>
+                </div>
+                <button type="button" class="btn-close rk-lead-view-close" data-bs-dismiss="offcanvas"></button>
             </div>
             <input type="hidden" name="lead_id" class="lead_id">
             <input type="hidden" name="send_email_view" class="send_email_view">
             <!-- Body -->
-            <div class="modal-body">
+            <div class="offcanvas-body rk-lead-view-body">
                 <!-- Contact Info -->
                 <div class="mb-0 position-relative">
                     <!-- Contact Info -->
@@ -71,8 +72,8 @@
                     <div class="d-flex align-items-center gap-2" style="position: absolute; top: 0; right: 0;">
                         <!-- Sync button -->
                         @can('lead_sync_data')
-                        <button class="btn btn-sm btn-warning px-3 py-2 sync" data-bs-toggle="modal"
-                            data-bs-target="#syncModel">
+                        <button class="btn btn-sm btn-warning px-3 py-2 sync" data-bs-toggle="offcanvas"
+                            data-bs-target="#syncModel" aria-controls="syncModel">
                             SYNC
                         </button>
                         @endcan
@@ -205,10 +206,10 @@
             </div>
 
             <!-- Footer -->
-            <div class="modal-footer">
+            <div class="rk-lead-view-footer">
                 @can('lead_email_access')
-                <button class="btn btn-outline-primary send_email_inner" data-bs-toggle="modal"
-                    data-bs-target="#emailModel"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                <button class="btn btn-outline-primary send_email_inner" data-bs-toggle="offcanvas"
+                    data-bs-target="#emailModel" aria-controls="emailModel"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" class="lucide lucide-mail h-4 w-4 mr-2"
                         data-lov-id="src/components/leads/LeadDetailModal.tsx:226:14" data-lov-name="Mail"
@@ -222,8 +223,8 @@
                 @endcan
 
                 @can('lead_create_follow_up')
-                <button class="btn btn-outline-secondary follow_up" data-bs-toggle="modal"
-                    data-bs-target="#createFollowUpModal"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                <button class="btn btn-outline-secondary follow_up" data-bs-toggle="offcanvas"
+                    data-bs-target="#createFollowUpModal" aria-controls="createFollowUpModal"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" class="lucide lucide-plus h-4 w-4 mr-2"
                         data-lov-id="src/components/leads/LeadDetailModal.tsx:230:14" data-lov-name="Plus"
@@ -294,10 +295,61 @@
                 </button>
                 @endcan
             </div>
-        </div>
-    </div>
 </div>
 <style>
+.rk-lead-view-offcanvas {
+    width: min(860px, 100vw) !important;
+    overflow: hidden;
+    border: 0;
+    border-radius: 18px 0 0 18px;
+    background:
+        radial-gradient(circle at top left, rgba(20, 184, 166, .16), transparent 34%),
+        radial-gradient(circle at top right, rgba(56, 168, 255, .14), transparent 30%),
+        linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+    box-shadow: 0 28px 80px rgba(15, 23, 42, .28);
+}
+
+.rk-lead-view-header {
+    align-items: flex-start;
+    padding: 20px 22px;
+    border: 0;
+    background: linear-gradient(135deg, #0f172a 0%, #164e63 58%, #0f766e 100%);
+    color: #fff;
+}
+
+.rk-lead-view-header .modal-title {
+    margin: 0;
+    color: #fff;
+}
+
+.rk-lead-view-kicker {
+    display: block;
+    margin-bottom: 4px;
+    color: rgba(255, 255, 255, .68);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.rk-lead-view-close {
+    filter: invert(1) grayscale(1) brightness(2);
+    opacity: .9;
+}
+
+.rk-lead-view-body {
+    padding: 22px;
+}
+
+.rk-lead-view-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 16px 22px;
+    border-top: 1px solid rgba(148, 163, 184, .25);
+    background: rgba(248, 250, 252, .88);
+}
+
 .call-logs {
     max-height: 400px;
     /* adjust height as needed */

@@ -175,13 +175,6 @@ $(document).on("click", ".edit_lead", function() {
     panel.find("input[name='battery_kw']").val(lead.battery_kw || "");
 });
 
-document.addEventListener('click', function(event) {
-    const trigger = event.target.closest('[data-bs-target="#editlead"]');
-    if (trigger && trigger.getAttribute('data-bs-toggle') === 'modal') {
-        trigger.setAttribute('data-bs-toggle', 'offcanvas');
-        trigger.setAttribute('aria-controls', 'editlead');
-    }
-}, true);
 </script>
 
 <style>

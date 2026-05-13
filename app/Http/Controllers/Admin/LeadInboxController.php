@@ -188,8 +188,9 @@ class LeadInboxController extends Controller
 					$buttons .= '
 						<button class="btn btn-sm btn-warning custom-btn send_email d-none"
 							data-lead="'.$leadJson.'"
-							data-bs-toggle="modal"
-							data-bs-target="#emailModel">
+							data-bs-toggle="offcanvas"
+							data-bs-target="#emailModel"
+							aria-controls="emailModel">
 							<i class="ph-envelope-simple"></i>
 						</button>';
 				}
@@ -198,8 +199,9 @@ class LeadInboxController extends Controller
 				$buttons .= '
 					<button class="btn btn-sm btn-primary view-lead d-none"
 						data-lead="'.$leadJson.'"
-						data-bs-toggle="modal"
-						data-bs-target="#leadDetailsModal">
+						data-bs-toggle="offcanvas"
+						data-bs-target="#leadDetailsModal"
+						aria-controls="leadDetailsModal">
 						<i class="ph-eye"></i>
 					</button>
 					<a href="'.route('admin.timeline',[$lead->id]).'"> <i class="ph-clock-counter-clockwise"></i></a>
@@ -211,8 +213,9 @@ class LeadInboxController extends Controller
 					$buttons .= '
 						<button class="btn btn-sm btn-outline-secondary edit_lead d-none"
 							data-lead="'.$leadJson.'"
-							data-bs-toggle="modal"
-							data-bs-target="#editlead">
+							data-bs-toggle="offcanvas"
+							data-bs-target="#editlead"
+							aria-controls="editlead">
 							<i class="ph-pencil-line"></i>
 						</button> ';
 				}
@@ -853,8 +856,9 @@ class LeadInboxController extends Controller
 					$buttons .= '
 						<button class="btn btn-sm btn-warning custom-btn send_email d-none"
 							data-lead="'.$leadJson.'"
-							data-bs-toggle="modal"
-							data-bs-target="#emailModel">
+							data-bs-toggle="offcanvas"
+							data-bs-target="#emailModel"
+							aria-controls="emailModel">
 							<i class="ph-envelope-simple"></i>
 						</button>';
 				}
@@ -863,8 +867,9 @@ class LeadInboxController extends Controller
 				$buttons .= '
 					<button class="btn btn-sm btn-primary view-lead d-none"
 						data-lead="'.$leadJson.'"
-						data-bs-toggle="modal"
-						data-bs-target="#leadDetailsModal">
+						data-bs-toggle="offcanvas"
+						data-bs-target="#leadDetailsModal"
+						aria-controls="leadDetailsModal">
 						<i class="ph-eye"></i>
 					</button>
 					<a href="'.route('admin.timeline',[$lead->id]).'"> <i class="ph-clock-counter-clockwise"></i></a>
@@ -876,8 +881,9 @@ class LeadInboxController extends Controller
 					$buttons .= '
 						<button class="btn btn-sm btn-outline-secondary edit_lead d-none"
 							data-lead="'.$leadJson.'"
-							data-bs-toggle="modal"
-							data-bs-target="#editlead">
+							data-bs-toggle="offcanvas"
+							data-bs-target="#editlead"
+							aria-controls="editlead">
 							<i class="ph-pencil-line"></i>
 						</button> ';
 				}

@@ -1,18 +1,19 @@
-<div class="modal fade" id="syncModel" tabindex="-1" aria-labelledby="syncModel" aria-hidden="true">
-    <div class="modal-dialog modal-md">
-        <div class="modal-content">
+<div class="offcanvas offcanvas-end rk-lead-form-offcanvas rk-sync-offcanvas" id="syncModel" tabindex="-1" aria-labelledby="popupFormLabel">
 
-            <div class="modal-header">
-                <h5 class="modal-title" id="popupFormLabel">Webhook</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="offcanvas-header rk-lead-form-header">
+                <div>
+                    <span class="rk-lead-form-kicker">Integration</span>
+                    <h5 class="offcanvas-title modal-title" id="popupFormLabel">Webhook</h5>
+                </div>
+                <button type="button" class="btn-close rk-lead-form-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
 
             <!-- Start form -->
-            <form action="{{ route('admin.triggerwebhook') }}" method="post">
+            <form action="{{ route('admin.triggerwebhook') }}" method="post" class="rk-lead-form">
                 @csrf
                 <input type="hidden" name="lead_id" class="lead_id">
 
-                <div class="modal-body">
+                <div class="offcanvas-body rk-lead-form-body">
                     <div class="mb-3">
                         <?php $webhooks = DB::table('webhooks')
                             ->where('status', 'Active')
@@ -30,12 +31,10 @@
                 </div>
 
                 <!-- Footer inside the form -->
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div class="rk-lead-form-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">Close</button>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
 
-        </div>
-    </div>
 </div>
