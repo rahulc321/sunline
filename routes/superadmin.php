@@ -45,6 +45,11 @@ Route::prefix('superadmin')->name('superadmin.')->middleware(['superadmin.auth']
     Route::any('updateStore', [App\Http\Controllers\Super\LeadInboxController::class, 'updateStore'])->name('updateStore');
     Route::any('noteStore', [App\Http\Controllers\Super\LeadInboxController::class, 'noteStore'])->name('noteStore');
     Route::get('leadDetails/{leadId}', [App\Http\Controllers\Super\LeadInboxController::class, 'leadDetails'])->name('leadDetails');
+    Route::get('cust/details/{leadId}', [App\Http\Controllers\Super\LeadInboxController::class, 'customerDetails'])->name('cust.details');
+    Route::get('coes/detail/{leadId}', [App\Http\Controllers\Super\LeadInboxController::class, 'coesDetails'])->name('coes.details');
+    Route::get('vic/details/{leadId}', [App\Http\Controllers\Super\LeadInboxController::class, 'vicPaymentDetails'])->name('vic.details');
+    Route::get('stcs/details/{leadId}', [App\Http\Controllers\Super\LeadInboxController::class, 'stcPaymentDetails'])->name('stcs.details');
+    Route::get('connection/details/{leadId}', [App\Http\Controllers\Super\LeadInboxController::class, 'connectionDetails'])->name('connection.details');
 
     # distributorApproval
     Route::get('distributorApproval', [App\Http\Controllers\Super\LeadInboxController::class, 'distributorApproval'])->name('distributorApproval');
@@ -63,15 +68,19 @@ Route::prefix('superadmin')->name('superadmin.')->middleware(['superadmin.auth']
 
     # coES
     Route::get('coES', [App\Http\Controllers\Super\LeadInboxController::class, 'coES'])->name('coES');
+    Route::post('saveCoesMeta', [App\Http\Controllers\Super\LeadInboxController::class, 'saveCoesMeta'])->name('saveCoesMeta');
 
     #vicPayment
     Route::get('vicPayment', [App\Http\Controllers\Super\LeadInboxController::class, 'vicPayment'])->name('vicPayment');
+    Route::post('saveVicPaymentMeta', [App\Http\Controllers\Super\LeadInboxController::class, 'saveVicPaymentMeta'])->name('saveVicPaymentMeta');
 
     # stcPayment
     Route::get('stcPayment', [App\Http\Controllers\Super\LeadInboxController::class, 'stcPayment'])->name('stcPayment');
+    Route::post('saveStcPaymentMeta', [App\Http\Controllers\Super\LeadInboxController::class, 'saveStcPaymentMeta'])->name('saveStcPaymentMeta');
 
     # connectionPaperwork
     Route::get('connectionPaperwork', [App\Http\Controllers\Super\LeadInboxController::class, 'connectionPaperwork'])->name('connectionPaperwork');
+    Route::post('saveConnectionPaperworkMeta', [App\Http\Controllers\Super\LeadInboxController::class, 'saveConnectionPaperworkMeta'])->name('saveConnectionPaperworkMeta');
 
     # supplierPayment
     Route::get('supplierPayment', [App\Http\Controllers\Super\LeadInboxController::class, 'supplierPayment'])->name('supplierPayment');
