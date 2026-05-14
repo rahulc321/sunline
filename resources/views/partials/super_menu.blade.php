@@ -39,7 +39,29 @@ h6 {
     border-right: 0;
     padding: 12px 10px 18px;
     position: relative;
-    overflow: hidden;
+    height: calc(100vh - 4.25rem);
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.36) rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-content::-webkit-scrollbar {
+    width: 7px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.34);
+    border-radius: 999px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.52);
 }
 
 .sidebar-content::before {

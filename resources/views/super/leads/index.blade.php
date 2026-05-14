@@ -181,7 +181,7 @@
 
 .rk-tabs {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(var(--pipeline-tab-count, 3), minmax(0, 1fr));
     gap: 0;
 }
 
@@ -202,6 +202,7 @@
     background: #ffffff;
     font-size: 13px;
     font-weight: 850;
+    white-space: nowrap;
     transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 }
 
@@ -562,6 +563,18 @@
         min-width: 40px;
     }
 
+    .rk-tabs .nav-link {
+        gap: 5px;
+        padding: 8px 6px;
+        font-size: 11px;
+    }
+
+    .rk-tabs .nav-link i {
+        width: 20px;
+        height: 20px;
+        font-size: 13px;
+    }
+
 }
 </style>
 
@@ -604,7 +617,7 @@
             ];
         @endphp
         <div class="pipeline-tabs-card">
-            <ul class="nav nav-pills rk-tabs" id="leadTabs">
+            <ul class="nav nav-pills rk-tabs" id="leadTabs" style="--pipeline-tab-count: {{ count($tabs) }};">
                 @foreach($tabs as $name => $statuses)
                 <li class="nav-item">
                     <a class="nav-link {{ $loop->first ? 'active' : '' }}" href="javascript:void(0)"

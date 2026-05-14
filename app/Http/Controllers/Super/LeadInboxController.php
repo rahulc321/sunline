@@ -128,7 +128,19 @@ class LeadInboxController extends Controller
 					'linear-gradient(135deg, #16a34a, #0f766e)',
 				];
 				$color = $gradients[($lead->id ?? 0) % count($gradients)];
-				$link = route('superadmin.leadDetails', $lead->id) . '?url=' . urlencode($url);
+				if ($url === 'customerPayment') {
+					$link = route('superadmin.cust.details', $lead->id);
+				} elseif ($url === 'coES') {
+					$link = route('superadmin.coes.details', $lead->id);
+				} elseif ($url === 'vicPayment') {
+					$link = route('superadmin.vic.details', $lead->id);
+				} elseif ($url === 'stcPayment') {
+					$link = route('superadmin.stcs.details', $lead->id);
+				} elseif ($url === 'connectionPaperwork') {
+					$link = route('superadmin.connection.details', $lead->id);
+				} else {
+					$link = route('superadmin.leadDetails', $lead->id) . '?url=' . urlencode($url);
+				}
 			
 				return '<a class="sales-person-link" href="' . $link . '"><span class="sales-person-avatar" style="background:' . $color . '">' . e($initial) . '</span><span class="sales-person-name">' . e($name) . '</span></a>';
 			})
@@ -156,11 +168,31 @@ class LeadInboxController extends Controller
 			// 		: '';
 			// })
 
-			->addColumn('status', function ($lead) use ($customStatus) {
+			->addColumn('status', function ($lead) use ($customStatus, $request) {
 
 				$status = (!empty($customStatus) && is_array($customStatus))
 					? implode(', ', $customStatus)
 					: trim($lead->status ?? '');
+
+				if ($request->url === 'customerPayment' && $status === 'Sold') {
+					$status = 'CUSTOMER PAYMENT PENDING';
+				}
+
+				if ($request->url === 'coES' && $status === 'Sold') {
+					$status = 'COES AWAITING';
+				}
+
+				if ($request->url === 'vicPayment' && $status === 'Sold') {
+					$status = 'SOLAR VIC CLAIM SUBMITTED';
+				}
+
+				if ($request->url === 'stcPayment' && $status === 'Sold') {
+					$status = 'STC CLAIM SUBMITTED';
+				}
+
+				if ($request->url === 'connectionPaperwork' && $status === 'Sold') {
+					$status = 'CONNECTION PAPERWORK NOT STARTED';
+				}
 			
 				$statusColors = [
 					'New'                => '#1769aa',
@@ -175,6 +207,23 @@ class LeadInboxController extends Controller
 					'Not Applied'        => '#102033',
 					'Awaiting Approval'  => '#d97706',
 					'Approved'           => '#36b37e',
+					'CUSTOMER PAYMENT PENDING' => '#d97706',
+					'CUSTOMER DEPOSIT PAID'    => '#1769aa',
+					'CUSTOMER BALANCE DUE'     => '#7c3aed',
+					'CUSTOMER PAID IN FULL'    => '#36b37e',
+					'COES AWAITING'            => '#d97706',
+					'COES RECEIVED'            => '#1769aa',
+					'SOLAR VIC CLAIM SUBMITTED' => '#1769aa',
+					'SOLAR VIC UNDER REVIEW' => '#d97706',
+					'SOLAR VIC APPROVED' => '#7c3aed',
+					'SOLAR VIC PAID' => '#36b37e',
+					'STC CLAIM SUBMITTED' => '#1769aa',
+					'STC UNDER REVIEW' => '#d97706',
+					'STC APPROVED' => '#7c3aed',
+					'STC PAID' => '#36b37e',
+					'CONNECTION PAPERWORK NOT STARTED' => '#65758b',
+					'CONNECTION PAPERWORK SUBMITTED' => '#1769aa',
+					'CONNECTION PAPERWORK APPROVED' => '#36b37e',
 				];
 
 				$statusIcons = [
@@ -190,12 +239,48 @@ class LeadInboxController extends Controller
 					'Not Applied'        => 'ph-minus-circle',
 					'Awaiting Approval'  => 'ph-hourglass-medium',
 					'Approved'           => 'ph-check-circle',
+					'CUSTOMER PAYMENT PENDING' => 'ph-hourglass-medium',
+					'CUSTOMER DEPOSIT PAID'    => 'ph-wallet',
+					'CUSTOMER BALANCE DUE'     => 'ph-receipt',
+					'CUSTOMER PAID IN FULL'    => 'ph-circle-wavy-check',
+					'COES AWAITING'            => 'ph-hourglass-medium',
+					'COES RECEIVED'            => 'ph-file-check',
+					'SOLAR VIC CLAIM SUBMITTED' => 'ph-file-plus',
+					'SOLAR VIC UNDER REVIEW' => 'ph-hourglass-medium',
+					'SOLAR VIC APPROVED' => 'ph-seal-check',
+					'SOLAR VIC PAID' => 'ph-circle-wavy-check',
+					'STC CLAIM SUBMITTED' => 'ph-file-plus',
+					'STC UNDER REVIEW' => 'ph-hourglass-medium',
+					'STC APPROVED' => 'ph-seal-check',
+					'STC PAID' => 'ph-circle-wavy-check',
+					'CONNECTION PAPERWORK NOT STARTED' => 'ph-minus-circle',
+					'CONNECTION PAPERWORK SUBMITTED' => 'ph-file-plus',
+					'CONNECTION PAPERWORK APPROVED' => 'ph-circle-wavy-check',
 				];
 
 				$color = $statusColors[$status] ?? '#65758b';
 				$icon = $statusIcons[$status] ?? 'ph-circle';
+				$displayStatus = [
+					'CUSTOMER PAYMENT PENDING' => 'Payment Pending',
+					'CUSTOMER DEPOSIT PAID' => 'Deposit Paid',
+					'CUSTOMER BALANCE DUE' => 'Balance Due',
+					'CUSTOMER PAID IN FULL' => 'Paid In Full',
+					'COES AWAITING' => 'Awaiting CoES',
+					'COES RECEIVED' => 'CoES Received',
+					'SOLAR VIC CLAIM SUBMITTED' => 'Claim Submitted',
+					'SOLAR VIC UNDER REVIEW' => 'Under Review',
+					'SOLAR VIC APPROVED' => 'Approved',
+					'SOLAR VIC PAID' => 'Paid',
+					'STC CLAIM SUBMITTED' => 'Claim Submitted',
+					'STC UNDER REVIEW' => 'Under Review',
+					'STC APPROVED' => 'Approved',
+					'STC PAID' => 'Paid',
+					'CONNECTION PAPERWORK NOT STARTED' => 'Not Started',
+					'CONNECTION PAPERWORK SUBMITTED' => 'Submitted',
+					'CONNECTION PAPERWORK APPROVED' => 'Approved',
+				][$status] ?? $status;
 
-				return '<span class="sales-status-badge" style="--status-color:' . e($color) . '"><i class="ph ' . e($icon) . '"></i><span>' . e($status ?: '-') . '</span></span>';
+				return '<span class="sales-status-badge" style="--status-color:' . e($color) . '"><i class="ph ' . e($icon) . '"></i><span>' . e($displayStatus ?: '-') . '</span></span>';
 			})
 
 			->addColumn('address', function ($lead) {
@@ -947,10 +1032,60 @@ class LeadInboxController extends Controller
 		}else if($request->url == 'bookInstallation'){
 			return view('super.leads.book.lead_details',$this->data);
 
+		}else if($request->url == 'customerPayment'){
+			return view('super.leads.cust.lead_details',$this->data);
+
+		}else if($request->url == 'coES'){
+			return view('super.leads.coes.lead_details',$this->data);
+
+		}else if($request->url == 'vicPayment'){
+			return view('super.leads.vicpay.lead_details',$this->data);
+
+		}else if($request->url == 'stcPayment'){
+			return view('super.leads.stcs.lead_details',$this->data);
+
+		}else if($request->url == 'connectionPaperwork'){
+			return view('super.leads.connection.lead_details',$this->data);
+
 		}else{
 			return view('super.leads.lead_details',$this->data);
 		}
 		
+	}
+
+	public function customerDetails($leadId, Request $request)
+	{
+		$request->merge(['url' => 'customerPayment']);
+
+		return $this->leadDetails($leadId, $request);
+	}
+
+	public function coesDetails($leadId, Request $request)
+	{
+		$request->merge(['url' => 'coES']);
+
+		return $this->leadDetails($leadId, $request);
+	}
+
+	public function vicPaymentDetails($leadId, Request $request)
+	{
+		$request->merge(['url' => 'vicPayment']);
+
+		return $this->leadDetails($leadId, $request);
+	}
+
+	public function stcPaymentDetails($leadId, Request $request)
+	{
+		$request->merge(['url' => 'stcPayment']);
+
+		return $this->leadDetails($leadId, $request);
+	}
+
+	public function connectionDetails($leadId, Request $request)
+	{
+		$request->merge(['url' => 'connectionPaperwork']);
+
+		return $this->leadDetails($leadId, $request);
 	}
 
 	public function saveDistributorApprovalMeta(Request $request)
@@ -1261,6 +1396,174 @@ class LeadInboxController extends Controller
 			]);
 		}
 
+	public function saveCoesMeta(Request $request)
+	{
+		$request->validate([
+			'lead_id' => 'required|integer|exists:leads,id',
+			'status' => 'required|string|in:COES AWAITING,COES RECEIVED',
+			'certificate_number' => 'nullable|string|max:255',
+			'received_date' => 'nullable|date',
+			'inspector_name' => 'nullable|string|max:255',
+			'notes' => 'nullable|string',
+		]);
+
+		$lead = Lead::findOrFail($request->lead_id);
+
+		$metaData = [
+			'coes_certificate_number' => $request->certificate_number ?? '',
+			'coes_received_date' => $request->received_date ?? '',
+			'coes_inspector_name' => $request->inspector_name ?? '',
+			'coes_notes' => $request->notes ?? '',
+		];
+
+		foreach ($metaData as $metaKey => $metaValue) {
+			LeadMeta::updateOrCreate(
+				[
+					'lead_id' => $lead->id,
+					'meta_key' => $metaKey,
+				],
+				[
+					'meta_value' => $metaValue,
+					'meta_type' => 'text',
+				]
+			);
+		}
+
+		$lead->status = $request->status;
+		$lead->save();
+
+		return response()->json([
+			'status' => true,
+			'message' => 'CoES data saved successfully.',
+		]);
+	}
+
+	public function saveVicPaymentMeta(Request $request)
+	{
+		$request->validate([
+			'lead_id' => 'required|integer|exists:leads,id',
+			'status' => 'required|string|in:SOLAR VIC CLAIM SUBMITTED,SOLAR VIC UNDER REVIEW,SOLAR VIC APPROVED,SOLAR VIC PAID',
+			'claim_number' => 'nullable|string|max:255',
+			'payment_date' => 'nullable|date',
+			'payment_amount' => 'nullable|numeric|min:0',
+			'notes' => 'nullable|string',
+		]);
+
+		$lead = Lead::findOrFail($request->lead_id);
+
+		$metaData = [
+			'vic_payment_claim_number' => $request->claim_number ?? '',
+			'vic_payment_date' => $request->payment_date ?? '',
+			'vic_payment_amount' => $request->payment_amount ?? '',
+			'vic_payment_notes' => $request->notes ?? '',
+		];
+
+		foreach ($metaData as $metaKey => $metaValue) {
+			LeadMeta::updateOrCreate(
+				[
+					'lead_id' => $lead->id,
+					'meta_key' => $metaKey,
+				],
+				[
+					'meta_value' => $metaValue,
+					'meta_type' => 'text',
+				]
+			);
+		}
+
+		$lead->status = $request->status;
+		$lead->save();
+
+		return response()->json([
+			'status' => true,
+			'message' => 'Solar VIC payment data saved successfully.',
+		]);
+	}
+
+	public function saveStcPaymentMeta(Request $request)
+	{
+		$request->validate([
+			'lead_id' => 'required|integer|exists:leads,id',
+			'status' => 'required|string|in:STC CLAIM SUBMITTED,STC UNDER REVIEW,STC APPROVED,STC PAID',
+			'claim_number' => 'nullable|string|max:255',
+			'payment_date' => 'nullable|date',
+			'payment_amount' => 'nullable|numeric|min:0',
+			'notes' => 'nullable|string',
+		]);
+
+		$lead = Lead::findOrFail($request->lead_id);
+
+		$metaData = [
+			'stc_payment_claim_number' => $request->claim_number ?? '',
+			'stc_payment_date' => $request->payment_date ?? '',
+			'stc_payment_amount' => $request->payment_amount ?? '',
+			'stc_payment_notes' => $request->notes ?? '',
+		];
+
+		foreach ($metaData as $metaKey => $metaValue) {
+			LeadMeta::updateOrCreate(
+				[
+					'lead_id' => $lead->id,
+					'meta_key' => $metaKey,
+				],
+				[
+					'meta_value' => $metaValue,
+					'meta_type' => 'text',
+				]
+			);
+		}
+
+		$lead->status = $request->status;
+		$lead->save();
+
+		return response()->json([
+			'status' => true,
+			'message' => 'STCs payment data saved successfully.',
+		]);
+	}
+
+	public function saveConnectionPaperworkMeta(Request $request)
+	{
+		$request->validate([
+			'lead_id' => 'required|integer|exists:leads,id',
+			'status' => 'required|string|in:CONNECTION PAPERWORK NOT STARTED,CONNECTION PAPERWORK SUBMITTED,CONNECTION PAPERWORK APPROVED',
+			'application_number' => 'nullable|string|max:255',
+			'submitted_date' => 'nullable|date',
+			'approval_date' => 'nullable|date',
+			'notes' => 'nullable|string',
+		]);
+
+		$lead = Lead::findOrFail($request->lead_id);
+
+		$metaData = [
+			'connection_application_number' => $request->application_number ?? '',
+			'connection_submitted_date' => $request->submitted_date ?? '',
+			'connection_approval_date' => $request->approval_date ?? '',
+			'connection_notes' => $request->notes ?? '',
+		];
+
+		foreach ($metaData as $metaKey => $metaValue) {
+			LeadMeta::updateOrCreate(
+				[
+					'lead_id' => $lead->id,
+					'meta_key' => $metaKey,
+				],
+				[
+					'meta_value' => $metaValue,
+					'meta_type' => 'text',
+				]
+			);
+		}
+
+		$lead->status = $request->status;
+		$lead->save();
+
+		return response()->json([
+			'status' => true,
+			'message' => 'Connection paperwork data saved successfully.',
+		]);
+	}
+
 
 		// /////////////////////////////For Salse ///////////////////////////
 	public function sales(Request $request)
@@ -1361,9 +1664,14 @@ class LeadInboxController extends Controller
 		$this->data = $this->commonLeadData();
 
 		$this->data['title'] = 'Customer Payment';
-		$this->data['desc'] = 'Manage and track workflow progress';
+		$this->data['desc'] = 'Track customer invoice, deposit, balance, and final payment progress';
 
 		$this->data['lstatus'] = ['Sold']; // pass to blade
+		$this->data['tabs'] = [
+			'Pending' => ['CUSTOMER PAYMENT PENDING', 'Sold'],
+			'Deposit Paid' => ['CUSTOMER DEPOSIT PAID', 'CUSTOMER BALANCE DUE'],
+			'Paid In Full' => ['CUSTOMER PAID IN FULL'],
+		];
 
 		return view('super.leads.index', $this->data);
 	}
@@ -1374,9 +1682,13 @@ class LeadInboxController extends Controller
 		$this->data = $this->commonLeadData();
 
 		$this->data['title'] = 'Awaiting CoES';
-		$this->data['desc'] = 'Manage and track workflow progress';
+		$this->data['desc'] = 'Track certificate of electrical safety collection and completion';
 
 		$this->data['lstatus'] = ['Sold']; // pass to blade
+		$this->data['tabs'] = [
+			'Awaiting CoES' => ['COES AWAITING', 'Sold'],
+			'CoES Received' => ['COES RECEIVED'],
+		];
 
 		return view('super.leads.index', $this->data);
 	}
@@ -1390,6 +1702,12 @@ class LeadInboxController extends Controller
 		$this->data['desc'] = 'Track Solar VIC rebate payments and claim processing';
 
 		$this->data['lstatus'] = ['Sold']; // pass to blade
+		$this->data['tabs'] = [
+			'Claim Submitted' => ['SOLAR VIC CLAIM SUBMITTED', 'Sold'],
+			'Under Review' => ['SOLAR VIC UNDER REVIEW'],
+			'Approved' => ['SOLAR VIC APPROVED'],
+			'Paid' => ['SOLAR VIC PAID'],
+		];
 
 		return view('super.leads.index', $this->data);
 	}
@@ -1403,6 +1721,12 @@ class LeadInboxController extends Controller
 		$this->data['desc'] = 'Track Small-scale Technology Certificate payments and processing';
 
 		$this->data['lstatus'] = ['Sold']; // pass to blade
+		$this->data['tabs'] = [
+			'Claim Submitted' => ['STC CLAIM SUBMITTED', 'Sold'],
+			'Under Review' => ['STC UNDER REVIEW'],
+			'Approved' => ['STC APPROVED'],
+			'Paid' => ['STC PAID'],
+		];
 
 		return view('super.leads.index', $this->data);
 	}
@@ -1416,6 +1740,11 @@ class LeadInboxController extends Controller
 		$this->data['desc'] = 'Manage network connection applications and approvals';
 
 		$this->data['lstatus'] = ['Sold']; // pass to blade
+		$this->data['tabs'] = [
+			'Not Started' => ['CONNECTION PAPERWORK NOT STARTED', 'Sold'],
+			'Submitted' => ['CONNECTION PAPERWORK SUBMITTED'],
+			'Approved' => ['CONNECTION PAPERWORK APPROVED'],
+		];
 
 		return view('super.leads.index', $this->data);
 	}
