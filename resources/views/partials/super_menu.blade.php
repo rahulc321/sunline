@@ -375,14 +375,14 @@ div#jsGrid1_filter {
             <li class="nav-item">
                 <a href="{{ route('superadmin.complianceCheck') }}"
                     class="nav-link {{ request()->is('superadmin/complianceCheck') ? 'active' : '' }}">
-                    <i class="ph-currency-dollar"></i><span>Compliance Check</span>
+                    <i class="ph-shield-check"></i><span>Compliance Check</span>
                 </a>
             </li>
 
             <li class="nav-item">
                 <a href="{{ route('superadmin.bookInstallation') }}"
                     class="nav-link {{ request()->is('superadmin/bookInstallation') ? 'active' : '' }}">
-                    <i class="ph-currency-dollar"></i><span>Book Installation</span>
+                    <i class="ph-calendar-check"></i><span>Book Installation</span>
                 </a>
             </li>
 
@@ -397,49 +397,49 @@ div#jsGrid1_filter {
             <li class="nav-item">
                 <a href="{{ route('superadmin.coES') }}"
                     class="nav-link {{ request()->is('superadmin/coES') ? 'active' : '' }}">
-                    <i class="ph-currency-dollar"></i><span>Awaiting CoES</span>
+                    <i class="ph-file-text"></i><span>Awaiting CoES</span>
                 </a>
             </li>
 
             <li class="nav-item">
                 <a href="{{ route('superadmin.vicPayment') }}"
                     class="nav-link {{ request()->is('superadmin/vicPayment') ? 'active' : '' }}">
-                    <i class="ph-currency-dollar"></i><span>Solar VIC Payment</span>
+                    <i class="ph-sparkle"></i><span>Solar VIC Payment</span>
                 </a>
             </li>
 
             <li class="nav-item">
                 <a href="{{ route('superadmin.stcPayment') }}"
                     class="nav-link {{ request()->is('superadmin/stcPayment') ? 'active' : '' }}">
-                    <i class="ph-currency-dollar"></i><span>STCs Payment</span>
+                    <i class="ph-stamp"></i><span>STCs Payment</span>
                 </a>
             </li>
 
             <li class="nav-item">
                 <a href="{{ route('superadmin.connectionPaperwork') }}"
                     class="nav-link {{ request()->is('superadmin/connectionPaperwork') ? 'active' : '' }}">
-                    <i class="ph-currency-dollar"></i><span>Connection Paperwork</span>
+                    <i class="ph-plugs-connected"></i><span>Connection Paperwork</span>
                 </a>
             </li>
 
             <li class="nav-item">
                 <a href="{{ route('superadmin.supplierPayment') }}"
                     class="nav-link {{ request()->is('superadmin/supplierPayment') ? 'active' : '' }}">
-                    <i class="ph-currency-dollar"></i><span>Supplier Payment</span>
+                    <i class="ph-package"></i><span>Supplier Payment</span>
                 </a>
             </li>
 
             <li class="nav-item">
                 <a href="{{ route('superadmin.installerPayment') }}"
                     class="nav-link {{ request()->is('superadmin/installerPayment') ? 'active' : '' }}">
-                    <i class="ph-currency-dollar"></i><span>Installer Payment</span>
+                    <i class="ph-wrench"></i><span>Installer Payment</span>
                 </a>
             </li>
 
             <li class="nav-item">
                 <a href="{{ route('superadmin.salesRepPayment') }}"
                     class="nav-link {{ request()->is('superadmin/salesRepPayment') ? 'active' : '' }}">
-                    <i class="ph-currency-dollar"></i><span>Sales Rep Payment</span>
+                    <i class="ph-user-circle-gear"></i><span>Sales Rep Payment</span>
                 </a>
             </li>
 
