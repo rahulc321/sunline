@@ -700,7 +700,7 @@
     <div class="rk-hero">
         <div>
             <div class="rk-hero-kicker"><i class="ph ph-sun"></i> Superadmin Dashboard</div>
-            <h1>Control center for sales, approvals, and pipeline health.</h1>
+            <h1>Control center for sales, approvals, and pipeline health..</h1>
             <p>Track active leads, monitor source performance, and jump into the work that needs attention.</p>
         </div>
         <a href="{{ route('superadmin.sales') }}" class="rk-hero-action">
