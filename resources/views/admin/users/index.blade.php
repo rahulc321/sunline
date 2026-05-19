@@ -14,52 +14,117 @@
         --user-gold: #f59e0b;
         font-family: inherit;
         color: var(--user-ink);
-        padding-top: 14px !important;
+        position: relative;
+        padding: 18px !important;
+        border-radius: 18px;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, .92), rgba(238, 247, 255, .72)),
+            radial-gradient(circle at 12% 4%, rgba(56, 189, 248, .20), transparent 31%),
+            radial-gradient(circle at 92% 8%, rgba(129, 140, 248, .16), transparent 30%),
+            #f7fbff;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .92);
     }
 
     .users-page .stat-grid {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(6, minmax(0, 1fr));
         gap: 14px;
-        margin-bottom: 14px;
+        margin-bottom: 16px;
     }
 
     .users-page .user-stat {
         position: relative;
         overflow: hidden;
-        min-height: 108px;
-        padding: 18px;
-        border: 1px solid rgba(255, 255, 255, .16);
-        border-radius: 16px;
+        min-height: 132px;
+        padding: 15px 16px 14px;
+        border: 1px solid rgba(255, 255, 255, .34);
+        border-radius: 13px;
         background:
-            linear-gradient(145deg, rgba(15, 23, 42, .98) 0%, rgba(9, 37, 117, .92) 55%, rgba(11, 56, 182, .88) 100%),
-            linear-gradient(90deg, rgba(255, 255, 255, .08) 1px, transparent 1px);
-        background-size: auto, 34px 34px;
+            linear-gradient(155deg, rgba(255, 255, 255, .22) 0%, rgba(255, 255, 255, .05) 31%, rgba(255, 255, 255, 0) 32%),
+            linear-gradient(145deg, #0c6ca8 0%, #0583c2 54%, #25b7ee 100%);
         color: #ffffff;
-        box-shadow: 0 14px 34px rgba(15, 23, 42, .14);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, .34),
+            inset 0 -28px 42px rgba(255, 255, 255, .08),
+            0 14px 24px rgba(15, 23, 42, .12);
+        isolation: isolate;
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .users-page .user-stat:hover {
+        transform: translateY(-2px);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, .38),
+            inset 0 -28px 42px rgba(255, 255, 255, .10),
+            0 18px 28px rgba(15, 23, 42, .16);
+    }
+
+    .users-page .user-stat:before {
+        content: "";
+        position: absolute;
+        inset: auto -38px -58px auto;
+        width: 138px;
+        height: 138px;
+        border-radius: 50%;
+        background:
+            radial-gradient(circle at 34% 34%, rgba(255, 255, 255, .36), rgba(255, 255, 255, .05) 58%, transparent 60%),
+            repeating-linear-gradient(90deg, rgba(255, 255, 255, .14) 0 1px, transparent 1px 6px);
+        opacity: .55;
+        z-index: -1;
     }
 
     .users-page .user-stat:after {
         content: "";
         position: absolute;
-        inset: -42px -34px auto auto;
-        width: 112px;
-        height: 112px;
-        border-radius: 36px;
-        background: rgba(255, 255, 255, .10);
-        transform: rotate(18deg);
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, .24) 0%, rgba(255, 255, 255, 0) 34%);
+        opacity: .58;
+        pointer-events: none;
+        z-index: -2;
     }
 
-    .users-page .user-stat.stat-teal {
-        background: linear-gradient(145deg, #0f172a 0%, #0f766e 58%, #14b8a6 100%);
+    .users-page .user-stat .stat-top:after {
+        content: "";
+        position: absolute;
+        top: -10px;
+        right: -8px;
+        width: 72px;
+        height: 28px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgba(255, 255, 255, .34), rgba(255, 255, 255, 0));
+        filter: blur(.2px);
+        transform: rotate(-8deg);
+        pointer-events: none;
     }
 
-    .users-page .user-stat.stat-green {
-        background: linear-gradient(145deg, #0f172a 0%, #166534 58%, #22c55e 100%);
+    .users-page .stat-indigo {
+        background:
+            linear-gradient(155deg, rgba(255, 255, 255, .22) 0%, rgba(255, 255, 255, .05) 31%, rgba(255, 255, 255, 0) 32%),
+            linear-gradient(145deg, #4853bb 0%, #5b6bd8 56%, #8094ff 100%);
     }
 
-    .users-page .user-stat.stat-gold {
-        background: linear-gradient(145deg, #0f172a 0%, #92400e 58%, #f59e0b 100%);
+    .users-page .stat-teal {
+        background:
+            linear-gradient(155deg, rgba(255, 255, 255, .22) 0%, rgba(255, 255, 255, .05) 31%, rgba(255, 255, 255, 0) 32%),
+            linear-gradient(145deg, #0a9189 0%, #12b7ad 56%, #38dfcf 100%);
+    }
+
+    .users-page .stat-amber {
+        background:
+            linear-gradient(155deg, rgba(255, 255, 255, .22) 0%, rgba(255, 255, 255, .05) 31%, rgba(255, 255, 255, 0) 32%),
+            linear-gradient(145deg, #d96822 0%, #ef8b37 56%, #ffc26d 100%);
+    }
+
+    .users-page .stat-green {
+        background:
+            linear-gradient(155deg, rgba(255, 255, 255, .22) 0%, rgba(255, 255, 255, .05) 31%, rgba(255, 255, 255, 0) 32%),
+            linear-gradient(145deg, #158b4b 0%, #20b35f 56%, #58d887 100%);
+    }
+
+    .users-page .stat-rose {
+        background:
+            linear-gradient(155deg, rgba(255, 255, 255, .22) 0%, rgba(255, 255, 255, .05) 31%, rgba(255, 255, 255, 0) 32%),
+            linear-gradient(145deg, #b6272e 0%, #d83a40 56%, #f06d6d 100%);
     }
 
     .users-page .stat-icon {
@@ -68,38 +133,81 @@
         justify-content: center;
         width: 38px;
         height: 38px;
-        border-radius: 12px;
-        background: rgba(255, 255, 255, .14);
+        border: 1px solid rgba(255, 255, 255, .28);
+        border-radius: 11px;
+        background: rgba(255, 255, 255, .18);
         color: #ffffff;
         font-size: 18px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 8px 14px rgba(15, 23, 42, .10);
+    }
+
+    .users-page .stat-top {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .users-page .stat-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, .15);
+        color: rgba(255, 255, 255, .92);
+        font-size: 10px;
+        font-weight: 850;
     }
 
     .users-page .stat-value {
         position: relative;
         z-index: 1;
-        margin: 12px 0 2px;
+        margin: 23px 0 3px;
         color: #ffffff;
         font-size: 28px;
         line-height: 1;
         font-weight: 850;
+        letter-spacing: 0;
     }
 
     .users-page .stat-label {
         position: relative;
         z-index: 1;
-        color: rgba(255, 255, 255, .72);
-        font-size: 11px;
+        color: rgba(255, 255, 255, .86);
+        font-size: 12px;
         font-weight: 800;
-        letter-spacing: .08em;
-        text-transform: uppercase;
+        letter-spacing: 0;
+    }
+
+    .users-page .stat-pill {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 11px;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, .17);
+        color: rgba(255, 255, 255, .94);
+        font-size: 10px;
+        font-weight: 850;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16);
     }
 
     .users-page .users-panel {
         overflow: hidden;
-        border: 1px solid var(--user-border) !important;
-        border-radius: 16px !important;
-        background: #ffffff;
-        box-shadow: 0 14px 34px rgba(21, 32, 51, .08) !important;
+        border: 1px solid rgba(255, 255, 255, .76) !important;
+        border-radius: 18px !important;
+        background:
+            linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(246, 250, 255, .86));
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, .95),
+            0 18px 38px rgba(21, 32, 51, .10) !important;
+        backdrop-filter: blur(12px);
     }
 
     .users-page .panel-toolbar {
@@ -108,10 +216,11 @@
         justify-content: space-between;
         gap: 12px;
         padding: 16px 18px;
-        border-bottom: 1px solid #edf1f7;
+        border-bottom: 1px solid rgba(219, 227, 239, .78);
         background:
-            linear-gradient(135deg, rgba(37, 99, 235, .08), rgba(15, 118, 110, .08)),
-            #fbfdff;
+            linear-gradient(135deg, rgba(255, 255, 255, .82), rgba(255, 255, 255, .34)),
+            linear-gradient(135deg, rgba(37, 99, 235, .10), rgba(20, 184, 166, .10));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .92);
     }
 
     .users-page .panel-title {
@@ -142,8 +251,13 @@
 
     .users-page .btn-create {
         border: 0;
-        background: linear-gradient(135deg, var(--user-blue), var(--user-teal));
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, .18), rgba(255, 255, 255, 0) 36%),
+            linear-gradient(135deg, var(--user-blue), var(--user-teal));
         color: #ffffff;
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, .30),
+            0 10px 20px rgba(37, 99, 235, .20) !important;
     }
 
     .users-page .table-responsive {
@@ -163,12 +277,15 @@
     .users-page #jsGrid1_wrapper > .row:first-child {
         margin: 16px 18px 0 !important;
         padding: 12px;
-        border: 1px solid #e6ecf5;
+        border: 1px solid rgba(255, 255, 255, .78);
         border-radius: 14px;
         background:
-            linear-gradient(135deg, rgba(37, 99, 235, .08), rgba(15, 118, 110, .08)),
-            #f8fbff;
+            linear-gradient(135deg, rgba(255, 255, 255, .88), rgba(255, 255, 255, .42)),
+            linear-gradient(135deg, rgba(37, 99, 235, .08), rgba(15, 118, 110, .08));
         align-items: center;
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, .94),
+            0 10px 22px rgba(21, 32, 51, .05);
     }
 
     .users-page .datatable-header .form-control,
@@ -203,14 +320,19 @@
         margin-top: 14px !important;
         border-collapse: separate !important;
         border-spacing: 0;
-        border: 1px solid #e6ecf5;
+        border: 1px solid rgba(224, 232, 245, .92);
         border-radius: 14px;
         overflow: hidden;
+        background: rgba(255, 255, 255, .82);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, .95),
+            0 12px 24px rgba(21, 32, 51, .05);
     }
 
     .users-page .table thead th {
         border: 0 !important;
-        background: linear-gradient(135deg, #f3f7fc, #eef6ff) !important;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, .78), rgba(232, 243, 255, .92)) !important;
         color: #475467 !important;
         font-size: 11px;
         font-weight: 850;
@@ -224,6 +346,11 @@
         color: #334155 !important;
         font-size: 13px;
         font-weight: 500;
+        background: rgba(255, 255, 255, .62);
+    }
+
+    .users-page .table tbody tr:hover td {
+        background: linear-gradient(135deg, rgba(239, 248, 255, .96), rgba(255, 255, 255, .88));
     }
 
     .users-page .user-identity {
@@ -246,7 +373,9 @@
         font-size: 12px;
         font-weight: 850;
         letter-spacing: .03em;
-        box-shadow: 0 8px 18px rgba(37, 99, 235, .18);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, .28),
+            0 8px 18px rgba(37, 99, 235, .18);
     }
 
     .users-page .avatar-teal { background: linear-gradient(135deg, #0f766e, #2dd4bf); }
@@ -271,10 +400,14 @@
         margin: 2px;
         padding: 5px 8px;
         border-radius: 999px;
-        background: rgba(37, 99, 235, .10);
+        border: 1px solid rgba(255, 255, 255, .72);
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, .72), rgba(255, 255, 255, .20)),
+            rgba(37, 99, 235, .10);
         color: #1d4ed8;
         font-size: 11px;
         font-weight: 750;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .86);
     }
 
     .users-page .role-superadmin {
@@ -308,10 +441,14 @@
         gap: 5px;
         padding: 5px 8px;
         border-radius: 999px;
-        background: rgba(15, 118, 110, .10);
+        border: 1px solid rgba(255, 255, 255, .72);
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, .72), rgba(255, 255, 255, .20)),
+            rgba(15, 118, 110, .10);
         color: #0f766e;
         font-size: 11px;
         font-weight: 800;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .86);
     }
 
     .users-page .action-cell {
@@ -328,6 +465,8 @@
         height: 32px;
         padding: 0;
         border-radius: 9px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, .78), rgba(255, 255, 255, .22));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .88);
     }
 
     .users-page .datatable-footer {
@@ -338,7 +477,7 @@
 
     @media (max-width: 991.98px) {
         .users-page .stat-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
         }
     }
 
@@ -353,6 +492,10 @@
         .users-page .stat-grid {
             grid-template-columns: 1fr;
         }
+
+        .users-page .user-stat {
+            min-height: 124px;
+        }
     }
 </style>
 @endsection
@@ -364,29 +507,65 @@
     $usersWithRoles = $userCollection->filter(fn($user) => $user->roles->count() > 0)->count();
     $emailUsers = $userCollection->filter(fn($user) => filled($user->email ?? null))->count();
     $zoomUsers = $userCollection->filter(fn($user) => filled($user->zoom_ext ?? null))->count();
+    $connectedGmailUsers = $userCollection->filter(fn($user) => $user->is_email_connected && $user->email_provider === 'gmail')->count();
+    $usersWithoutRoles = max($totalUsers - $usersWithRoles, 0);
 @endphp
 
 <div class="content users-page pt-0">
     <section class="stat-grid">
         <div class="user-stat">
-            <span class="stat-icon"><i class="ph-users-three"></i></span>
+            <div class="stat-top">
+                <span class="stat-icon"><i class="ph-users-three"></i></span>
+                <span class="stat-link">View <i class="ph-arrow-up-right"></i></span>
+            </div>
             <div class="stat-value">{{ number_format($totalUsers) }}</div>
             <div class="stat-label">Total Users</div>
+            <div class="stat-pill"><i class="ph-chart-line-up"></i> Directory</div>
         </div>
-        <div class="user-stat stat-teal">
-            <span class="stat-icon"><i class="ph-identification-card"></i></span>
+        <div class="user-stat stat-indigo">
+            <div class="stat-top">
+                <span class="stat-icon"><i class="ph-identification-card"></i></span>
+                <span class="stat-link">View <i class="ph-arrow-up-right"></i></span>
+            </div>
             <div class="stat-value">{{ number_format($usersWithRoles) }}</div>
             <div class="stat-label">Assigned Roles</div>
+            <div class="stat-pill"><i class="ph-shield-check"></i> Access ready</div>
         </div>
-        <div class="user-stat stat-green">
-            <span class="stat-icon"><i class="ph-envelope-simple"></i></span>
+        <div class="user-stat stat-teal">
+            <div class="stat-top">
+                <span class="stat-icon"><i class="ph-envelope-simple"></i></span>
+                <span class="stat-link">View <i class="ph-arrow-up-right"></i></span>
+            </div>
             <div class="stat-value">{{ number_format($emailUsers) }}</div>
             <div class="stat-label">Email Accounts</div>
+            <div class="stat-pill"><i class="ph-at"></i> Contactable</div>
         </div>
-        <div class="user-stat stat-gold">
-            <span class="stat-icon"><i class="ph-phone-call"></i></span>
+        <div class="user-stat stat-amber">
+            <div class="stat-top">
+                <span class="stat-icon"><i class="ph-phone-call"></i></span>
+                <span class="stat-link">View <i class="ph-arrow-up-right"></i></span>
+            </div>
             <div class="stat-value">{{ number_format($zoomUsers) }}</div>
             <div class="stat-label">Zoom Extensions</div>
+            <div class="stat-pill"><i class="ph-headset"></i> Calling setup</div>
+        </div>
+        <div class="user-stat stat-green">
+            <div class="stat-top">
+                <span class="stat-icon"><i class="ph-check"></i></span>
+                <span class="stat-link">View <i class="ph-arrow-up-right"></i></span>
+            </div>
+            <div class="stat-value">{{ number_format($connectedGmailUsers) }}</div>
+            <div class="stat-label">Gmail Connected</div>
+            <div class="stat-pill"><i class="ph-plug-charging"></i> Connected</div>
+        </div>
+        <div class="user-stat stat-rose">
+            <div class="stat-top">
+                <span class="stat-icon"><i class="ph-warning-circle"></i></span>
+                <span class="stat-link">View <i class="ph-arrow-up-right"></i></span>
+            </div>
+            <div class="stat-value">{{ number_format($usersWithoutRoles) }}</div>
+            <div class="stat-label">Missing Roles</div>
+            <div class="stat-pill"><i class="ph-user-focus"></i> Needs review</div>
         </div>
     </section>
 
