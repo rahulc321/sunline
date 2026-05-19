@@ -12,6 +12,7 @@ class SyncGmailEmails extends Command
     protected $signature = 'gmail:sync';
     protected $description = 'Sync Gmail emails (read, unread, sent)';
 
+    
     public function handle()
     {
         User::where('is_email_connected', true)
