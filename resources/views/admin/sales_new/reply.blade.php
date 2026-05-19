@@ -139,7 +139,18 @@ document.addEventListener('submit', function(e) {
         .then(res => res.json())
         .then(res => {
             if (res.status) {
-                location.reload();
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Reply sent',
+                        text: res.message || 'Email sent successfully.',
+                        timer: 1600,
+                        showConfirmButton: false
+                    }).then(() => location.reload());
+                } else {
+                    alert(res.message || 'Email sent successfully.');
+                    location.reload();
+                }
             } else {
                 alert(res.message || 'Failed');
             }
