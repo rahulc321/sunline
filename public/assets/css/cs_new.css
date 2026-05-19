@@ -1,6 +1,6 @@
 .sunline-gloss-bar {
     position: relative;
-    z-index: 1060;
+    z-index: 1025;
     padding: 0.45rem 0.75rem;
     background:
         radial-gradient(circle at 12% 35%, rgba(125, 211, 252, 0.42), transparent 32%),
@@ -49,7 +49,28 @@
 
 .content-inner {
     position: relative;
-    z-index: 1;
+    z-index: auto;
+}
+
+.modal-backdrop,
+.offcanvas-backdrop {
+    z-index: 1990 !important;
+}
+
+.modal,
+.offcanvas {
+    z-index: 2000 !important;
+}
+
+.offcanvas {
+    border-radius: 0 !important;
+}
+
+.offcanvas .offcanvas-header,
+.offcanvas .offcanvas-body,
+.offcanvas .modal-content,
+.offcanvas .card {
+    border-radius: 0 !important;
 }
 
 .sunline-gloss-content::before {
@@ -136,7 +157,7 @@
     gap: 0.5rem;
     justify-content: flex-end;
     position: relative;
-    z-index: 1070;
+    z-index: 1030;
     margin: 0;
 }
 
@@ -238,7 +259,7 @@
     right: 0 !important;
     left: auto !important;
     margin-top: 0.55rem;
-    z-index: 1080;
+    z-index: 1035;
 }
 
 .sunline-gloss-actions .dropdown-menu {
