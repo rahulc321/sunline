@@ -6,14 +6,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌞</text></svg>">
 
     <title>Sunline Energy - @yield('title', 'Sunline Energy')</title>
     <link href="{{ asset('vendor/fonts/inter/inter.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('vendor/icons/phosphor/styles.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('assets/css/ltr/all.min.css') }}" id="stylesheet" rel="stylesheet" type="text/css">
+
+    <link href="{{ asset('assets/css/cs_new.css') }}" id="stylesheet" rel="stylesheet" type="text/css">
+    <script src="{{ asset('assets/js/custom.js') }}"></script>
     <!-- /global stylesheets -->
 
     <!-- Core JS files -->
+    <script src="{{ asset('vendor/demo/demo_configurator.js') }}"></script>
     <script src="{{ asset('vendor/demo/demo_configurator.js') }}"></script>
     <script src="{{ asset('vendor/js/bootstrap/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('vendor/js/jquery/jquery.min.js') }}"></script>
@@ -24,7 +30,7 @@
     <script src="{{ asset('vendor/demo/pages/datatables_extension_responsive.js') }}"></script>
     <script src="{{ asset('vendor/js/vendor/forms/selects/select2.min.js') }}"></script>
     <script src="{{ asset('vendor/js/vendor/notifications/sweetalert2@11.js') }}"></script>
-   
+
 
     <script>
     $(document).ready(function() {
@@ -84,6 +90,11 @@
 </head>
 
 <body>
+    <style>
+        .nav-link {
+            font-weight: normal !important;
+        }
+    </style>
     <!-- Page content -->
     <div class="page-content">
 
@@ -106,7 +117,7 @@
 
                     <div class="d-flex align-items-center lh-sm">
                         <!-- Blue icon -->
-                        <div class="logo_text"
+                        <div class="logo_text d-none"
                             style="padding: 6px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="white" stroke-width="2" stroke-linecap="round"
@@ -124,8 +135,14 @@
 
                         <!-- Text block -->
                         <div>
-                            <div class="fw-bold text-dark">Sunline Energy</div>
-                            <small class="text-muted">CRM Platform</small>
+                            <!-- <div class="fw-bold text-dark">Sunline Energy</div>
+                            <small class="text-muted">CRM Platform</small> -->
+
+                            <img src="{{ url('/') }}/logo.png" style=" 
+    left: 42%;
+    width: 71%;
+    position: absolute;
+    transform: translate(-50%, -50%);" alt="Logo">
                         </div>
                     </div>
 
@@ -158,8 +175,124 @@
         <!-- Main content -->
         <div class="content-wrapper">
 
+            <div class="sunline-gloss-bar">
+                <div class="sunline-gloss-content">
+                    <div class="sunline-gloss-copy">
+                        <button type="button" class="sunline-gloss-menu sidebar-mobile-main-toggle d-lg-none">
+                            <i class="ph-list"></i>
+                        </button>
+                        <span class="sunline-gloss-icon"><i class="ph-sun-horizon"></i></span>
+                        <div>
+                            <span class="sunline-gloss-eyebrow">Sunline Workspace</span>
+                            <strong>Salses CRM</strong>
+                            <small>{{ env('TAG_LINE') }}</small>
+                        </div>
+                    </div>
+                    <ul class="sunline-gloss-actions nav hstack gap-sm-1 flex-row justify-content-end">
+                        <li class="nav-item nav-item-dropdown-lg dropdown">
+                            <a href="#" class="sunline-gloss-bell" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                <i class="ph-bell"></i>
+                                <span class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill notification">{{ auth()->user()->unreadNotifications->count() }}</span>
+                            </a>
+
+                            <div class="dropdown-menu dropdown-menu-end wmin-lg-400 p-0">
+                                <div class="d-flex align-items-center p-3">
+                                    <h6 class="mb-0">Notifications</h6>
+                                    <div class="ms-auto">
+                                        <a href="{{ route('admin.notifications.markAllRead') }}" class="text-body">
+                                            <i class="ph-checks"></i>
+                                        </a>
+                                        <a href="#search_notifications_gloss_admin" class="collapsed text-body ms-2" data-bs-toggle="collapse">
+                                            <i class="ph-magnifying-glass"></i>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="collapse" id="search_notifications_gloss_admin">
+                                    <div class="px-3 mb-2">
+                                        <div class="form-control-feedback form-control-feedback-start">
+                                            <input type="text" class="form-control" placeholder="Search notifications" id="searchNotificationInputGlossAdmin">
+                                            <div class="form-control-feedback-icon">
+                                                <i class="ph-magnifying-glass"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <?php $notifications = auth()->user()->unreadNotifications()->latest()->get(); ?>
+                                <div class="dropdown-menu-scrollable pb-2" id="notificationsListGlossAdmin">
+                                    @include('partials.notifications_list', ['notifications' => $notifications])
+                                </div>
+
+                                <div class="d-flex border-top py-2 px-3">
+                                    <a href="{{ route('admin.notifications.markAllRead') }}" class="text-body">
+                                        <i class="ph-checks me-1"></i> Dismiss all
+                                    </a>
+                                    <a href="{{ route('admin.notifications.index') }}" class="text-body ms-auto">
+                                        View all
+                                        <i class="ph-arrow-circle-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li class="nav-item nav-item-dropdown-lg dropdown">
+                            <a href="#" class="sunline-gloss-user" data-bs-toggle="dropdown">
+                                <div class="media media-danger">
+                                    @php
+                                    $firstLetter = strtoupper(substr(\Auth::user()->name, 0, 1));
+                                    @endphp
+                                    {{ $firstLetter }}
+                                </div>
+                                <span>Hi, <span>{{ @\Auth::user()->name }}</span></span>
+                            </a>
+
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a href="{{route('admin.profile')}}" class="dropdown-item">
+                                    <i class="ph-user-circle me-2"></i>
+                                    My profile
+                                </a>
+                                <div class="dropdown-divider"></div>
+
+                                <a href="{{route('admin.connectGmail')}}" class="dropdown-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="ph-link-simple me-2" style="color:#0d6efd; font-size:18px;"></i>
+                                        Connect with Gmail
+                                    </div>
+                                    @if(auth()->user()->is_email_connected && auth()->user()->email_provider === 'gmail')
+                                    <span class="badge bg-success rounded-pill">Connected</span>
+                                    @endif
+                                </a>
+
+                                <a href="#" class="dropdown-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="ph-sun me-2" style="color: #f7b500; font-size: 18px;"></i>
+                                        Solar Tier
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">{{ auth()->user()->tier_solar ?? '0' }}</span>
+                                </a>
+
+                                <a href="#" class="dropdown-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="ph-battery-charging me-2" style="color: #28a745; font-size: 18px;"></i>
+                                        Battery Tier
+                                    </div>
+                                    <span class="badge bg-success rounded-pill">{{ auth()->user()->tier_battery ?? '0' }}</span>
+                                </a>
+
+                                <div class="dropdown-divider"></div>
+                                <a href="{{route('admin.logout')}}" class="dropdown-item">
+                                    <i class="ph-sign-out me-2"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
             <!-- Main navbar -->
-            <div class="navbar navbar-expand-lg navbar-static shadow">
+            <div class="navbar navbar-expand-lg navbar-static shadow sunline-hidden-navbar">
                 <div class="container-fluid">
                     <div class="d-flex d-lg-none me-2">
                         <button type="button" class="navbar-toggler sidebar-mobile-main-toggle rounded-pill">
@@ -170,7 +303,8 @@
                     <div class="navbar-collapse flex-lg-1 order-2 order-lg-1 collapse" id="navbar_search">
                         <div class="navbar-search flex-fill dropdown mt-2 mt-lg-0">
                             <div class="form-control-feedback form-control-feedback-start flex-grow-1">
-                                <h6>Solar CRM Dashboard</h6>
+                                <h6 style="margin-bottom: calc(var(--spacer) * -0.25);">🌞 Salses CRM</h6>
+                                <small>{{env('TAG_LINE')}}</small>
 
 
                                 <div class="dropdown-menu w-100">
@@ -442,137 +576,70 @@
                                 </div>
                             </div>
                         </li>
-                        <li class="nav-item nav-item-dropdown-lg dropdown ms-lg-2  d-none">
+                        <li class="nav-item nav-item-dropdown-lg dropdown ms-lg-2  d-none1">
                             <a href="#" class="navbar-nav-link navbar-nav-link-icon rounded-pill"
                                 data-bs-toggle="dropdown" data-bs-auto-close="outside">
-                                <i class="ph-chats"></i>
+                                <i class="ph-bell"></i>
                                 <span
-                                    class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1">8</span>
+                                    class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1 notification">{{ auth()->user()->unreadNotifications->count() }}</span>
                             </a>
 
                             <div class="dropdown-menu wmin-lg-400 p-0">
+
                                 <div class="d-flex align-items-center p-3">
-                                    <h6 class="mb-0">Messages</h6>
+                                    <h6 class="mb-0">Notifications</h6>
                                     <div class="ms-auto">
-                                        <a href="#" class="text-body">
-                                            <i class="ph-plus-circle"></i>
+                                        <a href="{{ route('admin.notifications.markAllRead') }}" class="text-body">
+                                            <i class="ph-checks"></i>
                                         </a>
-                                        <a href="#search_messages" class="collapsed text-body ms-2"
+                                        <a href="#search_notifications" class="collapsed text-body ms-2"
                                             data-bs-toggle="collapse">
                                             <i class="ph-magnifying-glass"></i>
                                         </a>
                                     </div>
                                 </div>
 
-                                <div class="collapse" id="search_messages">
+                                <div class="collapse" id="search_notifications">
                                     <div class="px-3 mb-2">
                                         <div class="form-control-feedback form-control-feedback-start">
-                                            <input type="text" class="form-control" placeholder="Search messages">
+                                            <input type="text" class="form-control" placeholder="Search notifications"
+                                                id="searchNotificationInput">
                                             <div class="form-control-feedback-icon">
                                                 <i class="ph-magnifying-glass"></i>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                                <style>
+                                .dropdown-menu[data-bs-popper] {
+                                    top: 100%;
+                                    left: -175px !important;
+                                    margin-top: var(--dropdown-spacer);
 
-                                <div class="dropdown-menu-scrollable pb-2">
-                                    <a href="#" class="dropdown-item align-items-start text-wrap py-2">
-                                        <div class="status-indicator-container me-3">
-                                            <img src="{{ asset('vendor/images/demo/users/face10.jpg')}}"
-                                                class="w-40px h-40px rounded-pill" alt="">
-                                            <span class="status-indicator bg-warning"></span>
-                                        </div>
+                                }
 
-                                        <div class="flex-1">
-                                            <span class="fw-semibold">James Alexander</span>
-                                            <span class="text-muted float-end fs-sm">04:58</span>
-                                            <div class="text-muted">who knows, maybe that would be the best thing for
-                                                me...</div>
-                                        </div>
-                                    </a>
-
-                                    <a href="#" class="dropdown-item align-items-start text-wrap py-2">
-                                        <div class="status-indicator-container me-3">
-                                            <img src="{{ asset('vendor/images/demo/users/face3.jpg')}}"
-                                                class="w-40px h-40px rounded-pill" alt="">
-                                            <span class="status-indicator bg-success"></span>
-                                        </div>
-
-                                        <div class="flex-1">
-                                            <span class="fw-semibold">Margo Baker</span>
-                                            <span class="text-muted float-end fs-sm">12:16</span>
-                                            <div class="text-muted">That was something he was unable to do because...
-                                            </div>
-                                        </div>
-                                    </a>
-
-                                    <a href="#" class="dropdown-item align-items-start text-wrap py-2">
-                                        <div class="status-indicator-container me-3">
-                                            <img src="{{ asset('vendor/images/demo/users/face24.jpg')}}"
-                                                class="w-40px h-40px rounded-pill" alt="">
-                                            <span class="status-indicator bg-success"></span>
-                                        </div>
-                                        <div class="flex-1">
-                                            <span class="fw-semibold">Jeremy Victorino</span>
-                                            <span class="text-muted float-end fs-sm">22:48</span>
-                                            <div class="text-muted">But that would be extremely strained and
-                                                suspicious...</div>
-                                        </div>
-                                    </a>
-
-                                    <a href="#" class="dropdown-item align-items-start text-wrap py-2">
-                                        <div class="status-indicator-container me-3">
-                                            <img src="{{ asset('vendor/images/demo/users/face4.jpg')}}"
-                                                class="w-40px h-40px rounded-pill" alt="">
-                                            <span class="status-indicator bg-grey"></span>
-                                        </div>
-                                        <div class="flex-1">
-                                            <span class="fw-semibold">Beatrix Diaz</span>
-                                            <span class="text-muted float-end fs-sm">Tue</span>
-                                            <div class="text-muted">What a strenuous career it is that I've chosen...
-                                            </div>
-                                        </div>
-                                    </a>
-
-                                    <a href="#" class="dropdown-item align-items-start text-wrap py-2">
-                                        <div class="status-indicator-container me-3">
-                                            <img src="{{ asset('vendor/images/demo/users/face25.jpg')}}"
-                                                class="w-40px h-40px rounded-pill" alt="">
-                                            <span class="status-indicator bg-danger"></span>
-                                        </div>
-                                        <div class="flex-1">
-                                            <span class="fw-semibold">Richard Vango</span>
-                                            <span class="text-muted float-end fs-sm">Mon</span>
-                                            <div class="text-muted">Other travelling salesmen live a life of luxury...
-                                            </div>
-                                        </div>
-                                    </a>
+                                a.navbar-nav-link.navbar-nav-link-icon.rounded-pill {
+                                    color: var(--navbar-active-color);
+                                    background-color: var(--navbar-active-bg);
+                                }
+                                </style>
+                                <?php $notifications = auth()->user()->unreadNotifications()->latest()->get(); ?>
+                                <div class="dropdown-menu-scrollable pb-2" id="notificationsList">
+                                    @include('partials.notifications_list', ['notifications' => $notifications])
                                 </div>
 
                                 <div class="d-flex border-top py-2 px-3">
-                                    <a href="#" class="text-body">
-                                        <i class="ph-checks me-1"></i>
-                                        Dismiss all
+                                    <a href="{{ route('admin.notifications.markAllRead') }}" class="text-body">
+                                        <i class="ph-checks me-1"></i> Dismiss all
                                     </a>
-                                    <a href="#" class="text-body ms-auto">
+                                    <a href="{{ route('admin.notifications.index') }}" class="text-body ms-auto">
                                         View all
                                         <i class="ph-arrow-circle-right ms-1"></i>
                                     </a>
                                 </div>
                             </div>
+
                         </li>
-
-
-
-                        <li class="nav-item ms-lg-2 d-none">
-                            <a href="#" class="navbar-nav-link navbar-nav-link-icon rounded-pill"
-                                data-bs-toggle="offcanvas" data-bs-target="#notifications">
-                                <i class="ph-bell"></i>
-                                <span
-                                    class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill mt-1 me-1">2</span>
-                            </a>
-                        </li>
-
 
                         <li class="nav-item nav-item-dropdown-lg dropdown ms-lg-2">
                             <a href="#" class="navbar-nav-link align-items-center rounded-pill p-1 bg_s"
@@ -587,29 +654,48 @@
                             </a>
 
                             <div class="dropdown-menu dropdown-menu-end">
-                                <a href="#" class="dropdown-item">
+                                <a href="{{route('admin.profile')}}" class="dropdown-item">
                                     <i class="ph-user-circle me-2"></i>
                                     My profile
                                 </a>
-                                <a href="#" class="dropdown-item">
-                                    <i class="ph-currency-circle-dollar me-2"></i>
-                                    My subscription
-                                </a>
-                                <a href="#" class="dropdown-item">
-                                    <i class="ph-shopping-cart me-2"></i>
-                                    My orders
-                                </a>
-                                <a href="#" class="dropdown-item">
-                                    <i class="ph-envelope-open me-2"></i>
-                                    My inbox
-                                    <span class="badge bg-primary rounded-pill ms-auto">26</span>
-                                </a>
                                 <div class="dropdown-divider"></div>
-                                <a href="#" class="dropdown-item">
+
+                                <a href="{{route('admin.connectGmail')}}" class="dropdown-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="ph-link-simple me-2" style="color:#0d6efd; font-size:18px;"></i>
+                                        Connect with Gmail
+                                    </div>
+                                    @if(auth()->user()->is_email_connected && auth()->user()->email_provider === 'gmail')
+                                    <span class="badge bg-success rounded-pill">Connected</span>
+                                    @endif
+                                </a>
+
+                                <a href="#" class="dropdown-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="ph-sun me-2" style="color: #f7b500; font-size: 18px;"></i>
+                                        Solar Tier
+                                    </div>
+                                    <span
+                                        class="badge bg-primary rounded-pill">{{ auth()->user()->tier_solar ?? '0' }}</span>
+                                </a>
+
+                                <a href="#" class="dropdown-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="ph-battery-charging me-2"
+                                            style="color: #28a745; font-size: 18px;"></i>
+                                        Battery Tier
+                                    </div>
+                                    <span
+                                        class="badge bg-success rounded-pill">{{ auth()->user()->tier_battery ?? '0' }}</span>
+                                </a>
+
+                                <div class="dropdown-divider"></div>
+                                <div class="dropdown-divider"></div>
+                                <a href="#" class="dropdown-item d-none">
                                     <i class="ph-gear me-2"></i>
                                     Account settings
                                 </a>
-                                <a href="#" class="dropdown-item">
+                                <a href="{{route('admin.logout')}}" class="dropdown-item">
                                     <i class="ph-sign-out me-2"></i>
                                     Logout
                                 </a>
@@ -660,15 +746,271 @@
     @yield('scripts')
 </body>
 <script>
-    $('#jsGrid1').DataTable({
-        responsive: true,
-        pageLength: 10,
-        order: [
-            [0, 'asc']
-        ],
-        dom: "<'row mb-3 d-flex justify-content-between'<'col-sm-6'l><'col-sm-6'f>>" +
-            "<'row'<'col-sm-12'tr>>" +
-            "<'row mt-3'<'col-sm-5'i><'col-sm-7'p>>"
+$('#jsGrid1').DataTable({
+    responsive: true,
+    pageLength: 10,
+    order: [
+        [0, 'asc']
+    ],
+    dom: "<'row mb-3 d-flex justify-content-between'<'col-sm-6'l><'col-sm-6'f>>" +
+        "<'row'<'col-sm-12'tr>>" +
+        "<'row mt-3'<'col-sm-5'i><'col-sm-7'p>>"
+});
+</script>
+
+<button id="notifyBtn" onclick="sendNotification()" style="display:none">Send Notification</button>
+@if(auth()->check() && auth()->user()->unreadNotifications->count() > 0 && !session('notif_shown'))
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // auto trigger notification
+    document.getElementById("notifyBtn").click();
+});
+</script>
+
+@php
+// mark it as shown in Laravel session
+session(['notif_shown' => true]);
+@endphp
+@endif
+<script>
+function sendNotification(count = {{ auth()->user()->unreadNotifications->count() }}) {
+    if (Notification.permission !== "granted") {
+        Notification.requestPermission();
+    }
+
+    if (Notification.permission === "granted") {
+        let notif = new Notification("Sunline Energy", {
+            body: "You have " + count + " new notification(s).",
+            icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌞</text></svg>" // replace with your ticket/task icon
+        });
+
+        // optional: play sound
+        let audio = new Audio("{{url('/')}}/not.mp3");
+        audio.play();
+
+        notif.onclick = function() {
+            window.location.href = "{{ url('/admin/notifications') }}";
+        };
+    }
+}
+</script>
+
+<script>
+function fetchNotifications() {
+    $.ajax({
+        url: "{{ route('admin.fetchNotification') }}",
+        type: "GET",
+        success: function(data) {
+            // update count
+            $('.notification').text(data.count);
+
+            // update notifications list
+            $('#notificationsList').html(data.html);
+            $('#notificationsListGlossAdmin').html(data.html);
+
+
+        },
+        error: function() {
+            console.error('Failed to fetch notifications.');
+        }
     });
-    </script>
+}
+
+// run every 10 seconds
+setInterval(fetchNotifications, 10000);
+
+// initial load
+fetchNotifications();
+
+
+$(document).on('click', '.delete-lead-image', function () {
+
+    const imageId = $(this).data('id');
+    const li = $(this).closest('li');
+    const tble = $(this).data('tble');
+
+    if (!confirm('Are you sure you want to delete this image?')) {
+        return;
+    }
+
+    $.ajax({
+        url: "{{route('admin.deleteImages')}}",
+        type: "POST",
+        data: {
+            _token: "{{ csrf_token() }}",
+            id: imageId,
+            tble:tble
+        },
+        success: function (res) {
+            if (res.status) {
+                li.remove(); // remove from UI
+            } else {
+                alert(res.message || 'Failed to delete image');
+            }
+        },
+        error: function () {
+            alert('Something went wrong');
+        }
+    });
+});
+
+
+// when the lead detail modal/offcanvas is shown
+$(document).on('shown.bs.modal shown.bs.offcanvas', '#leadDetailsModal', function() {
+    let leadId = $('.lead_id').val(); // get lead ID from hidden input
+    //alert(leadId);
+
+    if (!leadId) {
+        $(".call-logs").html('<div class="rk-call-empty text-danger">Lead details are missing.</div>');
+        return;
+    }
+
+    // show loading message
+    $(".call-logs").html('<div class="rk-call-empty text-info">Loading call logs...</div>');
+
+    $.ajax({
+        url: '/admin/zoomRecordings/' + leadId,
+        type: 'GET',
+        success: function(response) {
+            if (response.success) {
+                renderCallLogs(response.logs);
+            } else {
+                $(".call-logs").html('<div class="rk-call-empty text-danger">No call logs found.</div>');
+            }
+        },
+        error: function() {
+            $(".call-logs").html('<div class="rk-call-empty text-danger">Error fetching logs.</div>');
+        }
+    });
+});
+
+
+// Render logs into the <ul>
+function renderCallLogs(logs) {
+    logs = Array.isArray(logs) ? logs : [];
+
+    if (logs.length === 0) {
+        $(".call-logs").html('<div class="rk-call-empty text-muted">No call logs available</div>');
+        return;
+    }
+    // alert(logs.length);
+    let html = '';
+    logs.forEach(log => {
+        // status color based on call duration or type
+        let statusClass = 'text-muted';
+        if (log.duration > 0) statusClass = 'text-success'; // example: contacted
+        else statusClass = 'text-warning';
+
+        // direction: already provided by API
+        let rawDirection = (log.direction || '').toString();
+        let direction = rawDirection ? rawDirection.charAt(0).toUpperCase() + rawDirection.slice(1) : 'Unknown'; // Inbound/Outbound
+
+        // show other party number
+        let phoneNumber = direction === 'Inbound' ? log.caller_number : log.callee_number;
+
+        // convert duration from seconds to minutes:seconds
+        let minutes = Math.floor(log.duration / 60);
+        let seconds = log.duration % 60;
+        let durationFormatted = `${minutes}:${seconds.toString().padStart(2,'0')} min`;
+
+        // recording button
+        let btn = log.download_url ?
+        `<div class="audio-item">
+            <button class="btn btn-sm btn-outline-primary play-btn rk-play-btn"
+                    onclick="playRecording('${log.download_url}', '${log.recording_id}', this)">
+                🎵 Play
+            </button>
+            <audio class="zoom-player" controls style="display:none;"></audio>
+        </div>` :
+        `<div class="audio-item">
+            <button class="btn btn-sm btn-outline-secondary rk-play-btn" disabled>
+                No Recording
+            </button>
+            <audio class="zoom-player" controls style="display:none;"></audio>
+        </div>`;
+        
+        html += `
+        <div class="rk-call-card">
+            <div class="rk-call-left">
+                <span class="rk-call-icon ${statusClass}">📞</span>
+                <div>
+                    <div class="rk-call-time">
+                        <strong>${new Date(log.start_time).toLocaleString()}</strong>
+                        <span class="rk-duration">${durationFormatted}</span>
+                    </div>
+                    <div class="rk-call-type">${direction} • ${phoneNumber || 'N/A'}</div>
+                </div>
+            </div>
+            ${btn}
+        </div>
+    `;
+    });
+
+
+    $(".call-logs").html(html);
+}
+
+// create the audio player only once
+if (!document.getElementById('zoom-player')) {
+    const audio = document.createElement('audio');
+    audio.id = 'zoom-player';
+    audio.controls = true;
+    audio.style.display = 'none';
+    audio.style.marginTop = '10px';
+    document.body.appendChild(audio);
+}
+
+// function to play recording
+function playRecording(fullUrl, recording_id, button) {
+    const btn = $(button); // the clicked button
+    const container = btn.closest('.audio-item'); // wrapper div for this audio
+    const player = container.find('.zoom-player')[0];
+
+    // show loading state
+    const originalText = btn.text();
+    btn.text('Loading...');
+    btn.prop('disabled', true);
+
+    // pause all other players
+    $('.zoom-player').each(function() {
+        if (this !== player) {
+            this.pause();
+            $(this).hide();
+            $(this).closest('.audio-item').find('.play-btn').show().text('🎵 Play').prop('disabled', false);
+        }
+    });
+
+    $.ajax({
+        url: "{{route('admin.audioUrl')}}",
+        type: 'POST',
+        data: {
+            full_url: fullUrl,
+            recording_id: recording_id
+        },
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            btn.prop('disabled', false);
+            if (response.url) {
+                btn.hide();
+                player.src = response.url;
+                player.style.display = 'inline-block';
+                player.play().catch(err => console.error("Playback error:", err));
+            } else {
+                alert('Recording not available');
+                btn.text(originalText);
+            }
+        },
+        error: function() {
+            alert('Failed to fetch recording.');
+            btn.text(originalText);
+            btn.prop('disabled', false);
+        }
+    });
+}
+
+</script>
+
+
 </html>

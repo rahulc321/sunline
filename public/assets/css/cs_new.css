@@ -1,0 +1,370 @@
+.sunline-gloss-bar {
+    position: relative;
+    z-index: 1025;
+    padding: 0.45rem 0.75rem;
+    background:
+        radial-gradient(circle at 12% 35%, rgba(125, 211, 252, 0.42), transparent 32%),
+        linear-gradient(135deg, #0d6efd 0%, #0b5ed7 46%, #17324d 100%);
+    box-shadow:
+        0 12px 28px rgba(13, 110, 253, 0.24),
+        0 2px 0 rgba(255, 255, 255, 0.18) inset,
+        inset 0 -1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.sunline-gloss-bar.is-superadmin {
+    background:
+        radial-gradient(circle at 12% 35%, rgba(255, 198, 41, 0.42), transparent 32%),
+        linear-gradient(135deg, #0f766e 0%, #0b5f74 45%, #17324d 100%);
+    box-shadow:
+        0 12px 28px rgba(15, 48, 70, 0.24),
+        0 2px 0 rgba(255, 255, 255, 0.18) inset,
+        inset 0 -1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.sunline-gloss-content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 58px;
+    overflow: visible;
+    padding: 0.6rem 1rem;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 8px;
+    background:
+        linear-gradient(115deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.08) 42%, rgba(255, 255, 255, 0.18)),
+        rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 14px 32px rgba(10, 44, 64, 0.22),
+        0 0 0 1px rgba(12, 50, 68, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.42);
+    backdrop-filter: blur(12px);
+}
+
+.content-wrapper {
+    overflow: visible;
+}
+
+.content-inner {
+    position: relative;
+    z-index: auto;
+}
+
+.modal-backdrop,
+.offcanvas-backdrop {
+    z-index: 1990 !important;
+}
+
+.modal,
+.offcanvas {
+    z-index: 2000 !important;
+}
+
+.offcanvas {
+    border-radius: 0 !important;
+}
+
+.offcanvas .offcanvas-header,
+.offcanvas .offcanvas-body,
+.offcanvas .modal-content,
+.offcanvas .card {
+    border-radius: 0 !important;
+}
+
+.sunline-gloss-content::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 -38%;
+    width: 32%;
+    transform: skewX(-20deg);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.42), transparent);
+    animation: sunline-gloss-sheen 5.5s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.sunline-gloss-copy {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.sunline-gloss-copy {
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.sunline-gloss-copy strong {
+    display: block;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    letter-spacing: 0;
+}
+
+.sunline-gloss-copy small {
+    display: block;
+    margin-top: 0.08rem;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.74rem;
+    line-height: 1.1;
+}
+
+.sunline-gloss-eyebrow {
+    display: block;
+    margin-bottom: 0.1rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.sunline-gloss-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    color: #163047;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fff7c2, #ffc629 58%, #ff9d2e);
+    box-shadow:
+        0 8px 18px rgba(255, 184, 34, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.sunline-gloss-icon i {
+    font-size: 1.15rem;
+}
+
+.sunline-gloss-menu {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.sunline-gloss-actions {
+    gap: 0.5rem;
+    justify-content: flex-end;
+    position: relative;
+    z-index: 1030;
+    margin: 0;
+}
+
+.sunline-gloss-bell {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    color: #0d6efd;
+    text-decoration: none;
+    border-radius: 50%;
+    background: #eef4ff;
+    box-shadow: 0 8px 18px rgba(13, 110, 253, 0.12);
+}
+
+.sunline-gloss-bell .notification {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border-radius: 50% !important;
+    font-size: 0.68rem;
+    line-height: 1;
+}
+
+.sunline-gloss-bell:hover,
+.sunline-gloss-bell:focus {
+    color: #0b5ed7;
+    background: #e2edff;
+}
+
+.sunline-gloss-user {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 38px;
+    padding: 0.25rem 0.85rem 0.25rem 0.25rem;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #0d6efd, #38a8ff);
+    box-shadow: 0 10px 24px rgba(13, 110, 253, 0.22);
+}
+
+.sunline-gloss-user:hover,
+.sunline-gloss-user:focus {
+    color: #fff;
+    background: linear-gradient(135deg, #0b5ed7, #1f8fff);
+}
+
+.sunline-gloss-bar.is-superadmin .sunline-gloss-user {
+    background: linear-gradient(135deg, #0f8f8d, #39a870);
+    box-shadow: 0 10px 24px rgba(15, 143, 141, 0.22);
+}
+
+.sunline-gloss-bar.is-superadmin .sunline-gloss-user:hover,
+.sunline-gloss-bar.is-superadmin .sunline-gloss-user:focus {
+    background: linear-gradient(135deg, #0b7d7b, #2f9863);
+}
+
+.sunline-gloss-user .media {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 30px;
+    width: 30px !important;
+    min-width: 30px;
+    height: 30px !important;
+    min-height: 30px;
+    margin: 0 !important;
+    font-size: 0.82rem;
+    font-weight: 800;
+    line-height: 1;
+    border-radius: 50% !important;
+    color: #123047;
+    background: linear-gradient(135deg, #ffe66d, #ffb02e) !important;
+    box-shadow:
+        0 0 0 2px rgba(255, 255, 255, 0.78),
+        0 8px 16px rgba(255, 176, 46, 0.28);
+    overflow: hidden;
+}
+
+.sunline-gloss-user > span {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.82rem;
+}
+
+.sunline-gloss-actions .dropdown-menu[data-bs-popper] {
+    top: 100%;
+    right: 0 !important;
+    left: auto !important;
+    margin-top: 0.55rem;
+    z-index: 1035;
+}
+
+.sunline-gloss-actions .dropdown-menu {
+    overflow: visible;
+    color: #1f2937;
+    border: 1px solid rgba(15, 48, 70, 0.08);
+    border-radius: 8px;
+    box-shadow: 0 18px 44px rgba(15, 48, 70, 0.22);
+}
+
+.sunline-gloss-bell + .dropdown-menu {
+    width: min(400px, calc(100vw - 1.5rem));
+}
+
+.sunline-gloss-bell + .dropdown-menu > .d-flex:first-child {
+    background: linear-gradient(135deg, #f8fbff, #eef7f6);
+    border-bottom: 1px solid rgba(15, 48, 70, 0.08);
+}
+
+.sunline-gloss-bell + .dropdown-menu .dropdown-menu-scrollable {
+    max-height: 340px;
+}
+
+.sunline-gloss-bell + .dropdown-menu .dropdown-item {
+    gap: 0.75rem;
+    padding: 0.85rem 1rem !important;
+    border-bottom: 1px solid rgba(15, 48, 70, 0.06);
+}
+
+.sunline-gloss-bell + .dropdown-menu .dropdown-item:last-child {
+    border-bottom: 0;
+}
+
+.sunline-gloss-bell + .dropdown-menu .dropdown-item.bg-light {
+    background: #f5fbff !important;
+}
+
+.sunline-gloss-bell + .dropdown-menu .dropdown-item:hover {
+    background: #eef8f7 !important;
+}
+
+.sunline-gloss-bell + .dropdown-menu .status-indicator-container img {
+    box-shadow: 0 8px 18px rgba(15, 48, 70, 0.12);
+}
+
+.sunline-gloss-bell + .dropdown-menu .border-top {
+    background: #fff;
+}
+
+.sunline-hidden-navbar {
+    display: none !important;
+}
+
+@keyframes sunline-gloss-sheen {
+    0%,
+    58% {
+        left: -38%;
+    }
+    100% {
+        left: 118%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sunline-gloss-content::before {
+        animation: none;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .sunline-gloss-bar {
+        padding: 0.4rem 0.5rem;
+    }
+
+    .sunline-gloss-content {
+        align-items: center;
+        flex-direction: row;
+        gap: 0.75rem;
+        padding: 0.65rem 0.75rem;
+    }
+
+    .sunline-gloss-copy {
+        flex: 1;
+    }
+
+    .sunline-gloss-copy small,
+    .sunline-gloss-eyebrow {
+        display: none;
+    }
+
+    .sunline-gloss-actions {
+        gap: 0.35rem;
+    }
+
+    .sunline-gloss-bell {
+        width: 36px;
+        height: 36px;
+    }
+
+    .sunline-gloss-user {
+        min-height: 36px;
+        padding-right: 0.25rem;
+    }
+
+    .sunline-gloss-user > span {
+        display: none !important;
+    }
+}

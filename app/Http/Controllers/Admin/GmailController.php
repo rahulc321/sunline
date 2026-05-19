@@ -1,0 +1,340 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Lead;
+use App\Models\Email;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\User;
+use Google\Client;
+use Google\Service\Exception as GoogleServiceException;
+use Google\Service\Gmail;
+use Google\Service\Gmail\Message;
+use Auth;
+use DB;
+
+class GmailController extends Controller
+{
+    /**
+     * create google client using env directly
+     */
+    public function googleClient(User $user)
+    {
+        $clientId     = env('GOOGLE_CLIENT_ID');
+        $clientSecret = env('GOOGLE_CLIENT_SECRET');
+        $redirectUri  = env('GOOGLE_REDIRECT_URI');
+
+        abort_if(
+            !$clientId || !$clientSecret || !$redirectUri,
+            500,
+            'Google OAuth ENV variables are missing'
+        );
+
+        $client = new Client();
+        $client->setClientId($clientId);
+        $client->setClientSecret($clientSecret);
+        $client->setRedirectUri($redirectUri);
+        $client->setAccessType('offline');
+        $client->setPrompt('consent');
+        $client->setScopes([
+            'https://www.googleapis.com/auth/gmail.modify'
+        ]);
+
+        // set token if exists
+        if ($user->google_access_token) {
+            $client->setAccessToken($user->google_access_token);
+
+            if ($client->isAccessTokenExpired() && $user->google_refresh_token) {
+                $newToken = $client->fetchAccessTokenWithRefreshToken(
+                    $user->google_refresh_token
+                );
+
+                $user->update([
+                    'google_access_token' => $newToken['access_token']
+                ]);
+            }
+        }
+
+        return $client;
+    }
+
+
+    /**
+     * redirect lead to google oauth
+     */
+    public function gmailConnect(User $lead)
+    {
+        session(['gmail_lead_id' => $lead->id]);
+
+        return redirect(
+            $this->googleClient($lead)->createAuthUrl()
+        );
+    }
+
+    /**
+     * google oauth callback
+     */
+    public function gmailCallback(Request $request)
+    {
+        abort_if(!$request->code, 403);
+    
+        $user = Auth::user(); // current logged-in user
+        abort_if(!$user, 403);
+    
+        $client = $this->googleClient($user);
+        $token  = $client->fetchAccessTokenWithAuthCode($request->code);
+    
+        if (isset($token['error'])) {
+            return redirect()->back()
+                ->with('error', $token['error_description'] ?? 'Google auth failed');
+        }
+    
+        $client->setAccessToken($token);
+        $gmail = new \Google\Service\Gmail($client);
+    
+        // get connected gmail address
+        $profile = $gmail->users->getProfile('me');
+    
+        $user->update([
+            'email_provider'       => 'gmail',
+            'connected_email'      => $profile->getEmailAddress(),
+            'google_access_token'  => $token['access_token'],
+            'google_refresh_token' => $token['refresh_token'] ?? $user->google_refresh_token,
+            'is_email_connected'   => true,
+            'email_connected_at'   => now(),
+        ]);
+    
+        return redirect()
+            ->route('admin.connectGmail')
+            ->with('success', 'Gmail connected successfully');
+    }
+
+    /**
+     * manual sync inbox + sent emails
+     */
+    public function sync(Lead $lead)
+    {
+        abort_if(!$lead->is_email_connected, 403);
+
+        $gmail = new Gmail($this->googleClient($lead));
+        $user  = 'me';
+
+        foreach (['INBOX', 'SENT'] as $label) {
+
+            $messages = $gmail->users_messages->listUsersMessages($user, [
+                'labelIds'   => [$label],
+                'maxResults' => 50
+            ]);
+
+            if (!$messages->getMessages()) {
+                continue;
+            }
+
+            foreach ($messages->getMessages() as $msg) {
+
+                if (Email::where('message_id', $msg->getId())->exists()) {
+                    continue;
+                }
+
+                $message = $gmail->users_messages->get(
+                    $user,
+                    $msg->getId(),
+                    ['format' => 'full']
+                );
+
+                $headers = collect($message->getPayload()->getHeaders());
+
+                Email::create([
+                    'lead_id'    => $lead->id,
+                    'message_id' => $message->getId(),
+                    'thread_id'  => $message->getThreadId(),
+                    'from'       => optional($headers->firstWhere('name','From'))->value,
+                    'to'         => optional($headers->firstWhere('name','To'))->value,
+                    'subject'    => optional($headers->firstWhere('name','Subject'))->value,
+                    'body'       => $this->getBody($message),
+                    'label'      => $label,
+                    'email_date' => now(),
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Emails synced successfully'
+        ]);
+    }
+
+    /**
+     * extract email body
+     */
+    private function getBody($message)
+    {
+        $payload = $message->getPayload();
+
+        if ($payload->getBody()->getData()) {
+            return base64_decode(
+                str_replace(['-','_'], ['+','/'], $payload->getBody()->getData())
+            );
+        }
+
+        foreach ((array) $payload->getParts() as $part) {
+            if ($part->getMimeType() === 'text/plain' && $part->getBody()->getData()) {
+                return base64_decode(
+                    str_replace(['-','_'], ['+','/'], $part->getBody()->getData())
+                );
+            }
+        }
+
+        return null;
+    }
+
+    public function gmailDisconnect(User $lead)
+    {
+        $lead->update([
+            'google_access_token'  => null,
+            'google_refresh_token' => null,
+            'email_provider'       => null,
+            'connected_email'      => null,
+            'is_email_connected'   => false,
+            'email_connected_at'   => null,
+        ]);
+
+        return back()->with('success', 'Gmail disconnected successfully');
+    }
+
+    public function gmailReply(Request $request)
+    {
+        $request->validate([
+            'thread_id'  => 'required',
+            'message'    => 'required|string',
+            //'message_id' => 'required' // original gmail message_id
+        ]);
+
+        $user = auth()->user();
+
+        if (!$user || !$user->google_refresh_token) {
+            return $this->gmailReconnectResponse($user);
+        }
+
+        $client = new Client();
+        $client->setClientId(env('GOOGLE_CLIENT_ID'));
+        $client->setClientSecret(env('GOOGLE_CLIENT_SECRET'));
+        $client->setAccessType('offline');
+        $client->setAccessToken([
+            'access_token'  => $user->google_access_token,
+            'refresh_token' => $user->google_refresh_token,
+        ]);
+
+        if ($client->isAccessTokenExpired() || !$user->google_access_token) {
+            $token = $client->fetchAccessTokenWithRefreshToken($user->google_refresh_token);
+
+            if (isset($token['error'])) {
+                return $this->gmailReconnectResponse($user);
+            }
+
+            $user->update([
+                'google_access_token' => $token['access_token'],
+                'google_refresh_token' => $token['refresh_token'] ?? $user->google_refresh_token,
+            ]);
+
+            $client->setAccessToken([
+                'access_token'  => $token['access_token'],
+                'refresh_token' => $token['refresh_token'] ?? $user->google_refresh_token,
+                'expires_in'    => $token['expires_in'] ?? 3600,
+                'created'       => time(),
+            ]);
+        }
+
+        $service = new Gmail($client);
+
+        $boundary = 'sunline_gmail_' . md5(uniqid('', true));
+        $htmlBody = $request->message;
+        $plainBody = trim(strip_tags(str_replace(['<br>', '<br/>', '<br />'], "\n", $htmlBody)));
+
+        $rawMessage  = "From: {$user->connected_email}\r\n";
+        $rawMessage .= "To: arvinditc007@gmail.com\r\n";
+        $rawMessage .= "Subject: Re: Conversation\r\n";
+
+        if ($request->filled('message_id')) {
+            $rawMessage .= "In-Reply-To: {$request->message_id}\r\n";
+            $rawMessage .= "References: {$request->message_id}\r\n";
+        }
+
+        $rawMessage .= "MIME-Version: 1.0\r\n";
+        $rawMessage .= "Content-Type: multipart/alternative; boundary=\"{$boundary}\"\r\n\r\n";
+        $rawMessage .= "--{$boundary}\r\n";
+        $rawMessage .= "Content-Type: text/plain; charset=UTF-8\r\n";
+        $rawMessage .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+        $rawMessage .= $plainBody . "\r\n\r\n";
+        $rawMessage .= "--{$boundary}\r\n";
+        $rawMessage .= "Content-Type: text/html; charset=UTF-8\r\n";
+        $rawMessage .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+        $rawMessage .= $htmlBody . "\r\n\r\n";
+        $rawMessage .= "--{$boundary}--";
+
+        $mime = rtrim(strtr(base64_encode($rawMessage), '+/', '-_'), '=');
+
+        $msg = new Message();
+        $msg->setRaw($mime);
+        $msg->setThreadId($request->thread_id);
+
+        try {
+            $service->users_messages->send('me', $msg);
+        } catch (GoogleServiceException $e) {
+            $error = json_decode($e->getMessage(), true);
+            $reason = $error['error'] ?? null;
+
+            if ($reason === 'invalid_grant' || $e->getCode() === 401) {
+                return $this->gmailReconnectResponse($user);
+            }
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Gmail could not send this reply. Please try again.',
+            ], 500);
+        }
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Email sent via connected Gmail'
+        ]);
+    }
+
+    private function gmailReconnectResponse($user = null)
+    {
+        if ($user) {
+            $user->update([
+                'google_access_token'  => null,
+                'google_refresh_token' => null,
+                'email_provider'       => null,
+                'connected_email'      => null,
+                'is_email_connected'   => false,
+                'email_connected_at'   => null,
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Google session expired. Please reconnect Gmail.',
+            'reconnect_url' => $user ? route('admin.gmailConnect', $user->id) : route('admin.connectGmail'),
+        ], 401);
+    }
+
+    public function gmailReplyPage($threadId){
+        if (request('leadId')) {
+            return redirect()->route('admin.timeline', [
+                'leadId' => request('leadId'),
+                'thread' => $threadId,
+            ]);
+        }
+
+        $this->data['threadId'] = $threadId;
+        $this->data['lData'] = Lead::find(request('leadId'));
+        //dd($this->data['lData']);
+        return view('admin.leads.reply',$this->data);
+    }
+
+}

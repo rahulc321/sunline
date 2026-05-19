@@ -34,12 +34,23 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
+        'link',
+        'zoom_ext',
+        'open_solar_password',
+        'address',
         'password',
         'created_at',
         'updated_at',
         'deleted_at',
         'remember_token',
         'email_verified_at',
+        'is_email_connected',
+        'email_provider',
+        'connected_email',
+        'google_access_token',
+        'google_refresh_token',
+        'email_connected_at'
     ];
 
     public function __construct(array $attributes = [])
@@ -48,9 +59,9 @@ class User extends Authenticatable
         self::created(function (User $user) {
             $registrationRole = config('panel.registration_default_role');
 
-            if (!$user->roles()->get()->contains($registrationRole)) {
-                $user->roles()->attach($registrationRole);
-            }
+            // if (!$user->roles()->get()->contains($registrationRole)) {
+            //     $user->roles()->attach($registrationRole);
+            // }
         });
     }
 
