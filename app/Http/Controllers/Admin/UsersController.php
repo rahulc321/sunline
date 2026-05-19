@@ -10,8 +10,12 @@ use App\Role;
 use App\User;
 use Gate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 use Auth;
+use Google\Client;
+use Google\Service\Gmail;
+use Google\Service\Gmail\Message;
 
 class UsersController extends Controller
 {
@@ -47,21 +51,107 @@ class UsersController extends Controller
         //dd($request->all());
         $user = User::create($request->all());
         $user->roles()->sync($request->input('roles', []));
-        $this->data['data'] = $request->all();
-        //return view('admin.emails.signup', $this->data);
-        $email = $request->email;
-        //dd($email);
-        \Mail::send("admin.emails.signup", $this->data, function (
-            $message
-        ) use ($email) {
-            $message
-                ->to($email)
-                ->from("info@gmail.com")
-                ->subject("Account Created");
-        });
+        $mailResult = $this->sendAccountCreatedMailFromConnectedGmail(Auth::user(), $request->email, $request->all());
 
-        session()->flash('success', 'User has been successfully added!');   
+        session()->flash('success', 'User has been successfully added!');
+
+        if (! $mailResult['status']) {
+            session()->flash('warning', $mailResult['message']);
+        }
+
         return redirect()->route('admin.users.index');
+    }
+
+    private function sendAccountCreatedMailFromConnectedGmail(?User $admin, string $to, array $data): array
+    {
+        if (
+            ! $admin ||
+            ! $admin->is_email_connected ||
+            $admin->email_provider !== 'gmail' ||
+            ! $admin->connected_email ||
+            ! $admin->google_refresh_token
+        ) {
+            return [
+                'status' => false,
+                'message' => 'User was created, but account email was not sent. Please connect admin Gmail and try again.',
+            ];
+        }
+
+        try {
+            $clientId = env('GOOGLE_CLIENT_ID');
+            $clientSecret = env('GOOGLE_CLIENT_SECRET');
+
+            if (! $clientId || ! $clientSecret) {
+                return [
+                    'status' => false,
+                    'message' => 'User was created, but Google mail settings are missing.',
+                ];
+            }
+
+            $client = new Client();
+            $client->setClientId($clientId);
+            $client->setClientSecret($clientSecret);
+            $client->setAccessType('offline');
+            $client->setScopes(['https://www.googleapis.com/auth/gmail.modify']);
+            $client->setAccessToken([
+                'access_token' => $admin->google_access_token,
+                'refresh_token' => $admin->google_refresh_token,
+            ]);
+
+            if ($client->isAccessTokenExpired()) {
+                $token = $client->fetchAccessTokenWithRefreshToken($admin->google_refresh_token);
+
+                if (isset($token['error'])) {
+                    return [
+                        'status' => false,
+                        'message' => 'User was created, but Gmail session expired. Please reconnect admin Gmail.',
+                    ];
+                }
+
+                $admin->update([
+                    'google_access_token' => $token['access_token'],
+                    'google_refresh_token' => $token['refresh_token'] ?? $admin->google_refresh_token,
+                ]);
+
+                $client->setAccessToken([
+                    'access_token' => $token['access_token'],
+                    'refresh_token' => $token['refresh_token'] ?? $admin->google_refresh_token,
+                ]);
+            }
+
+            $subject = 'Account Created';
+            $htmlBody = view('admin.emails.signup', [
+                'data' => $data,
+            ])->render();
+
+            $rawMessage = implode("\r\n", [
+                'From: ' . $admin->connected_email,
+                'To: ' . $to,
+                'Subject: =?UTF-8?B?' . base64_encode($subject) . '?=',
+                'MIME-Version: 1.0',
+                'Content-Type: text/html; charset=UTF-8',
+                'Content-Transfer-Encoding: base64',
+                '',
+                chunk_split(base64_encode($htmlBody)),
+            ]);
+
+            $message = new Message();
+            $message->setRaw(rtrim(strtr(base64_encode($rawMessage), '+/', '-_'), '='));
+
+            (new Gmail($client))->users_messages->send('me', $message);
+
+            return ['status' => true];
+        } catch (\Throwable $e) {
+            Log::error('Account created Gmail send failed: ' . $e->getMessage(), [
+                'admin_id' => $admin->id ?? null,
+                'to' => $to,
+            ]);
+
+            return [
+                'status' => false,
+                'message' => 'User was created, but account email could not be sent from connected Gmail.',
+            ];
+        }
     }
 
     public function edit(User $user)
