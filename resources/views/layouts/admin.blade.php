@@ -175,8 +175,124 @@
         <!-- Main content -->
         <div class="content-wrapper">
 
+            <div class="sunline-gloss-bar">
+                <div class="sunline-gloss-content">
+                    <div class="sunline-gloss-copy">
+                        <button type="button" class="sunline-gloss-menu sidebar-mobile-main-toggle d-lg-none">
+                            <i class="ph-list"></i>
+                        </button>
+                        <span class="sunline-gloss-icon"><i class="ph-sun-horizon"></i></span>
+                        <div>
+                            <span class="sunline-gloss-eyebrow">Sunline Workspace</span>
+                            <strong>Salses CRM</strong>
+                            <small>{{ env('TAG_LINE') }}</small>
+                        </div>
+                    </div>
+                    <ul class="sunline-gloss-actions nav hstack gap-sm-1 flex-row justify-content-end">
+                        <li class="nav-item nav-item-dropdown-lg dropdown">
+                            <a href="#" class="sunline-gloss-bell" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                                <i class="ph-bell"></i>
+                                <span class="badge bg-yellow text-black position-absolute top-0 end-0 translate-middle-top zindex-1 rounded-pill notification">{{ auth()->user()->unreadNotifications->count() }}</span>
+                            </a>
+
+                            <div class="dropdown-menu dropdown-menu-end wmin-lg-400 p-0">
+                                <div class="d-flex align-items-center p-3">
+                                    <h6 class="mb-0">Notifications</h6>
+                                    <div class="ms-auto">
+                                        <a href="{{ route('admin.notifications.markAllRead') }}" class="text-body">
+                                            <i class="ph-checks"></i>
+                                        </a>
+                                        <a href="#search_notifications_gloss_admin" class="collapsed text-body ms-2" data-bs-toggle="collapse">
+                                            <i class="ph-magnifying-glass"></i>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="collapse" id="search_notifications_gloss_admin">
+                                    <div class="px-3 mb-2">
+                                        <div class="form-control-feedback form-control-feedback-start">
+                                            <input type="text" class="form-control" placeholder="Search notifications" id="searchNotificationInputGlossAdmin">
+                                            <div class="form-control-feedback-icon">
+                                                <i class="ph-magnifying-glass"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <?php $notifications = auth()->user()->unreadNotifications()->latest()->get(); ?>
+                                <div class="dropdown-menu-scrollable pb-2" id="notificationsListGlossAdmin">
+                                    @include('partials.notifications_list', ['notifications' => $notifications])
+                                </div>
+
+                                <div class="d-flex border-top py-2 px-3">
+                                    <a href="{{ route('admin.notifications.markAllRead') }}" class="text-body">
+                                        <i class="ph-checks me-1"></i> Dismiss all
+                                    </a>
+                                    <a href="{{ route('admin.notifications.index') }}" class="text-body ms-auto">
+                                        View all
+                                        <i class="ph-arrow-circle-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+
+                        <li class="nav-item nav-item-dropdown-lg dropdown">
+                            <a href="#" class="sunline-gloss-user" data-bs-toggle="dropdown">
+                                <div class="media media-danger">
+                                    @php
+                                    $firstLetter = strtoupper(substr(\Auth::user()->name, 0, 1));
+                                    @endphp
+                                    {{ $firstLetter }}
+                                </div>
+                                <span>Hi, <span>{{ @\Auth::user()->name }}</span></span>
+                            </a>
+
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a href="{{route('admin.profile')}}" class="dropdown-item">
+                                    <i class="ph-user-circle me-2"></i>
+                                    My profile
+                                </a>
+                                <div class="dropdown-divider"></div>
+
+                                <a href="{{route('admin.connectGmail')}}" class="dropdown-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="ph-link-simple me-2" style="color:#0d6efd; font-size:18px;"></i>
+                                        Connect with Gmail
+                                    </div>
+                                    @if(auth()->user()->is_email_connected && auth()->user()->email_provider === 'gmail')
+                                    <span class="badge bg-success rounded-pill">Connected</span>
+                                    @endif
+                                </a>
+
+                                <a href="#" class="dropdown-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="ph-sun me-2" style="color: #f7b500; font-size: 18px;"></i>
+                                        Solar Tier
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">{{ auth()->user()->tier_solar ?? '0' }}</span>
+                                </a>
+
+                                <a href="#" class="dropdown-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="ph-battery-charging me-2" style="color: #28a745; font-size: 18px;"></i>
+                                        Battery Tier
+                                    </div>
+                                    <span class="badge bg-success rounded-pill">{{ auth()->user()->tier_battery ?? '0' }}</span>
+                                </a>
+
+                                <div class="dropdown-divider"></div>
+                                <a href="{{route('admin.logout')}}" class="dropdown-item">
+                                    <i class="ph-sign-out me-2"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
             <!-- Main navbar -->
-            <div class="navbar navbar-expand-lg navbar-static shadow">
+            <div class="navbar navbar-expand-lg navbar-static shadow sunline-hidden-navbar">
                 <div class="container-fluid">
                     <div class="d-flex d-lg-none me-2">
                         <button type="button" class="navbar-toggler sidebar-mobile-main-toggle rounded-pill">
@@ -690,6 +806,7 @@ function fetchNotifications() {
 
             // update notifications list
             $('#notificationsList').html(data.html);
+            $('#notificationsListGlossAdmin').html(data.html);
 
 
         },

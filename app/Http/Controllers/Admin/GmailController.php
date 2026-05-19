@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\User;
 use Google\Client;
+use Google\Service\Exception as GoogleServiceException;
 use Google\Service\Gmail;
 use Google\Service\Gmail\Message;
 use Auth;
@@ -206,8 +207,6 @@ class GmailController extends Controller
 
     public function gmailReply(Request $request)
     {
-
-       
         $request->validate([
             'thread_id'  => 'required',
             'message'    => 'required|string',
@@ -215,44 +214,88 @@ class GmailController extends Controller
         ]);
 
         $user = auth()->user();
-        //dd(1);
-        /* 1️⃣ Setup Google Client */
+
+        if (!$user || !$user->google_refresh_token) {
+            return $this->gmailReconnectResponse($user);
+        }
+
         $client = new Client();
         $client->setClientId(env('GOOGLE_CLIENT_ID'));
         $client->setClientSecret(env('GOOGLE_CLIENT_SECRET'));
+        $client->setAccessType('offline');
         $client->setAccessToken([
             'access_token'  => $user->google_access_token,
             'refresh_token' => $user->google_refresh_token,
         ]);
 
-        /* 2️⃣ Refresh token if expired */
-        // if ($client->isAccessTokenExpired()) {
-        //     $token = $client->fetchAccessTokenWithRefreshToken($user->google_refresh_token);
-        //     $user->update([
-        //         'google_access_token' => $token['access_token']
-        //     ]);
-        // }
+        if ($client->isAccessTokenExpired() || !$user->google_access_token) {
+            $token = $client->fetchAccessTokenWithRefreshToken($user->google_refresh_token);
 
-        /* 3️⃣ Gmail service */
+            if (isset($token['error'])) {
+                return $this->gmailReconnectResponse($user);
+            }
+
+            $user->update([
+                'google_access_token' => $token['access_token'],
+                'google_refresh_token' => $token['refresh_token'] ?? $user->google_refresh_token,
+            ]);
+
+            $client->setAccessToken([
+                'access_token'  => $token['access_token'],
+                'refresh_token' => $token['refresh_token'] ?? $user->google_refresh_token,
+                'expires_in'    => $token['expires_in'] ?? 3600,
+                'created'       => time(),
+            ]);
+        }
+
         $service = new Gmail($client);
 
-        /* 4️⃣ Build RAW email (RFC 2822) */
+        $boundary = 'sunline_gmail_' . md5(uniqid('', true));
+        $htmlBody = $request->message;
+        $plainBody = trim(strip_tags(str_replace(['<br>', '<br/>', '<br />'], "\n", $htmlBody)));
+
         $rawMessage  = "From: {$user->connected_email}\r\n";
         $rawMessage .= "To: arvinditc007@gmail.com\r\n";
         $rawMessage .= "Subject: Re: Conversation\r\n";
-        $rawMessage .= "In-Reply-To: {$request->message_id}\r\n";
-        $rawMessage .= "References: {$request->message_id}\r\n\r\n";
-        $rawMessage .= $request->message;
 
-        /* 5️⃣ Encode message */
+        if ($request->filled('message_id')) {
+            $rawMessage .= "In-Reply-To: {$request->message_id}\r\n";
+            $rawMessage .= "References: {$request->message_id}\r\n";
+        }
+
+        $rawMessage .= "MIME-Version: 1.0\r\n";
+        $rawMessage .= "Content-Type: multipart/alternative; boundary=\"{$boundary}\"\r\n\r\n";
+        $rawMessage .= "--{$boundary}\r\n";
+        $rawMessage .= "Content-Type: text/plain; charset=UTF-8\r\n";
+        $rawMessage .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+        $rawMessage .= $plainBody . "\r\n\r\n";
+        $rawMessage .= "--{$boundary}\r\n";
+        $rawMessage .= "Content-Type: text/html; charset=UTF-8\r\n";
+        $rawMessage .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+        $rawMessage .= $htmlBody . "\r\n\r\n";
+        $rawMessage .= "--{$boundary}--";
+
         $mime = rtrim(strtr(base64_encode($rawMessage), '+/', '-_'), '=');
 
         $msg = new Message();
         $msg->setRaw($mime);
         $msg->setThreadId($request->thread_id);
 
-        /* 6️⃣ Send email */
-        $service->users_messages->send('me', $msg);
+        try {
+            $service->users_messages->send('me', $msg);
+        } catch (GoogleServiceException $e) {
+            $error = json_decode($e->getMessage(), true);
+            $reason = $error['error'] ?? null;
+
+            if ($reason === 'invalid_grant' || $e->getCode() === 401) {
+                return $this->gmailReconnectResponse($user);
+            }
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Gmail could not send this reply. Please try again.',
+            ], 500);
+        }
 
         return response()->json([
             'status'  => true,
@@ -260,7 +303,34 @@ class GmailController extends Controller
         ]);
     }
 
+    private function gmailReconnectResponse($user = null)
+    {
+        if ($user) {
+            $user->update([
+                'google_access_token'  => null,
+                'google_refresh_token' => null,
+                'email_provider'       => null,
+                'connected_email'      => null,
+                'is_email_connected'   => false,
+                'email_connected_at'   => null,
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Google session expired. Please reconnect Gmail.',
+            'reconnect_url' => $user ? route('admin.gmailConnect', $user->id) : route('admin.connectGmail'),
+        ], 401);
+    }
+
     public function gmailReplyPage($threadId){
+        if (request('leadId')) {
+            return redirect()->route('admin.timeline', [
+                'leadId' => request('leadId'),
+                'thread' => $threadId,
+            ]);
+        }
+
         $this->data['threadId'] = $threadId;
         $this->data['lData'] = Lead::find(request('leadId'));
         //dd($this->data['lData']);

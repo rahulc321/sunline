@@ -37,7 +37,39 @@ Route::prefix('superadmin')->name('superadmin.')->middleware(['superadmin.auth']
     Route::any('google/callback', [App\Http\Controllers\Super\GmailController::class, 'gmailCallback'])
         ->name('gmailCallback');
 
-    Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+    Route::match(['get', 'post'], 'logout', [LoginController::class, 'logout'])->name('logout');
+
+    Route::any('/profile', function(){
+        $user = auth('superadmin')->user();
+        return view('profile', compact('user'));
+    })->name('profile');
+
+    Route::post('updateProfile', function(\Illuminate\Http\Request $request){
+        $user = auth('superadmin')->user();
+
+        $validated = $request->validate([
+            'name'    => 'required|string|max:255',
+            'phone'   => 'required|string|max:20',
+            'address' => 'nullable|string|max:500',
+            'zoom_ext' => 'nullable|string|max:500',
+            'open_solar_password' => 'nullable|string|max:500',
+            'password' => 'nullable|string|max:500',
+        ]);
+
+        $user->name = $validated['name'];
+        $user->phone = $validated['phone'];
+        $user->address = $validated['address'] ?? null;
+        $user->zoom_ext = $validated['zoom_ext'] ?? null;
+        $user->open_solar_password = $validated['open_solar_password'] ?? null;
+
+        if ($request->filled('password')) {
+            $user->password = \Hash::make($validated['password']);
+        }
+
+        $user->save();
+
+        return redirect()->back()->with('message', 'Profile updated successfully.');
+    })->name('updateProfile');
 
     Route::get('sales', [App\Http\Controllers\Super\LeadInboxController::class, 'sales'])->name('sales');
     Route::get('listLeads', [App\Http\Controllers\Super\LeadInboxController::class, 'listLeads'])->name('listLeads');

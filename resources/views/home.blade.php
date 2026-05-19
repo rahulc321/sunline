@@ -14,6 +14,7 @@
         --sun-green: #16a34a;
         --sun-red: #dc2626;
         --sun-panel: rgba(255, 255, 255, 0.88);
+        --sun-glass-line: rgba(255, 255, 255, 0.68);
         color: var(--sun-ink);
         font-family: "Inter", "Segoe UI", sans-serif;
         padding-left: 0 !important;
@@ -21,10 +22,13 @@
     }
 
     .sunline-dashboard .premium-shell {
+        position: relative;
+        overflow: hidden;
         background:
-            radial-gradient(circle at 18% 12%, rgba(37, 99, 235, 0.14), transparent 32%),
-            radial-gradient(circle at 88% 2%, rgba(245, 158, 11, 0.16), transparent 30%),
-            linear-gradient(180deg, #f7faff 0%, #eef5ff 42%, #ffffff 100%);
+            radial-gradient(circle at 16% 8%, rgba(56, 168, 255, 0.26), transparent 30%),
+            radial-gradient(circle at 86% 4%, rgba(245, 158, 11, 0.20), transparent 28%),
+            radial-gradient(circle at 64% 74%, rgba(20, 184, 166, 0.15), transparent 34%),
+            linear-gradient(180deg, #f7fbff 0%, #ecf5ff 44%, #ffffff 100%);
         border: 1px solid rgba(219, 227, 239, 0.85);
         border-left: 0;
         border-right: 0;
@@ -33,19 +37,66 @@
         box-shadow: 0 20px 55px rgba(21, 32, 51, 0.10);
     }
 
+    .sunline-dashboard .premium-shell:before,
+    .sunline-dashboard .premium-shell:after {
+        content: "";
+        position: absolute;
+        pointer-events: none;
+    }
+
+    .sunline-dashboard .premium-shell:before {
+        inset: 0;
+        background:
+            linear-gradient(115deg, rgba(255, 255, 255, 0.48), transparent 25%, transparent 72%, rgba(255, 255, 255, 0.42)),
+            repeating-linear-gradient(90deg, rgba(37, 99, 235, 0.05) 0 1px, transparent 1px 42px);
+        opacity: .72;
+    }
+
+    .sunline-dashboard .premium-shell:after {
+        top: -160px;
+        right: -120px;
+        width: 390px;
+        height: 390px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(56, 168, 255, 0.28), rgba(96, 165, 250, 0.12) 46%, transparent 70%);
+        filter: blur(3px);
+    }
+
+    .sunline-dashboard .premium-shell > * {
+        position: relative;
+        z-index: 1;
+    }
+
     .sunline-dashboard .hero-panel {
         position: relative;
         overflow: hidden;
         min-height: 210px;
         padding: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
         border-radius: 18px;
         background:
-            linear-gradient(135deg, rgba(18, 34, 68, 0.98), rgba(37, 99, 235, 0.88) 54%, rgba(15, 118, 110, 0.88)),
+            radial-gradient(circle at 16% 20%, rgba(125, 211, 252, 0.38), transparent 28%),
+            radial-gradient(circle at 84% 0%, rgba(255, 255, 255, 0.22), transparent 34%),
+            linear-gradient(135deg, rgba(18, 34, 68, 0.98), rgba(37, 99, 235, 0.9) 54%, rgba(14, 116, 144, 0.9)),
             linear-gradient(90deg, rgba(255, 255, 255, 0.10) 1px, transparent 1px),
             linear-gradient(180deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-        background-size: auto, 38px 38px, 38px 38px;
+        background-size: auto, auto, auto, 38px 38px, 38px 38px;
         color: #ffffff;
-        box-shadow: 0 24px 55px rgba(23, 37, 84, 0.24);
+        box-shadow:
+            0 24px 55px rgba(23, 37, 84, 0.26),
+            inset 0 1px 0 rgba(255, 255, 255, 0.28),
+            inset 0 -1px 0 rgba(255, 255, 255, 0.14);
+    }
+
+    .sunline-dashboard .hero-panel:before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 -44%;
+        width: 34%;
+        transform: skewX(-18deg);
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.34), transparent);
+        animation: dashboard-gloss-sheen 6.5s ease-in-out infinite;
+        pointer-events: none;
     }
 
     .sunline-dashboard .hero-panel:after {
@@ -64,6 +115,9 @@
         background-size: 118px auto;
         opacity: .9;
         transform: rotate(-4deg);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.32),
+            0 24px 42px rgba(6, 25, 73, 0.22);
     }
 
     .sunline-dashboard .hero-content {
@@ -115,10 +169,15 @@
     .sunline-dashboard .hero-stat {
         min-width: 130px;
         padding: 11px 14px;
-        border: 1px solid rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.24);
         border-radius: 14px;
-        background: rgba(255, 255, 255, 0.12);
-        backdrop-filter: blur(10px);
+        background:
+            linear-gradient(145deg, rgba(255, 255, 255, 0.20), rgba(255, 255, 255, 0.08)),
+            rgba(255, 255, 255, 0.12);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.28),
+            0 14px 28px rgba(6, 25, 73, 0.14);
+        backdrop-filter: blur(12px);
     }
 
     .sunline-dashboard .hero-stat span {
@@ -142,10 +201,49 @@
     .sunline-dashboard .filter-panel,
     .sunline-dashboard .metric-card,
     .sunline-dashboard .insight-panel {
-        border: 1px solid var(--sun-border) !important;
+        position: relative;
+        overflow: hidden;
+        border: 1px dashed rgba(56, 168, 255, 0.72) !important;
         border-radius: 16px !important;
-        background: var(--sun-panel);
-        box-shadow: 0 14px 34px rgba(21, 32, 51, 0.08) !important;
+        background:
+            linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(248, 251, 255, 0.76)),
+            var(--sun-panel);
+        box-shadow:
+            0 18px 42px rgba(21, 32, 51, 0.10) !important,
+            inset 0 1px 0 var(--sun-glass-line);
+        backdrop-filter: blur(14px);
+    }
+
+    .sunline-dashboard .punch-card:after,
+    .sunline-dashboard .filter-panel:after,
+    .sunline-dashboard .insight-panel:after {
+        content: "";
+        position: absolute;
+        inset: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.58);
+        border-radius: 12px;
+        pointer-events: none;
+    }
+
+    .sunline-dashboard .punch-card:before,
+    .sunline-dashboard .filter-panel:before,
+    .sunline-dashboard .metric-card:before,
+    .sunline-dashboard .insight-panel:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(120deg, rgba(255, 255, 255, 0.68), transparent 34%),
+            radial-gradient(circle at 100% 0%, rgba(56, 168, 255, 0.12), transparent 34%);
+        pointer-events: none;
+    }
+
+    .sunline-dashboard .punch-card > *,
+    .sunline-dashboard .filter-panel > *,
+    .sunline-dashboard .metric-card > *,
+    .sunline-dashboard .insight-panel > * {
+        position: relative;
+        z-index: 1;
     }
 
     .sunline-dashboard .punch-card {
@@ -176,18 +274,19 @@
         min-height: 38px;
         border-radius: 11px;
         font-weight: 700;
-        box-shadow: none !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
     }
 
     .sunline-dashboard .btn-punch-in {
         border: 0;
         background: linear-gradient(135deg, #16a34a, #0f766e);
         color: #ffffff;
+        box-shadow: 0 12px 24px rgba(22, 163, 74, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.26) !important;
     }
 
     .sunline-dashboard .btn-punch-out {
         border: 1px solid rgba(220, 38, 38, 0.22);
-        background: #fff7f7;
+        background: linear-gradient(135deg, #fffafa, #fff1f1);
         color: var(--sun-red);
     }
 
@@ -229,11 +328,12 @@
     .sunline-dashboard .filter-panel .form-select {
         height: 38px;
         min-height: 38px;
-        border-color: #d7dfec;
+        border-color: rgba(215, 223, 236, 0.86);
         border-radius: 10px;
+        background-color: rgba(255, 255, 255, 0.82);
         color: var(--sun-ink);
         font-size: 13px;
-        box-shadow: none;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
     }
 
     .sunline-dashboard .filter-panel .form-control:focus,
@@ -244,8 +344,9 @@
 
     .sunline-dashboard .btn-apply {
         border: 0;
-        background: linear-gradient(135deg, var(--sun-blue), var(--sun-teal));
+        background: linear-gradient(135deg, var(--sun-blue), #38a8ff);
         color: #ffffff;
+        box-shadow: 0 12px 24px rgba(37, 99, 235, 0.20), inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
     }
 
     .sunline-dashboard .filter-actions {
@@ -255,16 +356,36 @@
     }
 
     .sunline-dashboard .metric-card {
-        position: relative;
-        overflow: hidden;
         min-height: 174px;
         padding: 20px;
-        transition: transform .18s ease, box-shadow .18s ease;
+        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
     }
 
     .sunline-dashboard .metric-card:hover {
         transform: translateY(-3px);
-        box-shadow: 0 18px 42px rgba(21, 32, 51, 0.12) !important;
+        border-color: rgba(37, 99, 235, 0.82) !important;
+        box-shadow:
+            0 22px 48px rgba(21, 32, 51, 0.14) !important,
+            inset 0 1px 0 #ffffff;
+    }
+
+    .sunline-dashboard .metric-card:after {
+        content: "";
+        position: absolute;
+        top: -68%;
+        left: -46%;
+        width: 38%;
+        height: 220%;
+        background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.58), transparent);
+        transform: rotate(14deg);
+        opacity: 0;
+        pointer-events: none;
+        transition: left .46s ease, opacity .24s ease;
+    }
+
+    .sunline-dashboard .metric-card:hover:after {
+        left: 112%;
+        opacity: 1;
     }
 
     .sunline-dashboard .metric-top {
@@ -313,7 +434,9 @@
         height: 48px;
         border-radius: 13px;
         color: #ffffff;
-        box-shadow: 0 12px 26px rgba(21, 32, 51, .18);
+        box-shadow:
+            0 12px 26px rgba(21, 32, 51, .18),
+            inset 0 1px 0 rgba(255, 255, 255, 0.36);
     }
 
     .sunline-dashboard .tile-blue { background: linear-gradient(135deg, #2563eb, #60a5fa); }
@@ -330,14 +453,18 @@
         margin-top: 18px;
         overflow: hidden;
         border-radius: 999px;
-        background: #edf2f7;
+        background: rgba(226, 232, 240, 0.78);
+        box-shadow: inset 0 1px 2px rgba(21, 32, 51, 0.08);
     }
 
     .sunline-dashboard .mini-meter span {
         display: block;
         height: 100%;
         border-radius: inherit;
-        background: linear-gradient(90deg, var(--sun-blue), var(--sun-teal), var(--sun-gold));
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.42), transparent),
+            linear-gradient(90deg, var(--sun-blue), #38a8ff, var(--sun-gold));
+        box-shadow: 0 0 18px rgba(56, 168, 255, 0.26);
     }
 
     .sunline-dashboard .insight-panel {
@@ -360,13 +487,15 @@
         height: 10px;
         overflow: hidden;
         border-radius: 999px;
-        background: #eef2f7;
+        background: rgba(238, 242, 247, 0.9);
+        box-shadow: inset 0 1px 2px rgba(21, 32, 51, 0.08);
     }
 
     .sunline-dashboard .pipeline-bar span {
         display: block;
         height: 100%;
         border-radius: inherit;
+        box-shadow: 0 0 18px rgba(56, 168, 255, 0.24);
     }
 
     .sunline-dashboard .source-list {
@@ -382,8 +511,10 @@
         gap: 12px;
         padding: 12px;
         border-radius: 13px;
-        background: #f8fbff;
-        border: 1px solid #e5ebf5;
+        background:
+            linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(248, 251, 255, 0.78));
+        border: 1px solid rgba(229, 235, 245, 0.9);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.74);
     }
 
     .sunline-dashboard .source-dot {
@@ -401,6 +532,26 @@
     .sunline-dashboard .source-meta {
         color: var(--sun-muted);
         font-size: 12px;
+    }
+
+    @keyframes dashboard-gloss-sheen {
+        0%,
+        54% {
+            left: -44%;
+        }
+        100% {
+            left: 118%;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .sunline-dashboard .hero-panel:before {
+            animation: none;
+        }
+
+        .sunline-dashboard .metric-card:after {
+            transition: none;
+        }
     }
 
     @media (max-width: 1199.98px) {

@@ -237,12 +237,30 @@ class GmailController extends Controller
         $service = new Gmail($client);
 
         /* 4️⃣ Build RAW email (RFC 2822) */
+        $boundary = 'sunline_gmail_' . md5(uniqid('', true));
+        $htmlBody = $request->message;
+        $plainBody = trim(strip_tags(str_replace(['<br>', '<br/>', '<br />'], "\n", $htmlBody)));
+
         $rawMessage  = "From: {$user->connected_email}\r\n";
         $rawMessage .= "To: arvinditc007@gmail.com\r\n";
         $rawMessage .= "Subject: Re: Conversation\r\n";
-        $rawMessage .= "In-Reply-To: {$request->message_id}\r\n";
-        $rawMessage .= "References: {$request->message_id}\r\n\r\n";
-        $rawMessage .= $request->message;
+
+        if ($request->filled('message_id')) {
+            $rawMessage .= "In-Reply-To: {$request->message_id}\r\n";
+            $rawMessage .= "References: {$request->message_id}\r\n";
+        }
+
+        $rawMessage .= "MIME-Version: 1.0\r\n";
+        $rawMessage .= "Content-Type: multipart/alternative; boundary=\"{$boundary}\"\r\n\r\n";
+        $rawMessage .= "--{$boundary}\r\n";
+        $rawMessage .= "Content-Type: text/plain; charset=UTF-8\r\n";
+        $rawMessage .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+        $rawMessage .= $plainBody . "\r\n\r\n";
+        $rawMessage .= "--{$boundary}\r\n";
+        $rawMessage .= "Content-Type: text/html; charset=UTF-8\r\n";
+        $rawMessage .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+        $rawMessage .= $htmlBody . "\r\n\r\n";
+        $rawMessage .= "--{$boundary}--";
 
         /* 5️⃣ Encode message */
         $mime = rtrim(strtr(base64_encode($rawMessage), '+/', '-_'), '=');

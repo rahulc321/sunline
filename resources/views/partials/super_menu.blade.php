@@ -221,8 +221,17 @@ div#jsGrid1_filter {
     box-shadow: 0 8px 24px rgba(16, 32, 51, 0.08);
 }
 
-.sidebar-section {
-    font-family: "Inter", "Segoe UI", sans-serif;
+.sidebar-content,
+.sidebar-content .sidebar-section,
+.sidebar-content .sidebar-user-block,
+.sidebar-content .sidebar-section-title,
+.sidebar-content .nav-sidebar,
+.sidebar-content .nav-item,
+.sidebar-content .nav-link,
+.sidebar-content .nav-link span,
+.sidebar-content .nav-group-sub,
+.sidebar-content .nav-group-sub .nav-link {
+    font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif !important;
 }
 
 .sidebar-user-block {

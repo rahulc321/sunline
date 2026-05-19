@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends(auth('superadmin')->check() ? 'layouts.super' : 'layouts.admin')
 @section('content')
 <div class="page-header">
     <div class="page-header-content d-lg-flex">
@@ -22,7 +22,7 @@
         <div class="col-xl-12">
             <div class="card form_1">
                 <div class="card-body">
-                    <form action="{{ route("admin.updateProfile") }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ auth('superadmin')->check() ? route('superadmin.updateProfile') : route('admin.updateProfile') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <!-- name -->
